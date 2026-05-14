@@ -166,14 +166,15 @@
             });
     }
     
-    function addToCart(id, name, price) {
-        const existing = cart.find(item => item.id === id);
-        if (existing) {
-            existing.quantity++;
-        } else {
-            cart.push({id, name, price, quantity: 1});
-        }
-        updateCart();
+  function addToCart(id, name, price) {
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({id, name, price, quantity: 1});
+    }
+    updateCart();
+}
         
         const btn = event.target.closest('button');
         btn.innerHTML = '<i class="fas fa-check"></i>';
