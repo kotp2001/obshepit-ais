@@ -159,6 +159,7 @@ def api_pay_order(request):
         order.payment_method = payment_method
         order.save()
         
+        # Освобождаем стол
         table = order.table
         table.status = 'free'
         table.save()
