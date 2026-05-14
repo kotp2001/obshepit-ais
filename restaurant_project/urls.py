@@ -1,11 +1,14 @@
 from django.contrib import admin
-from django.urls import path
-from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("<h1>АИС Общепит</h1><p>Сервер работает!</p>")
+from django.urls import path, include
+from restaurant import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home),
+    path('', views.home, name='home'),
+    path('menu/', views.menu_view, name='menu'),
+    path('booking/', views.booking_view, name='booking'),
+    path('waiter/', views.waiter_hall, name='waiter'),
+    path('kitchen/', views.kitchen_view, name='kitchen'),
+    path('reports/', views.reports_view, name='reports'),
+    path('api/', include('restaurant.urls')),
 ]
