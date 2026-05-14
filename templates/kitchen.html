@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
-{% block title %}Кухня{% endblock %}
+{% block title %}Кухня - Повар{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0"><i class="fas fa-utensils"></i> Кухня - Активные заказы</h4>
-    </div>
-    <div class="card-body">
-        <div id="orders-container">
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p>Загрузка заказов...</p>
+<div class="fade-in">
+    <div class="card">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-utensils me-2"></i> Кухня - Активные заказы</h4>
+            <button class="btn btn-light btn-sm" onclick="loadOrders()">
+                <i class="fas fa-sync-alt"></i> Обновить
+            </button>
+        </div>
+        <div class="card-body">
+            <div id="orders-container">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Загрузка заказов...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -20,38 +25,78 @@
         fetch('/api/orders/active/')
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.data.length > 0) {
+                if (data.success) {
+                    if (data.data.length === 0) {
+                        document.getElementById('orders-container').innerHTML = `
+                            <div class="alert alert-success text-center">
+                                <i class="fas fa-check-circle fa-2x mb-2 d-block"></i>
+                                <h5>Нет активных заказов</h5>
+                                <p class="mb-0">Все заказы выполнены</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
                     let html = '<div class="row">';
                     data.data.forEach(order => {
                         html += `
                             <div class="col-md-6 mb-4">
-                                <div class="card">
+                                <div class="card h-100">
                                     <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0">Заказ #${order.id} | Стол ${order.table_number}</h5>
-                                        <small>${order.created_at}</small>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Заказ #${order.id}</h5>
+                                            <span class="badge bg-light text-dark">Стол ${order.table_number}</span>
+                                        </div>
+                                        <small>Создан: ${order.created_at}</small>
                                     </div>
                                     <div class="card-body">
-                                        <ul class="list-group">
+                                        <ul class="list-group list-group-flush">
                         `;
+                        
                         order.items.forEach(item => {
                             let statusClass = '';
-                            if (item.status === 'pending') statusClass = 'status-new';
-                            else if (item.status === 'cooking') statusClass = 'status-cooking';
-                            else if (item.status === 'ready') statusClass = 'status-ready';
+                            let statusText = '';
+                            let cookingBtn = '';
+                            let readyBtn = '';
+                            
+                            if (item.status === 'pending') {
+                                statusClass = 'status-new';
+                                statusText = 'Ожидает';
+                                cookingBtn = `<button class="btn btn-sm btn-warning ms-2" onclick="updateStatus(${item.id}, 'cooking')">Начать готовку</button>`;
+                            } else if (item.status === 'cooking') {
+                                statusClass = 'status-cooking';
+                                statusText = 'Готовится';
+                                readyBtn = `<button class="btn btn-sm btn-success ms-2" onclick="updateStatus(${item.id}, 'ready')">Готово</button>`;
+                            } else if (item.status === 'ready') {
+                                statusClass = 'status-ready';
+                                statusText = 'Готов';
+                            }
                             
                             html += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    ${item.dish_name} x${item.quantity}
                                     <div>
-                                        <span class="status-badge ${statusClass}">${item.status}</span>
-                                        <button class="btn btn-sm btn-warning ms-2" onclick="updateStatus(${item.id}, 'cooking')">Готовить</button>
-                                        <button class="btn btn-sm btn-success ms-1" onclick="updateStatus(${item.id}, 'ready')">Готово</button>
+                                        <strong>${item.dish_name}</strong>
+                                        <span class="text-muted ms-2">x${item.quantity}</span>
+                                    </div>
+                                    <div>
+                                        <span class="status-badge ${statusClass}">${statusText}</span>
+                                        ${cookingBtn}
+                                        ${readyBtn}
                                     </div>
                                 </li>
                             `;
                         });
+                        
+                        let orderStatusText = '';
+                        if (order.status === 'new') orderStatusText = 'Новый заказ';
+                        else if (order.status === 'cooking') orderStatusText = 'В процессе';
+                        else if (order.status === 'ready') orderStatusText = 'Ожидает подачи';
+                        
                         html += `
                                         </ul>
+                                    </div>
+                                    <div class="card-footer">
+                                        <span class="badge bg-secondary">${orderStatusText}</span>
                                     </div>
                                 </div>
                             </div>
@@ -60,7 +105,7 @@
                     html += '</div>';
                     document.getElementById('orders-container').innerHTML = html;
                 } else {
-                    document.getElementById('orders-container').innerHTML = '<div class="alert alert-success">Нет активных заказов</div>';
+                    document.getElementById('orders-container').innerHTML = '<div class="alert alert-danger">Ошибка загрузки заказов</div>';
                 }
             });
     }
@@ -70,10 +115,31 @@
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({item_id: itemId, status: status})
-        }).then(() => loadOrders());
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadOrders();
+            } else {
+                alert('Ошибка обновления статуса');
+            }
+        });
     }
     
     loadOrders();
     setInterval(loadOrders, 5000);
 </script>
+
+<style>
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .status-new { background: #17a2b8; color: white; }
+    .status-cooking { background: #ffc107; color: black; }
+    .status-ready { background: #28a745; color: white; }
+</style>
 {% endblock %}
