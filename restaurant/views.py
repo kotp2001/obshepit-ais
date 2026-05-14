@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -13,23 +14,31 @@ def home(request):
     return render(request, 'index.html')
 
 def menu_view(request):
-    categories = Category.objects.filter(dishes__is_available=True).distinct()
-    return render(request, 'menu.html', {'categories': categories})
+    return render(request, 'menu.html')
 
 def booking_view(request):
-    tables = Table.objects.all()
-    return render(request, 'booking.html', {'tables': tables})
+    return render(request, 'booking.html')
 
 def waiter_hall(request):
-    tables = Table.objects.all()
-    return render(request, 'waiter_hall.html', {'tables': tables})
+    return render(request, 'waiter_hall.html')
 
 def kitchen_view(request):
-    orders = Order.objects.filter(status__in=['new', 'cooking']).order_by('created_at')
-    return render(request, 'kitchen.html', {'orders': orders})
+    return render(request, 'kitchen.html')
 
 def reports_view(request):
     return render(request, 'reports.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('/')
+        else:
+            return render(request, 'login.html', {'error': 'Неверный логин или пароль'})
+    return render(request, 'login.html')
 
 @require_http_methods(["GET"])
 def api_dishes(request):
@@ -41,8 +50,6 @@ def api_dishes(request):
         'price': float(d.price),
         'category': d.category.name,
         'category_id': d.category.id,
-        'weight': d.weight,
-        'calories': d.calories,
     } for d in dishes]
     return JsonResponse({'success': True, 'data': data})
 
@@ -60,8 +67,6 @@ def api_tables(request):
         'number': t.number,
         'seats': t.seats,
         'status': t.status,
-        'x': t.x_position,
-        'y': t.y_position,
     } for t in tables]
     return JsonResponse({'success': True, 'data': data})
 
@@ -79,16 +84,14 @@ def api_create_order(request):
         total = Decimal('0')
         for item in items:
             dish = Dish.objects.get(id=item['dish_id'])
-            price = dish.price
-            quantity = item['quantity']
             OrderItem.objects.create(
                 order=order,
                 dish=dish,
-                quantity=quantity,
-                price=price,
+                quantity=item['quantity'],
+                price=dish.price,
                 status='pending'
             )
-            total += price * quantity
+            total += dish.price * item['quantity']
         
         order.total_amount = total
         order.save()
@@ -133,12 +136,11 @@ def api_update_item_status(request):
         
         order = item.order
         all_items = order.items.all()
-        if all(status == 'ready' for status in [i.status for i in all_items]):
+        if all(i.status == 'ready' for i in all_items):
             order.status = 'ready'
-            order.save()
         elif any(i.status in ['pending', 'cooking'] for i in all_items):
             order.status = 'cooking'
-            order.save()
+        order.save()
         
         return JsonResponse({'success': True})
     except Exception as e:
@@ -235,7 +237,6 @@ def api_reports(request):
     total_orders = orders.count()
     avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
-    popular_dishes = []
     from collections import defaultdict
     dish_count = defaultdict(int)
     for order in orders:
