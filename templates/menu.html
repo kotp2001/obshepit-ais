@@ -1,73 +1,120 @@
 {% extends 'base.html' %}
 {% block title %}Меню{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0"><i class="fas fa-book"></i> Наше меню</h4>
-    </div>
-    <div class="card-body">
-        <div id="menu-container">
-            <div class="text-center py-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p>Загрузка меню...</p>
+<div class="fade-in">
+    <div class="card">
+        <div class="card-header bg-dark text-white py-3">
+            <h4 class="mb-0"><i class="fas fa-book me-2"></i> Наше меню</h4>
+        </div>
+        <div class="card-body">
+            <div id="menu-container">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">Загрузка меню...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    fetch('/api/dishes/')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const categories = {};
-                data.data.forEach(dish => {
-                    if (!categories[dish.category]) {
-                        categories[dish.category] = [];
-                    }
-                    categories[dish.category].push(dish);
-                });
-                
-                let html = '';
-                for (const [category, dishes] of Object.entries(categories)) {
-                    html += `<h3 class="mt-4 mb-3"><i class="fas fa-tag"></i> ${category}</h3>`;
-                    html += '<div class="row">';
-                    dishes.forEach(dish => {
-                        html += `
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card dish-card h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${dish.name}</h5>
-                                        <p class="card-text text-muted small">${dish.description || 'Без описания'}</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="price">${dish.price} ₽</span>
-                                            <button class="btn btn-add" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
-                                                <i class="fas fa-cart-plus"></i> В корзину
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                }
-                document.getElementById('menu-container').innerHTML = html;
-            } else {
-                document.getElementById('menu-container').innerHTML = '<div class="alert alert-danger">Ошибка загрузки меню</div>';
-            }
-        });
+    let cart = JSON.parse(localStorage.getItem('restaurant_cart') || '[]');
     
     function addToCart(id, name, price) {
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existing = cart.find(item => item.id === id);
         if (existing) {
             existing.quantity++;
         } else {
             cart.push({id, name, price, quantity: 1});
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        alert(`${name} добавлено в корзину!`);
+        localStorage.setItem('restaurant_cart', JSON.stringify(cart));
+        
+        const btn = event.target;
+        btn.innerHTML = '<i class="fas fa-check"></i> Добавлено';
+        btn.classList.remove('btn-add');
+        btn.classList.add('btn-success');
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-cart-plus"></i> В корзину';
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-add');
+        }, 1500);
+        
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        let cartBtn = document.getElementById('cart-total-btn');
+        if (!cartBtn) {
+            const nav = document.querySelector('.navbar-nav');
+            if (nav) {
+                cartBtn = document.createElement('li');
+                cartBtn.className = 'nav-item';
+                cartBtn.id = 'cart-total-btn';
+                cartBtn.innerHTML = `<a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i> <span id="cart-count">${cart.length}</span> | ${total} ₽</a>`;
+                nav.appendChild(cartBtn);
+            }
+        } else {
+            document.getElementById('cart-count').innerText = cart.length;
+            cartBtn.querySelector('a').innerHTML = `<i class="fas fa-shopping-cart"></i> <span id="cart-count">${cart.length}</span> | ${total} ₽`;
+        }
     }
+    
+    function loadMenu() {
+        fetch('/api/dishes/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const categories = {};
+                    data.data.forEach(dish => {
+                        if (!categories[dish.category]) {
+                            categories[dish.category] = [];
+                        }
+                        categories[dish.category].push(dish);
+                    });
+                    
+                    let html = '';
+                    for (const [category, dishes] of Object.entries(categories)) {
+                        html += `<h3 class="mt-4 mb-3"><i class="fas fa-tag me-2"></i> ${category}</h3>`;
+                        html += '<div class="row">';
+                        dishes.forEach(dish => {
+                            html += `
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <h5 class="card-title mb-2">${dish.name}</h5>
+                                                <span class="price">${dish.price} ₽</span>
+                                            </div>
+                                            <p class="card-text text-muted small">${dish.description || 'Нет описания'}</p>
+                                            <button class="btn btn-add w-100 mt-2" style="background: #28a745; color: white; border-radius: 25px; padding: 8px;" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
+                                                <i class="fas fa-cart-plus"></i> В корзину
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+                    document.getElementById('menu-container').innerHTML = html;
+                }
+            });
+    }
+    
+    loadMenu();
 </script>
+
+<style>
+    .btn-add {
+        background: #28a745;
+        color: white;
+        border-radius: 25px;
+        padding: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-add:hover {
+        background: #218838;
+        transform: translateY(-2px);
+    }
+    .btn-add:active {
+        transform: translateY(1px);
+    }
+</style>
 {% endblock %}
