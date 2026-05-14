@@ -217,39 +217,39 @@
         updateCart();
     }
     
-    function createOrder() {
-        if (cart.length === 0) {
-            alert('Добавьте блюда в заказ');
-            return;
-        }
-        
-        const items = cart.map(item => ({
-            dish_id: item.id,
-            quantity: item.quantity
-        }));
-        
-        const guestCount = document.getElementById('guest-count').value;
-        
-        fetch('/api/orders/create/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                table_id: currentTableId,
-                items: items,
-                guest_count: guestCount
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(`Заказ #${data.order_id} создан!\nСумма: ${data.total} ₽\nЗаказ отправлен на кухню.`);
-                modal.hide();
-                loadTables();
-            } else {
-                alert('Ошибка: ' + data.error);
-            }
-        });
+   function createOrder() {
+    if (cart.length === 0) {
+        alert('Добавьте блюда в заказ');
+        return;
     }
+    
+    const items = cart.map(item => ({
+        dish_id: item.id,
+        quantity: item.quantity
+    }));
+    
+    const guestCount = document.getElementById('guest-count').value;
+    
+    fetch('/api/orders/create/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            table_id: currentTableId,
+            items: items,
+            guest_count: guestCount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+            modal.hide();
+            loadTables();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
+    });
+}
     
     loadTables();
     setInterval(loadTables, 30000);
