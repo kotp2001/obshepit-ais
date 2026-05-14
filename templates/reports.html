@@ -1,72 +1,81 @@
 {% extends 'base.html' %}
-{% block title %}Отчёты{% endblock %}
-{% block extra_css %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{% endblock %}
+{% block title %}Отчёты и аналитика{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0"><i class="fas fa-chart-line"></i> Отчёты и аналитика</h4>
-    </div>
-    <div class="card-body">
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <select id="period-select" class="form-control">
-                    <option value="week">За неделю</option>
-                    <option value="month">За месяц</option>
-                    <option value="day">За сегодня</option>
-                </select>
-            </div>
-            <div class="col-md-9">
-                <button class="btn btn-primary" onclick="loadReports()">Обновить</button>
-            </div>
+<div class="fade-in">
+    <div class="card">
+        <div class="card-header bg-dark text-white py-3">
+            <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i> Отчёты и аналитика</h4>
         </div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <h6>Общая выручка</h6>
-                        <h2 id="total-revenue">0 ₽</h2>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="fw-bold mb-2">Период</label>
+                    <select id="period-select" class="form-control">
+                        <option value="day">За сегодня</option>
+                        <option value="week" selected>За неделю</option>
+                        <option value="month">За месяц</option>
+                    </select>
+                </div>
+                <div class="col-md-8 d-flex align-items-end">
+                    <button class="btn btn-primary" onclick="loadReports()">
+                        <i class="fas fa-chart-simple me-1"></i> Обновить отчёты
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center bg-primary text-white">
+                        <div class="card-body">
+                            <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                            <h6 class="mb-2">Общая выручка</h6>
+                            <h2 id="total-revenue">0 ₽</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center bg-success text-white">
+                        <div class="card-body">
+                            <i class="fas fa-receipt fa-2x mb-2"></i>
+                            <h6 class="mb-2">Всего заказов</h6>
+                            <h2 id="total-orders">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center bg-warning text-white">
+                        <div class="card-body">
+                            <i class="fas fa-calculator fa-2x mb-2"></i>
+                            <h6 class="mb-2">Средний чек</h6>
+                            <h2 id="avg-check">0 ₽</h2>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <h6>Всего заказов</h6>
-                        <h2 id="total-orders">0</h2>
+            
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i> Продажи по дням</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="sales-chart" width="100%" height="300"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body">
-                        <h6>Средний чек</h6>
-                        <h2 id="avg-check">0 ₽</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h6>Продажи по дням</h6>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="sales-chart" width="400" height="250"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h6>Популярные блюда</h6>
-                    </div>
-                    <div class="card-body">
-                        <div id="popular-dishes"></div>
+                <div class="col-md-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-trophy me-2"></i> Популярные блюда</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="popular-dishes">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,6 +83,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let chart = null;
     
@@ -88,12 +98,25 @@
                     document.getElementById('total-orders').innerHTML = data.data.total_orders;
                     document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
                     
-                    let popularHtml = '<ul class="list-group">';
-                    data.data.popular_dishes.forEach(dish => {
-                        popularHtml += `<li class="list-group-item d-flex justify-content-between">${dish.name}<span class="badge bg-primary">${dish.count} шт</span></li>`;
-                    });
-                    popularHtml += '</ul>';
-                    document.getElementById('popular-dishes').innerHTML = popularHtml || 'Нет данных';
+                    let popularHtml = '';
+                    if (data.data.popular_dishes.length > 0) {
+                        popularHtml = '<div class="list-group">';
+                        data.data.popular_dishes.forEach((dish, index) => {
+                            popularHtml += `
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-primary rounded-pill me-2">${index + 1}</span>
+                                        <strong>${dish.name}</strong>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">${dish.count} шт</span>
+                                </div>
+                            `;
+                        });
+                        popularHtml += '</div>';
+                    } else {
+                        popularHtml = '<p class="text-muted text-center">Нет данных о продажах</p>';
+                    }
+                    document.getElementById('popular-dishes').innerHTML = popularHtml;
                     
                     if (chart) chart.destroy();
                     let ctx = document.getElementById('sales-chart').getContext('2d');
@@ -107,14 +130,23 @@
                                 borderColor: '#667eea',
                                 backgroundColor: 'rgba(102,126,234,0.1)',
                                 tension: 0.3,
-                                fill: true
+                                fill: true,
+                                borderWidth: 2,
+                                pointBackgroundColor: '#667eea',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7
                             }]
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: true,
                             plugins: {
-                                legend: { position: 'top' }
-                            }
+                                legend: { position: 'top' },
+                                tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
+                            },
+                            scales: { y: { beginAtZero: true, ticks: { callback: (v) => v + ' ₽' } } }
                         }
                     });
                 }
@@ -122,6 +154,5 @@
     }
     
     loadReports();
-    setInterval(loadReports, 30000);
 </script>
 {% endblock %}
