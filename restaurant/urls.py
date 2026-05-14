@@ -1,5 +1,11 @@
 from django.urls import path
 from . import views
+from .excel import export_orders_excel, export_popular_excel
+
+urlpatterns += [
+    path('export/orders/', export_orders_excel, name='export_orders'),
+    path('export/popular/', export_popular_excel, name='export_popular'),
+]
 
 urlpatterns = [
     path('', views.home, name='home'),
