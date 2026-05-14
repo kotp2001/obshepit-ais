@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Отчёты{% endblock %}
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0"><i class="fas fa-chart-line"></i> Отчёты и аналитика</h4>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <select id="period-select" class="form-control">
+                    <option value="week">За неделю</option>
+                    <option value="month">За месяц</option>
+                    <option value="day">За сегодня</option>
+                </select>
+            </div>
+            <div class="col-md-9">
+                <button class="btn btn-primary" onclick="loadReports()">Обновить</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6>Общая выручка</h6>
+                        <h2 id="total-revenue">0 ₽</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6>Всего заказов</h6>
+                        <h2 id="total-orders">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h6>Средний чек</h6>
+                        <h2 id="avg-check">0 ₽</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Продажи по дням</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="sales-chart" width="400" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Популярные блюда</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="popular-dishes"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chart = null;
+    
+    function loadReports() {
+        let period = document.getElementById('period-select').value;
+        
+        fetch(`/api/reports/?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('total-revenue').innerHTML = data.data.total_revenue.toFixed(2) + ' ₽';
+                    document.getElementById('total-orders').innerHTML = data.data.total_orders;
+                    document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
+                    
+                    let popularHtml = '<ul class="list-group">';
+                    data.data.popular_dishes.forEach(dish => {
+                        popularHtml += `<li class="list-group-item d-flex justify-content-between">${dish.name}<span class="badge bg-primary">${dish.count} шт</span></li>`;
+                    });
+                    popularHtml += '</ul>';
+                    document.getElementById('popular-dishes').innerHTML = popularHtml || 'Нет данных';
+                    
+                    if (chart) chart.destroy();
+                    let ctx = document.getElementById('sales-chart').getContext('2d');
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.data.daily_data.map(d => d.date),
+                            datasets: [{
+                                label: 'Выручка (₽)',
+                                data: data.data.daily_data.map(d => d.revenue),
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102,126,234,0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'top' }
+                            }
+                        }
+                    });
+                }
+            });
+    }
+    
+    loadReports();
+    setInterval(loadReports, 30000);
+</script>
+{% endblock %}
