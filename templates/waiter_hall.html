@@ -217,22 +217,22 @@
         updateCart();
     }
     
-   function createOrder() {
+  function createOrder() {
     if (cart.length === 0) {
         alert('Добавьте блюда в заказ');
         return;
     }
-    
+
     const items = cart.map(item => ({
         dish_id: item.id,
         quantity: item.quantity
     }));
-    
+
     const guestCount = document.getElementById('guest-count').value;
-    
+
     fetch('/api/orders/create/', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             table_id: currentTableId,
             items: items,
@@ -242,7 +242,7 @@
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+            alert('Заказ #' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
             modal.hide();
             loadTables();
         } else {
