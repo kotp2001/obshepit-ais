@@ -62,7 +62,7 @@
         const modalHtml = `
             <div class="modal fade" id="cartModal" tabindex="-1">
                 <div class="modal-dialog">
-                    <div class="modal-content" style="background: rgba(30,30,70,0.95);">
+                    <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" style="color: #ffd700;">Моя корзина</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -71,12 +71,20 @@
                             ${items}
                             <hr style="border-color: rgba(255,255,255,0.2);">
                             <div class="d-flex justify-content-between">
-                                <strong style="color: white;">Итого:</strong>
+                                <strong>Итого:</strong>
                                 <strong style="color: #ffd700; font-size: 1.3rem;">${total} ₽</strong>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label">Количество гостей</label>
+                                <input type="number" id="checkout-guests" class="form-control" value="2" min="1">
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label">Выберите стол (номер)</label>
+                                <input type="number" id="checkout-table" class="form-control" placeholder="Номер стола" required>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-primary" onclick="alert('Заказ оформлен! Перейдите к официанту для оплаты.'); localStorage.removeItem('restaurant_cart'); location.reload();">Оформить заказ</button>
+                            <button class="btn btn-primary" onclick="confirmOrder()">Подтвердить заказ</button>
                             <button class="btn btn-secondary" data-bs-dismiss="modal">Продолжить выбор</button>
                         </div>
                     </div>
@@ -84,13 +92,68 @@
             </div>
         `;
         
-        // Удаляем старый модал если есть
         const oldModal = document.getElementById('cartModal');
         if (oldModal) oldModal.remove();
         
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         const modal = new bootstrap.Modal(document.getElementById('cartModal'));
         modal.show();
+    }
+    
+    function confirmOrder() {
+        const tableNumber = document.getElementById('checkout-table').value;
+        const guestCount = document.getElementById('checkout-guests').value;
+        
+        if (!tableNumber) {
+            alert('Пожалуйста, укажите номер стола');
+            return;
+        }
+        
+        const items = cart.map(item => ({
+            dish_id: item.id,
+            quantity: item.quantity
+        }));
+        
+        fetch('/api/tables/')
+            .then(response => response.json())
+            .then(data => {
+                const table = data.data.find(t => t.number == tableNumber);
+                if (!table) {
+                    alert('Стол с номером ' + tableNumber + ' не найден');
+                    return;
+                }
+                
+                if (table.status !== 'free') {
+                    alert('Стол ' + tableNumber + ' занят или забронирован. Выберите другой стол.');
+                    return;
+                }
+                
+                fetch('/api/orders/create/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        table_id: table.id,
+                        items: items,
+                        guest_count: guestCount
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+                        localStorage.removeItem('restaurant_cart');
+                        cart = [];
+                        updateCartDisplay();
+                        const modalEl = document.getElementById('cartModal');
+                        if (modalEl) {
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                            if (modalInstance) modalInstance.hide();
+                        }
+                    } else {
+                        alert('Ошибка: ' + data.error);
+                    }
+                });
+            });
     }
     
     function removeFromCart(index) {
@@ -144,7 +207,7 @@
                                                 <span class="price" style="color: #ffd700; font-size: 1.2rem;">${dish.price} ₽</span>
                                             </div>
                                             <p class="card-text" style="color: rgba(255,255,255,0.7);">${dish.description || 'Нет описания'}</p>
-                                            <button class="btn btn-primary w-100 mt-2" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})" style="background: #28a745;">Добавить в корзину</button>
+                                            <button class="btn w-100 mt-2" style="background: #28a745; color: white;" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">Добавить в корзину</button>
                                         </div>
                                     </div>
                                 </div>
@@ -154,8 +217,6 @@
                     }
                     document.getElementById('menu-container').innerHTML = html;
                     updateCartDisplay();
-                } else {
-                    document.getElementById('menu-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
                 }
             });
     }
