@@ -3,13 +3,13 @@
 {% block content %}
 <div class="fade-in">
     <div class="card">
-        <div class="card-header bg-dark text-white py-3">
-            <h4 class="mb-0">📊 Отчёты и аналитика</h4>
+        <div class="card-header">
+            <h4 class="mb-0">Отчёты и аналитика</h4>
         </div>
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-md-4">
-                    <label class="fw-bold mb-2">Период</label>
+                    <label class="form-label">Период</label>
                     <select id="period-select" class="form-control">
                         <option value="day">За сегодня</option>
                         <option value="week" selected>За неделю</option>
@@ -17,21 +17,15 @@
                     </select>
                 </div>
                 <div class="col-md-8 d-flex align-items-end gap-2">
-                    <button class="btn btn-primary" onclick="loadReports()">
-                        Обновить отчёты
-                    </button>
-                    <button class="btn btn-success" onclick="window.location.href='/export/orders/'">
-                        Экспорт заказов в Excel
-                    </button>
-                    <button class="btn btn-info text-white" onclick="window.location.href='/export/popular/'">
-                        Экспорт популярных блюд
-                    </button>
+                    <button class="btn btn-primary" onclick="loadReports()">Обновить отчёты</button>
+                    <button class="btn btn-success" onclick="window.location.href='/export/orders/'">Экспорт заказов в Excel</button>
+                    <button class="btn btn-info" onclick="window.location.href='/export/popular/'">Экспорт популярных блюд</button>
                 </div>
             </div>
             
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center bg-primary text-white">
+                    <div class="card text-center bg-primary text-white" style="background: rgba(26,26,74,0.9);">
                         <div class="card-body">
                             <h3 class="mb-2">💰</h3>
                             <h6 class="mb-2">Общая выручка</h6>
@@ -40,7 +34,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center bg-success text-white">
+                    <div class="card text-center bg-success text-white" style="background: rgba(42,90,42,0.9);">
                         <div class="card-body">
                             <h3 class="mb-2">📋</h3>
                             <h6 class="mb-2">Всего заказов</h6>
@@ -49,7 +43,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <div class="card text-center bg-warning text-white">
+                    <div class="card text-center bg-warning text-white" style="background: rgba(212,160,23,0.9);">
                         <div class="card-body">
                             <h3 class="mb-2">📊</h3>
                             <h6 class="mb-2">Средний чек</h6>
@@ -89,7 +83,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let chart = null;
     
@@ -109,7 +102,7 @@
                         popularHtml = '<div class="list-group">';
                         data.data.popular_dishes.forEach((dish, index) => {
                             popularHtml += `
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-color: rgba(255,255,255,0.1);">
                                     <div>
                                         <span class="badge bg-primary rounded-pill me-2">${index + 1}</span>
                                         <strong>${dish.name}</strong>
@@ -133,12 +126,12 @@
                             datasets: [{
                                 label: 'Выручка (₽)',
                                 data: data.data.daily_data.map(d => d.revenue),
-                                borderColor: '#1a1a4a',
-                                backgroundColor: 'rgba(26,26,74,0.1)',
+                                borderColor: '#ffd700',
+                                backgroundColor: 'rgba(255,215,0,0.1)',
                                 tension: 0.3,
                                 fill: true,
                                 borderWidth: 2,
-                                pointBackgroundColor: '#1a1a4a',
+                                pointBackgroundColor: '#ffd700',
                                 pointBorderColor: '#fff',
                                 pointBorderWidth: 2,
                                 pointRadius: 5,
@@ -149,10 +142,13 @@
                             responsive: true,
                             maintainAspectRatio: true,
                             plugins: {
-                                legend: { position: 'top' },
+                                legend: { position: 'top', labels: { color: 'white' } },
                                 tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
                             },
-                            scales: { y: { beginAtZero: true, ticks: { callback: (v) => v + ' ₽' } } }
+                            scales: { 
+                                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                                y: { beginAtZero: true, ticks: { color: 'white', callback: (v) => v + ' ₽' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                            }
                         }
                     });
                 }
