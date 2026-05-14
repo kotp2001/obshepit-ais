@@ -8,36 +8,190 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
+        /* Навигация */
         .navbar {
             background: white;
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             padding: 15px 0;
         }
+        
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
             color: #667eea !important;
         }
+        
+        .nav-link {
+            color: #555 !important;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            padding: 8px 20px !important;
+            margin: 0 3px;
+        }
+        
+        .nav-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Карточки */
         .card {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
             border: none;
+            overflow: hidden;
         }
+        
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
-        .btn-custom {
+        
+        /* Кнопки */
+        .btn {
             border-radius: 25px;
             padding: 10px 25px;
             font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
         }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56,239,125,0.4);
+        }
+        
+        .btn-success:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(242,153,74,0.4);
+        }
+        
+        .btn-warning:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(235,51,73,0.4);
+        }
+        
+        .btn-danger:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Столы */
+        .table-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .table-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        
+        .table-card:active {
+            transform: scale(0.98);
+        }
+        
+        .table-free {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            cursor: pointer;
+        }
+        
+        .table-occupied {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .table-reserved {
+            background: linear-gradient(135deg, #ffe259 0%, #ffa751 100%);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        /* Бейджи статусов */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .status-new { background: #17a2b8; color: white; }
+        .status-cooking { background: #ffc107; color: black; }
+        .status-ready { background: #28a745; color: white; }
+        .status-paid { background: #007bff; color: white; }
+        
+        /* Цены */
+        .price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        /* Футер */
         .footer {
             background: white;
             margin-top: 50px;
@@ -45,51 +199,30 @@
             text-align: center;
             color: #666;
         }
-        .table-card {
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            padding: 20px;
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .table-card:hover {
-            transform: scale(1.05);
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
-        .table-free { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
-        .table-occupied { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .table-reserved { background: linear-gradient(135deg, #ffe259 0%, #ffa751 100%); }
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+        
+        /* Скролл */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .status-new { background: #17a2b8; color: white; }
-        .status-cooking { background: #ffc107; color: black; }
-        .status-ready { background: #28a745; color: white; }
-        .status-served { background: #6c757d; color: white; }
-        .status-paid { background: #007bff; color: white; }
-        .dish-card {
-            margin-bottom: 20px;
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
         }
-        .price {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #e74c3c;
-        }
-        .btn-add {
-            background: #28a745;
-            color: white;
-            border-radius: 20px;
-            padding: 5px 15px;
-        }
-        .cart-item {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-        .total {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #e74c3c;
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -110,6 +243,7 @@
                     <li class="nav-item"><a class="nav-link" href="/booking/"><i class="fas fa-calendar-alt"></i> Бронирование</a></li>
                     <li class="nav-item"><a class="nav-link" href="/waiter/"><i class="fas fa-user"></i> Официант</a></li>
                     <li class="nav-item"><a class="nav-link" href="/kitchen/"><i class="fas fa-utensils"></i> Кухня</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reports/"><i class="fas fa-chart-line"></i> Отчёты</a></li>
                     <li class="nav-item"><a class="nav-link" href="/admin/"><i class="fas fa-user-shield"></i> Админ</a></li>
                 </ul>
             </div>
