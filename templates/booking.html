@@ -1,67 +1,75 @@
 {% extends 'base.html' %}
 {% block title %}Бронирование столов{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="card-header bg-dark text-white">
-        <h4 class="mb-0"><i class="fas fa-calendar-alt"></i> Бронирование столов</h4>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="form-group mb-3">
-                    <label>Дата бронирования</label>
-                    <input type="date" id="booking-date" class="form-control">
-                </div>
-                <div class="form-group mb-3">
-                    <label>Время</label>
-                    <select id="booking-time" class="form-control">
-                        <option value="12:00">12:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">18:00</option>
-                        <option value="19:00">19:00</option>
-                        <option value="20:00">20:00</option>
-                        <option value="21:00">21:00</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div id="tables-container" class="row"></div>
-            </div>
+<div class="fade-in">
+    <div class="card">
+        <div class="card-header bg-dark text-white py-3">
+            <h4 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Бронирование столов</h4>
         </div>
-        
-        <div id="booking-form" style="display:none;" class="mt-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Форма бронирования</h5>
-                </div>
-                <div class="card-body">
-                    <input type="hidden" id="selected-table-id">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label>Ваше имя</label>
-                                <input type="text" id="guest-name" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label>Телефон</label>
-                                <input type="tel" id="guest-phone" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label>Количество гостей</label>
-                                <input type="number" id="guests-count" class="form-control" value="2" min="1">
-                            </div>
-                        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group mb-3">
+                        <label class="fw-bold mb-2">Дата бронирования</label>
+                        <input type="date" id="booking-date" class="form-control">
                     </div>
-                    <button class="btn btn-success" onclick="submitBooking()">Забронировать</button>
-                    <button class="btn btn-secondary" onclick="cancelBooking()">Отмена</button>
+                    <div class="form-group mb-3">
+                        <label class="fw-bold mb-2">Время</label>
+                        <select id="booking-time" class="form-control">
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                            <option value="18:00">18:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="20:00">20:00</option>
+                            <option value="21:00">21:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div id="tables-container" class="row"></div>
+                </div>
+            </div>
+            
+            <div id="booking-form" style="display:none;" class="mt-4">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Форма бронирования</h5>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" id="selected-table-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="fw-bold">Ваше имя</label>
+                                    <input type="text" id="guest-name" class="form-control" required placeholder="Иван Иванов">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="fw-bold">Телефон</label>
+                                    <input type="tel" id="guest-phone" class="form-control" required placeholder="+7 999 123-45-67">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="fw-bold">Количество гостей</label>
+                                    <input type="number" id="guests-count" class="form-control" value="2" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="fw-bold">Email (опционально)</label>
+                                    <input type="email" id="guest-email" class="form-control" placeholder="example@mail.com">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" onclick="submitBooking()">Подтвердить бронирование</button>
+                        <button class="btn btn-secondary ms-2" onclick="cancelBooking()">Отмена</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,18 +91,18 @@
                     fetch(`/api/bookings/?date=${date}`)
                         .then(res => res.json())
                         .then(bookings => {
-                            let html = '';
+                            let html = '<div class="row">';
                             data.data.forEach(table => {
                                 let isBooked = bookings.data.some(b => b.table_number === table.number && b.time === time);
                                 let statusClass = isBooked ? 'bg-secondary' : 'bg-success';
                                 let statusText = isBooked ? 'Занят' : 'Свободен';
                                 
                                 html += `
-                                    <div class="col-md-3 mb-3">
-                                        <div class="card text-center ${statusClass} text-white">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card text-center ${statusClass} text-white table-card ${!isBooked ? 'free-card' : ''}">
                                             <div class="card-body">
                                                 <i class="fas fa-chair fa-2x mb-2"></i>
-                                                <h5>Стол ${table.number}</h5>
+                                                <h4>Стол ${table.number}</h4>
                                                 <p>${table.seats} мест</p>
                                                 ${!isBooked ? `<button class="btn btn-light btn-sm" onclick="showBookingForm(${table.id}, ${table.seats})">Забронировать</button>` : '<span class="badge bg-dark">Забронирован</span>'}
                                             </div>
@@ -102,6 +110,7 @@
                                     </div>
                                 `;
                             });
+                            html += '</div>';
                             document.getElementById('tables-container').innerHTML = html;
                         });
                 }
@@ -117,13 +126,25 @@
     
     function cancelBooking() {
         document.getElementById('booking-form').style.display = 'none';
+        document.getElementById('guest-name').value = '';
+        document.getElementById('guest-phone').value = '';
+        document.getElementById('guests-count').value = 2;
     }
     
     function submitBooking() {
+        const guestName = document.getElementById('guest-name').value;
+        const guestPhone = document.getElementById('guest-phone').value;
+        
+        if (!guestName || !guestPhone) {
+            alert('Пожалуйста, заполните имя и телефон');
+            return;
+        }
+        
         let data = {
             table_id: parseInt(document.getElementById('selected-table-id').value),
-            guest_name: document.getElementById('guest-name').value,
-            guest_phone: document.getElementById('guest-phone').value,
+            guest_name: guestName,
+            guest_phone: guestPhone,
+            guest_email: document.getElementById('guest-email').value,
             guests_count: parseInt(document.getElementById('guests-count').value),
             booking_date: document.getElementById('booking-date').value,
             booking_time: document.getElementById('booking-time').value
