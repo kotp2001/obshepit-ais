@@ -71,23 +71,19 @@
                 if (data.success && data.data) {
                     let html = '<div class="row">';
                     data.data.forEach(table => {
-                        let statusClass = '';
                         let statusText = '';
                         let clickable = '';
                         let bgColor = '';
                         
                         if (table.status === 'free') {
-                            statusClass = 'table-free';
                             statusText = 'Свободен';
                             clickable = 'onclick="openOrderModal(' + table.id + ')"';
                             bgColor = 'rgba(40,90,40,0.7)';
                         } else if (table.status === 'occupied') {
-                            statusClass = 'table-occupied';
                             statusText = 'Занят';
                             clickable = '';
                             bgColor = 'rgba(140,40,40,0.7)';
                         } else {
-                            statusClass = 'table-reserved';
                             statusText = 'Забронирован';
                             clickable = '';
                             bgColor = 'rgba(140,100,30,0.7)';
@@ -95,8 +91,8 @@
                         
                         html += `
                             <div class="col-md-3 mb-3">
-                                <div class="card table-card ${statusClass}" ${clickable} style="background: ${bgColor}; cursor: ${clickable ? 'pointer' : 'not-allowed'};">
-                                    <div class="card-body text-center">
+                                <div class="card text-center" style="background: ${bgColor}; cursor: ${clickable ? 'pointer' : 'not-allowed'};" ${clickable}>
+                                    <div class="card-body">
                                         <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
                                         <h3 style="color: white;">Стол ${table.number}</h3>
                                         <p style="color: rgba(255,255,255,0.8);">${table.seats} мест</p>
@@ -109,12 +105,11 @@
                     html += '</div>';
                     document.getElementById('hall-container').innerHTML = html;
                 } else {
-                    document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов. Проверьте соединение.</p>';
+                    document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
                 }
             })
             .catch(error => {
                 document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка соединения с сервером</p>';
-                console.error('Error:', error);
             });
     }
     
@@ -164,8 +159,6 @@
                         html += '</div>';
                     }
                     document.getElementById('menu-list').innerHTML = html;
-                } else {
-                    document.getElementById('menu-list').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
                 }
             });
     }
@@ -178,6 +171,12 @@
             cart.push({id, name, price, quantity: 1});
         }
         updateCart();
+        
+        const btn = event.target;
+        btn.innerHTML = '✓';
+        setTimeout(() => {
+            btn.innerHTML = '+';
+        }, 500);
     }
     
     function updateCart() {
@@ -190,14 +189,14 @@
             cart.forEach((item, index) => {
                 total += item.price * item.quantity;
                 html += `
-                    <div class="cart-item d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">
                         <div>
                             <strong style="color: white;">${item.name}</strong>
                             <div style="color: #ffd700;">${item.price} ₽ × ${item.quantity}</div>
                         </div>
                         <div>
-                            <span style="color: white;" class="me-2">${item.price * item.quantity} ₽</span>
-                            <button class="btn btn-sm btn-danger" onclick="removeFromCart(${index})">X</button>
+                            <span style="color: white;">${item.price * item.quantity} ₽</span>
+                            <button class="btn btn-sm btn-danger ms-2" onclick="removeFromCart(${index})">X</button>
                         </div>
                     </div>
                 `;
@@ -247,7 +246,6 @@
         });
     }
     
-    // Загружаем столы при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         loadTables();
     });
@@ -273,12 +271,6 @@
     }
     .btn-add:active {
         transform: scale(0.95);
-    }
-    .table-card {
-        transition: all 0.1s ease;
-    }
-    .table-card:active {
-        transform: scale(0.98);
     }
 </style>
 {% endblock %}
