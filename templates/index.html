@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center text-white">
+        <h1 class="display-4">Добро пожаловать</h1>
+        <p class="lead">Система автоматизации для ресторана</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-chair fa-3x mb-3" style="color: #667eea;"></i>
+                <h5 class="card-title">Зал</h5>
+                <p class="card-text">Управление столами, просмотр занятости</p>
+                <a href="/waiter/" class="btn btn-primary btn-custom">Войти как официант</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-utensils fa-3x mb-3" style="color: #28a745;"></i>
+                <h5 class="card-title">Кухня</h5>
+                <p class="card-text">Просмотр заказов, управление готовностью</p>
+                <a href="/kitchen/" class="btn btn-success btn-custom">Войти как повар</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x mb-3" style="color: #ffc107;"></i>
+                <h5 class="card-title">Отчёты</h5>
+                <p class="card-text">Статистика продаж, аналитика</p>
+                <a href="/reports/" class="btn btn-warning btn-custom">Смотреть отчёты</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-calendar-alt fa-3x mb-3" style="color: #17a2b8;"></i>
+                <h5 class="card-title">Бронирование</h5>
+                <p class="card-text">Забронировать стол онлайн</p>
+                <a href="/booking/" class="btn btn-info btn-custom text-white">Забронировать</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> О системе</h5>
+            </div>
+            <div class="card-body">
+                <p>АИС "Общепит" предназначена для автоматизации работы ресторана, кафе или столовой. Система позволяет:</p>
+                <ul>
+                    <li>Управлять столами и отслеживать их занятость</li>
+                    <li>Принимать заказы и передавать их на кухню</li>
+                    <li>Отслеживать статус готовности блюд</li>
+                    <li>Формировать отчёты о продажах</li>
+                    <li>Управлять меню и ценами</li>
+                    <li>Бронировать столов онлайн</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
