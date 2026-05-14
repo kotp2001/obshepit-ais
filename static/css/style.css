@@ -1,0 +1,53 @@
+/* Дополнительные стили */
+.btn-add {
+    background: #28a745;
+    color: white;
+    border-radius: 25px;
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-add:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(40,167,69,0.3);
+}
+
+.btn-add:active {
+    transform: translateY(1px);
+}
+
+.modal-dialog {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cart-item {
+    animation: fadeIn 0.2s ease;
+}
+
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
