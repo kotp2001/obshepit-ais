@@ -2,14 +2,23 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('api/dishes/', views.api_dishes),
-    path('api/categories/', views.api_categories),
-    path('api/tables/', views.api_tables),
-    path('api/orders/create/', views.api_create_order),
-    path('api/orders/active/', views.api_active_orders),
-    path('api/orders/update-item/', views.api_update_item_status),
-    path('api/orders/pay/', views.api_pay_order),
-    path('api/bookings/create/', views.api_create_booking),
-    path('api/bookings/', views.api_bookings),
-    path('api/reports/', views.api_reports),
+    path('', views.home, name='home'),
+    path('menu/', views.menu_view, name='menu'),
+    path('booking/', views.booking_view, name='booking'),
+    path('waiter/', views.waiter_hall, name='waiter'),
+    path('kitchen/', views.kitchen_view, name='kitchen'),
+    path('reports/', views.reports_view, name='reports'),
+    path('login/', views.login_view, name='login'),
+    
+    # API endpoints
+    path('api/dishes/', views.api_dishes, name='api_dishes'),
+    path('api/categories/', views.api_categories, name='api_categories'),
+    path('api/tables/', views.api_tables, name='api_tables'),
+    path('api/orders/create/', views.api_create_order, name='api_create_order'),
+    path('api/orders/active/', views.api_active_orders, name='api_active_orders'),
+    path('api/orders/update-item/', views.api_update_item_status, name='api_update_item'),
+    path('api/orders/pay/', views.api_pay_order, name='api_pay_order'),
+    path('api/bookings/create/', views.api_create_booking, name='api_create_booking'),
+    path('api/bookings/', views.api_bookings, name='api_bookings'),
+    path('api/reports/', views.api_reports, name='api_reports'),
 ]
