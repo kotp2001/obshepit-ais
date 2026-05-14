@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN python manage.py makemigrations restaurant
+RUN python manage.py migrate
 RUN python create_migrations.py
 
 EXPOSE 8000
