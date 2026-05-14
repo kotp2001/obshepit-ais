@@ -2,11 +2,6 @@ from django.urls import path
 from . import views
 from .excel import export_orders_excel, export_popular_excel
 
-urlpatterns += [
-    path('export/orders/', export_orders_excel, name='export_orders'),
-    path('export/popular/', export_popular_excel, name='export_popular'),
-]
-
 urlpatterns = [
     path('', views.home, name='home'),
     path('menu/', views.menu_view, name='menu'),
@@ -27,4 +22,8 @@ urlpatterns = [
     path('api/bookings/create/', views.api_create_booking, name='api_create_booking'),
     path('api/bookings/', views.api_bookings, name='api_bookings'),
     path('api/reports/', views.api_reports, name='api_reports'),
+    
+    # Export
+    path('export/orders/', export_orders_excel, name='export_orders'),
+    path('export/popular/', export_popular_excel, name='export_popular'),
 ]
