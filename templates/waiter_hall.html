@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Зал ресторана{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-chair"></i> Зал ресторана</h4>
+        <div>
+            <button class="btn btn-light btn-sm" onclick="loadTables()">
+                <i class="fas fa-sync-alt"></i> Обновить
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="hall-container" class="row">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p>Загрузка схемы зала...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4" id="order-modal" style="display:none;">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Создание заказа</h5>
+    </div>
+    <div class="card-body">
+        <div id="menu-list"></div>
+        <div id="cart">
+            <h5>Корзина</h5>
+            <div id="cart-items"></div>
+            <hr>
+            <div class="total">Итого: <span id="total">0</span> ₽</div>
+            <button class="btn btn-primary mt-3" onclick="createOrder()">Оформить заказ</button>
+            <button class="btn btn-secondary mt-3 ms-2" onclick="closeModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentTableId = null;
+    let cart = [];
+    
+    function loadTables() {
+        fetch('/api/tables/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '';
+                    data.data.forEach(table => {
+                        let statusClass = '';
+                        let statusText = '';
+                        if (table.status === 'free') {
+                            statusClass = 'table-free';
+                            statusText = 'Свободен';
+                        } else if (table.status === 'occupied') {
+                            statusClass = 'table-occupied';
+                            statusText = 'Занят';
+                        } else {
+                            statusClass = 'table-reserved';
+                            statusText = 'Забронирован';
+                        }
+                        
+                        html += `
+                            <div class="col-md-3 mb-3">
+                                <div class="card table-card ${statusClass}" onclick="openOrderModal(${table.id})">
+                                    <div class="card-body">
+                                        <i class="fas fa-chair fa-2x mb-2"></i>
+                                        <h3>Стол ${table.number}</h3>
+                                        <p>${table.seats} мест</p>
+                                        <span class="badge bg-dark">${statusText}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('hall-container').innerHTML = html;
+                }
+            });
+    }
+    
+    function openOrderModal(tableId) {
+        currentTableId = tableId;
+        cart = [];
+        updateCart();
+        loadMenu();
+        document.getElementById('order-modal').style.display = 'block';
+    }
+    
+    function closeModal() {
+        document.getElementById('order-modal').style.display = 'none';
+        currentTableId = null;
+    }
+    
+    function loadMenu() {
+        fetch('/api/dishes/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let html = '<h5>Выберите блюда:</h5><div class="row">';
+                    data.data.forEach(dish => {
+                        html += `
+                            <div class="col-md-4 mb-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>${dish.name}</h6>
+                                        <p class="price">${dish.price} ₽</p>
+                                        <button class="btn btn-sm btn-add" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
+                                            Добавить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    document.getElementById('menu-list').innerHTML = html;
+                }
+            });
+    }
+    
+    function addToCart(id, name, price) {
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push({id, name, price, quantity: 1});
+        }
+        updateCart();
+    }
+    
+    function updateCart() {
+        let total = 0;
+        let html = '';
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            html += `
+                <div class="cart-item d-flex justify-content-between">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>${item.price * item.quantity} ₽</span>
+                </div>
+            `;
+        });
+        document.getElementById('cart-items').innerHTML = html || '<p>Корзина пуста</p>';
+        document.getElementById('total').innerText = total;
+    }
+    
+    function createOrder() {
+        if (cart.length === 0) {
+            alert('Добавьте блюда в заказ');
+            return;
+        }
+        
+        const items = cart.map(item => ({
+            dish_id: item.id,
+            quantity: item.quantity
+        }));
+        
+        fetch('/api/orders/create/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({table_id: currentTableId, items: items})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Заказ #${data.order_id} создан! Сумма: ${data.total} ₽`);
+                closeModal();
+                loadTables();
+            } else {
+                alert('Ошибка: ' + data.error);
+            }
+        });
+    }
+    
+    loadTables();
+    setInterval(loadTables, 10000);
+</script>
+{% endblock %}
