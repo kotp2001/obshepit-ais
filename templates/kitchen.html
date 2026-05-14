@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Кухня - Повар{% endblock %}
 {% block content %}
-<div class="card" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px); border: none;">
-    <div class="card-header" style="background: rgba(20,20,50,0.8); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
+<div class="card">
+    <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Кухня - Активные заказы</h4>
             <button class="btn btn-light btn-sm" onclick="loadOrders()">Обновить</button>
@@ -24,7 +24,7 @@
                 if (data.success) {
                     if (data.data.length === 0) {
                         document.getElementById('orders-container').innerHTML = `
-                            <div class="alert alert-success text-center" style="background: rgba(40,40,90,0.6); border: none; color: white;">
+                            <div class="alert alert-success text-center" style="background: rgba(40,90,40,0.6); border: none; color: #ffd700;">
                                 <h5>Нет активных заказов</h5>
                                 <p class="mb-0">Все заказы выполнены</p>
                             </div>
@@ -36,10 +36,10 @@
                     data.data.forEach(order => {
                         html += `
                             <div class="col-md-6 mb-4">
-                                <div class="card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,255,255,0.1);">
-                                    <div class="card-header" style="background: rgba(20,20,50,0.8); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <div class="card" style="background: rgba(40,40,90,0.6);">
+                                    <div class="card-header" style="background: rgba(20,20,50,0.8);">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="mb-0" style="color: white;">Заказ номер ${order.id}</h5>
+                                            <h5 class="mb-0" style="color: #ffd700;">Заказ номер ${order.id}</h5>
                                             <span class="badge bg-light text-dark">Стол ${order.table_number}</span>
                                         </div>
                                         <small style="color: rgba(255,255,255,0.7);">Создан: ${order.created_at}</small>
@@ -70,8 +70,8 @@
                             html += `
                                 <li class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                     <div>
-                                        <strong>${item.dish_name}</strong>
-                                        <span class="text-muted ms-2" style="color: #ffd700;">x${item.quantity}</span>
+                                        <strong style="color: white;">${item.dish_name}</strong>
+                                        <span class="ms-2" style="color: #ffd700;">x${item.quantity}</span>
                                     </div>
                                     <div>
                                         <span class="badge ${statusClass}">${statusText}</span>
