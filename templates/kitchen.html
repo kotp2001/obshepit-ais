@@ -1,21 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}Кухня - Повар{% endblock %}
 {% block content %}
-<div class="fade-in">
-    <div class="card">
-        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="fas fa-utensils me-2"></i> Кухня - Активные заказы</h4>
-            <button class="btn btn-light btn-sm" onclick="loadOrders()">
-                <i class="fas fa-sync-alt"></i> Обновить
-            </button>
+<div class="card" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px); border: none;">
+    <div class="card-header" style="background: rgba(20,20,50,0.8); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Кухня - Активные заказы</h4>
+            <button class="btn btn-light btn-sm" onclick="loadOrders()">Обновить</button>
         </div>
-        <div class="card-body">
-            <div id="orders-container">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка заказов...</p>
-                </div>
-            </div>
+    </div>
+    <div class="card-body" id="orders-container">
+        <div class="text-center py-5">
+            <div class="spinner-border text-light" role="status"></div>
+            <p class="mt-2 text-light">Загрузка заказов...</p>
         </div>
     </div>
 </div>
@@ -28,8 +24,7 @@
                 if (data.success) {
                     if (data.data.length === 0) {
                         document.getElementById('orders-container').innerHTML = `
-                            <div class="alert alert-success text-center">
-                                <i class="fas fa-check-circle fa-2x mb-2 d-block"></i>
+                            <div class="alert alert-success text-center" style="background: rgba(40,40,90,0.6); border: none; color: white;">
                                 <h5>Нет активных заказов</h5>
                                 <p class="mb-0">Все заказы выполнены</p>
                             </div>
@@ -41,16 +36,16 @@
                     data.data.forEach(order => {
                         html += `
                             <div class="col-md-6 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-primary text-white">
+                                <div class="card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="card-header" style="background: rgba(20,20,50,0.8); border-bottom: 1px solid rgba(255,255,255,0.1);">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="mb-0">Заказ #${order.id}</h5>
+                                            <h5 class="mb-0" style="color: white;">Заказ номер ${order.id}</h5>
                                             <span class="badge bg-light text-dark">Стол ${order.table_number}</span>
                                         </div>
-                                        <small>Создан: ${order.created_at}</small>
+                                        <small style="color: rgba(255,255,255,0.7);">Создан: ${order.created_at}</small>
                                     </div>
                                     <div class="card-body">
-                                        <ul class="list-group list-group-flush">
+                                        <ul class="list-group list-group-flush" style="background: transparent;">
                         `;
                         
                         order.items.forEach(item => {
@@ -60,26 +55,26 @@
                             let readyBtn = '';
                             
                             if (item.status === 'pending') {
-                                statusClass = 'status-new';
+                                statusClass = 'bg-info';
                                 statusText = 'Ожидает';
                                 cookingBtn = `<button class="btn btn-sm btn-warning ms-2" onclick="updateStatus(${item.id}, 'cooking')">Начать готовку</button>`;
                             } else if (item.status === 'cooking') {
-                                statusClass = 'status-cooking';
+                                statusClass = 'bg-warning';
                                 statusText = 'Готовится';
                                 readyBtn = `<button class="btn btn-sm btn-success ms-2" onclick="updateStatus(${item.id}, 'ready')">Готово</button>`;
                             } else if (item.status === 'ready') {
-                                statusClass = 'status-ready';
+                                statusClass = 'bg-success';
                                 statusText = 'Готов';
                             }
                             
                             html += `
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <li class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
                                     <div>
                                         <strong>${item.dish_name}</strong>
-                                        <span class="text-muted ms-2">x${item.quantity}</span>
+                                        <span class="text-muted ms-2" style="color: #ffd700;">x${item.quantity}</span>
                                     </div>
                                     <div>
-                                        <span class="status-badge ${statusClass}">${statusText}</span>
+                                        <span class="badge ${statusClass}">${statusText}</span>
                                         ${cookingBtn}
                                         ${readyBtn}
                                     </div>
@@ -95,7 +90,7 @@
                         html += `
                                         </ul>
                                     </div>
-                                    <div class="card-footer">
+                                    <div class="card-footer" style="background: rgba(20,20,50,0.6); border-top: 1px solid rgba(255,255,255,0.1);">
                                         <span class="badge bg-secondary">${orderStatusText}</span>
                                     </div>
                                 </div>
@@ -129,17 +124,4 @@
     loadOrders();
     setInterval(loadOrders, 5000);
 </script>
-
-<style>
-    .status-badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        display: inline-block;
-    }
-    .status-new { background: #17a2b8; color: white; }
-    .status-cooking { background: #ffc107; color: black; }
-    .status-ready { background: #28a745; color: white; }
-</style>
 {% endblock %}
