@@ -3,18 +3,18 @@
 {% block content %}
 <div class="fade-in">
     <div class="card">
-        <div class="card-header bg-dark text-white py-3">
-            <h4 class="mb-0"><i class="fas fa-calendar-alt me-2"></i> Бронирование столов</h4>
+        <div class="card-header">
+            <h4 class="mb-0">Бронирование столов</h4>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group mb-3">
-                        <label class="fw-bold mb-2">Дата бронирования</label>
+                        <label class="form-label">Дата бронирования</label>
                         <input type="date" id="booking-date" class="form-control">
                     </div>
                     <div class="form-group mb-3">
-                        <label class="fw-bold mb-2">Время</label>
+                        <label class="form-label">Время</label>
                         <select id="booking-time" class="form-control">
                             <option value="12:00">12:00</option>
                             <option value="13:00">13:00</option>
@@ -35,8 +35,8 @@
             </div>
             
             <div id="booking-form" style="display:none;" class="mt-4">
-                <div class="card border-success">
-                    <div class="card-header bg-success text-white">
+                <div class="card" style="border: 1px solid #ffd700;">
+                    <div class="card-header" style="background: #ffd700; color: #1a1a4a;">
                         <h5 class="mb-0">Форма бронирования</h5>
                     </div>
                     <div class="card-body">
@@ -44,30 +44,30 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="fw-bold">Ваше имя</label>
+                                    <label class="form-label">Ваше имя</label>
                                     <input type="text" id="guest-name" class="form-control" required placeholder="Иван Иванов">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="fw-bold">Телефон</label>
+                                    <label class="form-label">Телефон</label>
                                     <input type="tel" id="guest-phone" class="form-control" required placeholder="+7 999 123-45-67">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="fw-bold">Количество гостей</label>
+                                    <label class="form-label">Количество гостей</label>
                                     <input type="number" id="guests-count" class="form-control" value="2" min="1">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="fw-bold">Email (опционально)</label>
+                                    <label class="form-label">Email (опционально)</label>
                                     <input type="email" id="guest-email" class="form-control" placeholder="example@mail.com">
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-success" onclick="submitBooking()">Подтвердить бронирование</button>
+                        <button class="btn" style="background: #ffd700; color: #1a1a4a;" onclick="submitBooking()">Подтвердить бронирование</button>
                         <button class="btn btn-secondary ms-2" onclick="cancelBooking()">Отмена</button>
                     </div>
                 </div>
@@ -94,17 +94,17 @@
                             let html = '<div class="row">';
                             data.data.forEach(table => {
                                 let isBooked = bookings.data.some(b => b.table_number === table.number && b.time === time);
-                                let statusClass = isBooked ? 'bg-secondary' : 'bg-success';
+                                let bgColor = isBooked ? 'rgba(140,40,40,0.7)' : 'rgba(40,90,40,0.7)';
                                 let statusText = isBooked ? 'Занят' : 'Свободен';
                                 
                                 html += `
                                     <div class="col-md-4 mb-3">
-                                        <div class="card text-center ${statusClass} text-white table-card ${!isBooked ? 'free-card' : ''}">
+                                        <div class="card text-center" style="background: ${bgColor};">
                                             <div class="card-body">
-                                                <i class="fas fa-chair fa-2x mb-2"></i>
-                                                <h4>Стол ${table.number}</h4>
-                                                <p>${table.seats} мест</p>
-                                                ${!isBooked ? `<button class="btn btn-light btn-sm" onclick="showBookingForm(${table.id}, ${table.seats})">Забронировать</button>` : '<span class="badge bg-dark">Забронирован</span>'}
+                                                <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
+                                                <h4 style="color: white;">Стол ${table.number}</h4>
+                                                <p style="color: rgba(255,255,255,0.8);">${table.seats} мест</p>
+                                                ${!isBooked ? `<button class="btn" style="background: #ffd700; color: #1a1a4a;" onclick="showBookingForm(${table.id}, ${table.seats})">Забронировать</button>` : '<span class="badge bg-danger">Забронирован</span>'}
                                             </div>
                                         </div>
                                     </div>
