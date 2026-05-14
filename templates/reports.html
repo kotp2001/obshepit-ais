@@ -4,7 +4,7 @@
 <div class="fade-in">
     <div class="card">
         <div class="card-header bg-dark text-white py-3">
-            <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i> Отчёты и аналитика</h4>
+            <h4 class="mb-0">📊 Отчёты и аналитика</h4>
         </div>
         <div class="card-body">
             <div class="row mb-4">
@@ -16,9 +16,15 @@
                         <option value="month">За месяц</option>
                     </select>
                 </div>
-                <div class="col-md-8 d-flex align-items-end">
+                <div class="col-md-8 d-flex align-items-end gap-2">
                     <button class="btn btn-primary" onclick="loadReports()">
-                        <i class="fas fa-chart-simple me-1"></i> Обновить отчёты
+                        Обновить отчёты
+                    </button>
+                    <button class="btn btn-success" onclick="window.location.href='/export/orders/'">
+                        Экспорт заказов в Excel
+                    </button>
+                    <button class="btn btn-info text-white" onclick="window.location.href='/export/popular/'">
+                        Экспорт популярных блюд
                     </button>
                 </div>
             </div>
@@ -27,7 +33,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card text-center bg-primary text-white">
                         <div class="card-body">
-                            <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                            <h3 class="mb-2">💰</h3>
                             <h6 class="mb-2">Общая выручка</h6>
                             <h2 id="total-revenue">0 ₽</h2>
                         </div>
@@ -36,7 +42,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card text-center bg-success text-white">
                         <div class="card-body">
-                            <i class="fas fa-receipt fa-2x mb-2"></i>
+                            <h3 class="mb-2">📋</h3>
                             <h6 class="mb-2">Всего заказов</h6>
                             <h2 id="total-orders">0</h2>
                         </div>
@@ -45,7 +51,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="card text-center bg-warning text-white">
                         <div class="card-body">
-                            <i class="fas fa-calculator fa-2x mb-2"></i>
+                            <h3 class="mb-2">📊</h3>
                             <h6 class="mb-2">Средний чек</h6>
                             <h2 id="avg-check">0 ₽</h2>
                         </div>
@@ -57,7 +63,7 @@
                 <div class="col-md-7">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i> Продажи по дням</h6>
+                            <h6 class="mb-0">Продажи по дням</h6>
                         </div>
                         <div class="card-body">
                             <canvas id="sales-chart" width="100%" height="300"></canvas>
@@ -67,7 +73,7 @@
                 <div class="col-md-5">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-trophy me-2"></i> Популярные блюда</h6>
+                            <h6 class="mb-0">Популярные блюда</h6>
                         </div>
                         <div class="card-body">
                             <div id="popular-dishes">
@@ -127,12 +133,12 @@
                             datasets: [{
                                 label: 'Выручка (₽)',
                                 data: data.data.daily_data.map(d => d.revenue),
-                                borderColor: '#667eea',
-                                backgroundColor: 'rgba(102,126,234,0.1)',
+                                borderColor: '#1a1a4a',
+                                backgroundColor: 'rgba(26,26,74,0.1)',
                                 tension: 0.3,
                                 fill: true,
                                 borderWidth: 2,
-                                pointBackgroundColor: '#667eea',
+                                pointBackgroundColor: '#1a1a4a',
                                 pointBorderColor: '#fff',
                                 pointBorderWidth: 2,
                                 pointRadius: 5,
