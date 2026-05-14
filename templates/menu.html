@@ -1,18 +1,14 @@
 {% extends 'base.html' %}
 {% block title %}Меню{% endblock %}
 {% block content %}
-<div class="fade-in">
-    <div class="card">
-        <div class="card-header bg-dark text-white py-3">
-            <h4 class="mb-0"><i class="fas fa-book me-2"></i> Наше меню</h4>
-        </div>
-        <div class="card-body">
-            <div id="menu-container">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2">Загрузка меню...</p>
-                </div>
-            </div>
+<div class="card" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px); border: none;">
+    <div class="card-header" style="background: rgba(20,20,50,0.8); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <h4 class="mb-0">Наше меню</h4>
+    </div>
+    <div class="card-body" id="menu-container">
+        <div class="text-center py-5">
+            <div class="spinner-border text-light" role="status"></div>
+            <p class="mt-2 text-light">Загрузка меню...</p>
         </div>
     </div>
 </div>
@@ -30,16 +26,21 @@
         localStorage.setItem('restaurant_cart', JSON.stringify(cart));
         
         const btn = event.target;
-        btn.innerHTML = '<i class="fas fa-check"></i> Добавлено';
+        btn.innerHTML = '✓';
         btn.classList.remove('btn-add');
         btn.classList.add('btn-success');
         setTimeout(() => {
-            btn.innerHTML = '<i class="fas fa-cart-plus"></i> В корзину';
+            btn.innerHTML = '+';
             btn.classList.remove('btn-success');
             btn.classList.add('btn-add');
-        }, 1500);
+        }, 1000);
         
+        updateCartButton();
+    }
+    
+    function updateCartButton() {
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const count = cart.length;
         let cartBtn = document.getElementById('cart-total-btn');
         if (!cartBtn) {
             const nav = document.querySelector('.navbar-nav');
@@ -47,12 +48,11 @@
                 cartBtn = document.createElement('li');
                 cartBtn.className = 'nav-item';
                 cartBtn.id = 'cart-total-btn';
-                cartBtn.innerHTML = `<a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i> <span id="cart-count">${cart.length}</span> | ${total} ₽</a>`;
+                cartBtn.innerHTML = `<a class="nav-link" href="#" style="color: #ffd700 !important;">Корзина: ${count} | ${total} ₽</a>`;
                 nav.appendChild(cartBtn);
             }
         } else {
-            document.getElementById('cart-count').innerText = cart.length;
-            cartBtn.querySelector('a').innerHTML = `<i class="fas fa-shopping-cart"></i> <span id="cart-count">${cart.length}</span> | ${total} ₽`;
+            cartBtn.querySelector('a').innerHTML = `Корзина: ${count} | ${total} ₽`;
         }
     }
     
@@ -71,20 +71,20 @@
                     
                     let html = '';
                     for (const [category, dishes] of Object.entries(categories)) {
-                        html += `<h3 class="mt-4 mb-3"><i class="fas fa-tag me-2"></i> ${category}</h3>`;
+                        html += `<h4 class="mt-4 mb-3" style="color: #ffd700;">${category}</h4>`;
                         html += '<div class="row">';
                         dishes.forEach(dish => {
                             html += `
                                 <div class="col-md-6 col-lg-4 mb-4">
-                                    <div class="card h-100">
+                                    <div class="card h-100" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,255,255,0.1);">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-start">
-                                                <h5 class="card-title mb-2">${dish.name}</h5>
-                                                <span class="price">${dish.price} ₽</span>
+                                                <h5 class="card-title" style="color: white;">${dish.name}</h5>
+                                                <span class="price" style="color: #ffd700; font-size: 1.2rem;">${dish.price} ₽</span>
                                             </div>
-                                            <p class="card-text text-muted small">${dish.description || 'Нет описания'}</p>
-                                            <button class="btn btn-add w-100 mt-2" style="background: #28a745; color: white; border-radius: 25px; padding: 8px;" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
-                                                <i class="fas fa-cart-plus"></i> В корзину
+                                            <p class="card-text" style="color: rgba(255,255,255,0.7);">${dish.description || 'Нет описания'}</p>
+                                            <button class="btn btn-add w-100 mt-2" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
+                                                +
                                             </button>
                                         </div>
                                     </div>
@@ -94,6 +94,7 @@
                         html += '</div>';
                     }
                     document.getElementById('menu-container').innerHTML = html;
+                    updateCartButton();
                 }
             });
     }
@@ -107,11 +108,11 @@
         color: white;
         border-radius: 25px;
         padding: 8px;
-        transition: all 0.2s ease;
+        transition: all 0.1s ease;
     }
     .btn-add:hover {
         background: #218838;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
     }
     .btn-add:active {
         transform: translateY(1px);
