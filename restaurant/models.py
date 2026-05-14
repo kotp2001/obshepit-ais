@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from decimal import Decimal
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название')
@@ -42,8 +41,8 @@ class Table(models.Model):
     number = models.IntegerField(unique=True, verbose_name='Номер стола')
     seats = models.IntegerField(default=4, verbose_name='Количество мест')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='free', verbose_name='Статус')
-    x_position = models.IntegerField(default=0, verbose_name='X позиция на схеме')
-    y_position = models.IntegerField(default=0, verbose_name='Y позиция на схеме')
+    x_position = models.IntegerField(default=0, verbose_name='X позиция')
+    y_position = models.IntegerField(default=0, verbose_name='Y позиция')
     
     class Meta:
         verbose_name = 'Стол'
@@ -85,12 +84,6 @@ class Order(models.Model):
     
     def __str__(self):
         return f'Заказ #{self.id} - Стол {self.table.number}'
-    
-    def calculate_total(self):
-        total = sum(item.get_total() for item in self.items.all())
-        self.total_amount = total
-        self.save()
-        return total
 
 class OrderItem(models.Model):
     STATUS_CHOICES = [
@@ -113,9 +106,6 @@ class OrderItem(models.Model):
     
     def __str__(self):
         return f'{self.dish.name} x{self.quantity}'
-    
-    def get_total(self):
-        return self.price * self.quantity
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -142,4 +132,4 @@ class Booking(models.Model):
         ordering = ['booking_date', 'booking_time']
     
     def __str__(self):
-        return f'Бронь: {self.guest_name} - Стол {self.table.number} - {self.booking_date} {self.booking_time}'
+        return f'Бронь: {self.guest_name} - Стол {self.table.number}'
