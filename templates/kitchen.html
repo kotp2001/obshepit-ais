@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Кухня{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0"><i class="fas fa-utensils"></i> Кухня - Активные заказы</h4>
+    </div>
+    <div class="card-body">
+        <div id="orders-container">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p>Загрузка заказов...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadOrders() {
+        fetch('/api/orders/active/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    let html = '<div class="row">';
+                    data.data.forEach(order => {
+                        html += `
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">Заказ #${order.id} | Стол ${order.table_number}</h5>
+                                        <small>${order.created_at}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group">
+                        `;
+                        order.items.forEach(item => {
+                            let statusClass = '';
+                            if (item.status === 'pending') statusClass = 'status-new';
+                            else if (item.status === 'cooking') statusClass = 'status-cooking';
+                            else if (item.status === 'ready') statusClass = 'status-ready';
+                            
+                            html += `
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    ${item.dish_name} x${item.quantity}
+                                    <div>
+                                        <span class="status-badge ${statusClass}">${item.status}</span>
+                                        <button class="btn btn-sm btn-warning ms-2" onclick="updateStatus(${item.id}, 'cooking')">Готовить</button>
+                                        <button class="btn btn-sm btn-success ms-1" onclick="updateStatus(${item.id}, 'ready')">Готово</button>
+                                    </div>
+                                </li>
+                            `;
+                        });
+                        html += `
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    document.getElementById('orders-container').innerHTML = html;
+                } else {
+                    document.getElementById('orders-container').innerHTML = '<div class="alert alert-success">Нет активных заказов</div>';
+                }
+            });
+    }
+    
+    function updateStatus(itemId, status) {
+        fetch('/api/orders/update-item/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({item_id: itemId, status: status})
+        }).then(() => loadOrders());
+    }
+    
+    loadOrders();
+    setInterval(loadOrders, 5000);
+</script>
+{% endblock %}
