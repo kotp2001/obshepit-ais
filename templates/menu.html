@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Меню{% endblock %}
 {% block content %}
-<div class="card" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px); border: none;">
-    <div class="card-header" style="background: rgba(20,20,50,0.8); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
+<div class="card">
+    <div class="card-header">
         <h4 class="mb-0">Наше меню</h4>
     </div>
     <div class="card-body" id="menu-container">
@@ -16,6 +16,89 @@
 <script>
     let cart = JSON.parse(localStorage.getItem('restaurant_cart') || '[]');
     
+    function updateCartDisplay() {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        let cartBtn = document.getElementById('cart-total-btn');
+        if (!cartBtn) {
+            const nav = document.querySelector('.navbar-nav');
+            if (nav) {
+                cartBtn = document.createElement('li');
+                cartBtn.className = 'nav-item';
+                cartBtn.id = 'cart-total-btn';
+                cartBtn.innerHTML = `<a class="nav-link" href="#" style="color: #ffd700 !important; cursor: pointer;" onclick="showCartModal()">Корзина: ${count} | ${total} ₽</a>`;
+                nav.appendChild(cartBtn);
+            }
+        } else {
+            cartBtn.querySelector('a').innerHTML = `Корзина: ${count} | ${total} ₽`;
+        }
+    }
+    
+    function showCartModal() {
+        if (cart.length === 0) {
+            alert('Корзина пуста');
+            return;
+        }
+        
+        let items = '';
+        let total = 0;
+        cart.forEach((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            items += `
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                    <div>
+                        <strong>${item.name}</strong>
+                        <div>${item.price} ₽ × ${item.quantity}</div>
+                    </div>
+                    <div>
+                        ${itemTotal} ₽
+                        <button class="btn btn-sm btn-danger ms-2" onclick="removeFromCart(${index}); location.reload();">Удалить</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        const modalHtml = `
+            <div class="modal fade" id="cartModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content" style="background: rgba(30,30,70,0.95);">
+                        <div class="modal-header">
+                            <h5 class="modal-title" style="color: #ffd700;">Моя корзина</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${items}
+                            <hr style="border-color: rgba(255,255,255,0.2);">
+                            <div class="d-flex justify-content-between">
+                                <strong style="color: white;">Итого:</strong>
+                                <strong style="color: #ffd700; font-size: 1.3rem;">${total} ₽</strong>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="alert('Заказ оформлен! Перейдите к официанту для оплаты.'); localStorage.removeItem('restaurant_cart'); location.reload();">Оформить заказ</button>
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Продолжить выбор</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Удаляем старый модал если есть
+        const oldModal = document.getElementById('cartModal');
+        if (oldModal) oldModal.remove();
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+        modal.show();
+    }
+    
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('restaurant_cart', JSON.stringify(cart));
+        updateCartDisplay();
+    }
+    
     function addToCart(id, name, price) {
         const existing = cart.find(item => item.id === id);
         if (existing) {
@@ -24,36 +107,14 @@
             cart.push({id, name, price, quantity: 1});
         }
         localStorage.setItem('restaurant_cart', JSON.stringify(cart));
+        updateCartDisplay();
         
         const btn = event.target;
+        const originalText = btn.innerHTML;
         btn.innerHTML = '✓';
-        btn.classList.remove('btn-add');
-        btn.classList.add('btn-success');
         setTimeout(() => {
-            btn.innerHTML = '+';
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-add');
-        }, 1000);
-        
-        updateCartButton();
-    }
-    
-    function updateCartButton() {
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const count = cart.length;
-        let cartBtn = document.getElementById('cart-total-btn');
-        if (!cartBtn) {
-            const nav = document.querySelector('.navbar-nav');
-            if (nav) {
-                cartBtn = document.createElement('li');
-                cartBtn.className = 'nav-item';
-                cartBtn.id = 'cart-total-btn';
-                cartBtn.innerHTML = `<a class="nav-link" href="#" style="color: #ffd700 !important;">Корзина: ${count} | ${total} ₽</a>`;
-                nav.appendChild(cartBtn);
-            }
-        } else {
-            cartBtn.querySelector('a').innerHTML = `Корзина: ${count} | ${total} ₽`;
-        }
+            btn.innerHTML = originalText;
+        }, 800);
     }
     
     function loadMenu() {
@@ -76,16 +137,14 @@
                         dishes.forEach(dish => {
                             html += `
                                 <div class="col-md-6 col-lg-4 mb-4">
-                                    <div class="card h-100" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="card h-100">
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <h5 class="card-title" style="color: white;">${dish.name}</h5>
                                                 <span class="price" style="color: #ffd700; font-size: 1.2rem;">${dish.price} ₽</span>
                                             </div>
                                             <p class="card-text" style="color: rgba(255,255,255,0.7);">${dish.description || 'Нет описания'}</p>
-                                            <button class="btn btn-add w-100 mt-2" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">
-                                                +
-                                            </button>
+                                            <button class="btn btn-primary w-100 mt-2" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})" style="background: #28a745;">Добавить в корзину</button>
                                         </div>
                                     </div>
                                 </div>
@@ -94,28 +153,13 @@
                         html += '</div>';
                     }
                     document.getElementById('menu-container').innerHTML = html;
-                    updateCartButton();
+                    updateCartDisplay();
+                } else {
+                    document.getElementById('menu-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
                 }
             });
     }
     
     loadMenu();
 </script>
-
-<style>
-    .btn-add {
-        background: #28a745;
-        color: white;
-        border-radius: 25px;
-        padding: 8px;
-        transition: all 0.1s ease;
-    }
-    .btn-add:hover {
-        background: #218838;
-        transform: translateY(-1px);
-    }
-    .btn-add:active {
-        transform: translateY(1px);
-    }
-</style>
 {% endblock %}
