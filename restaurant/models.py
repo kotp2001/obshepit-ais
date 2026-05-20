@@ -125,7 +125,7 @@ class Booking(models.Model):
     comment = models.TextField(blank=True, verbose_name='Комментарий')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Статус')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создана')
-    
+    ready_at = models.DateTimeField(null=True, blank=True, verbose_name='Время готовности')
     class Meta:
         verbose_name = 'Бронь'
         verbose_name_plural = 'Брони'
