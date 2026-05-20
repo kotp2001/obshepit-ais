@@ -9,16 +9,27 @@
         </div>
     </div>
     <div class="card-body">
+        <!-- Список столов -->
         <div id="hall-container" class="row">
             <div class="text-center py-5">
                 <div class="spinner-border text-light" role="status"></div>
                 <p class="mt-2">Загрузка столов...</p>
             </div>
         </div>
+        
+        <!-- Список готовых заказов -->
+        <div id="ready-orders-container" class="mt-4">
+            <h5 style="color: #ffd700;">Готовые заказы</h5>
+            <div id="ready-orders-list" class="row"></div>
+        </div>
     </div>
 </div>
 
 <script>
+    let currentTableId = null;
+    let currentTableNumber = null;
+    let currentCart = [];
+    
     async function loadTables() {
         try {
             const response = await fetch('/api/tables/');
@@ -34,7 +45,7 @@
                     if (table.status === 'free') {
                         bgColor = 'rgba(40,90,40,0.7)';
                         statusText = 'Свободен';
-                        clickHandler = `onclick="createOrderForTable(${table.id}, ${table.number})" style="cursor: pointer;"`;
+                        clickHandler = `onclick="openOrderModal(${table.id}, ${table.number})" style="cursor: pointer;"`;
                     } else if (table.status === 'occupied') {
                         bgColor = 'rgba(140,40,40,0.7)';
                         statusText = 'Занят';
@@ -60,171 +71,350 @@
                 }
                 document.getElementById('hall-container').innerHTML = html;
             }
+            
+            // Загружаем готовые заказы
+            await loadReadyOrders();
+            
         } catch (error) {
             document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
         }
     }
     
-    function createOrderForTable(tableId, tableNumber) {
-        const items = [];
-        let itemsHtml = '';
-        
-        fetch('/api/dishes/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    const categories = {};
-                    data.data.forEach(dish => {
-                        if (!categories[dish.category]) {
-                            categories[dish.category] = [];
-                        }
-                        categories[dish.category].push(dish);
-                    });
-                    
-                    let menuHtml = '';
-                    for (const [category, dishes] of Object.entries(categories)) {
-                        menuHtml += `<h6 style="color: #ffd700; margin-top: 15px;">${category}</h6>`;
-                        menuHtml += '<div class="row">';
-                        dishes.forEach(dish => {
-                            menuHtml += `
-                                <div class="col-md-6 mb-2">
-                                    <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 8px;">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong style="color: white;">${dish.name}</strong>
-                                                <div style="color: #ffd700;">${dish.price} ₽</div>
-                                            </div>
-                                            <button class="btn btn-sm btn-success" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">+</button>
-                                        </div>
-                                    </div>
+    async function loadReadyOrders() {
+        try {
+            const response = await fetch('/api/orders/active/');
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                const readyOrders = data.data.filter(order => order.status === 'ready');
+                
+                if (readyOrders.length === 0) {
+                    document.getElementById('ready-orders-list').innerHTML = '<p class="text-muted">Нет готовых заказов</p>';
+                    return;
+                }
+                
+                let html = '';
+                for (const order of readyOrders) {
+                    html += `
+                        <div class="col-md-4 mb-3">
+                            <div class="card" style="background: rgba(40,100,40,0.7);">
+                                <div class="card-body">
+                                    <h5 style="color: #ffd700;">Заказ для стола ${order.table_number}</h5>
+                                    <p>Создан: ${order.created_at}</p>
+                                    <button class="btn btn-warning btn-sm" onclick="takeOrder(${order.id})">Забрать заказ</button>
                                 </div>
-                            `;
-                        });
-                        menuHtml += '</div>';
-                    }
-                    
-                    const modalHtml = `
-                        <div class="modal fade" id="orderModal" tabindex="-1">
-                            <div class="modal-dialog modal-xl">
-                                <div class="modal-content" style="background: rgba(20,20,60,0.95);">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" style="color: #ffd700;">Заказ для стола ${tableNumber}</h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-md-7">
-                                                ${menuHtml}
-                                            </div>
-                                            <div class="col-md-5">
-                                                <div style="background: rgba(30,30,80,0.8); border-radius: 10px; padding: 15px;">
-                                                    <h5 style="color: #ffd700;">Корзина</h5>
-                                                    <div id="cart-items">Корзина пуста</div>
-                                                    <hr>
-                                                    <div class="d-flex justify-content-between">
-                                                        <strong>Итого:</strong>
-                                                        <span id="total" style="color: #ffd700;">0 ₽</span>
-                                                    </div>
-                                                    <div class="mt-3">
-                                                        <label>Количество гостей</label>
-                                                        <input type="number" id="guest-count" class="form-control" value="2" min="1">
-                                                    </div>
-                                                    <div class="mt-3 d-grid gap-2">
-                                                        <button class="btn btn-warning" onclick="submitOrder(${tableId})">Оформить заказ</button>
-                                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById('ready-orders-list').innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error loading ready orders:', error);
+        }
+    }
+    
+    async function takeOrder(orderId) {
+        try {
+            const response = await fetch('/api/orders/take/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({order_id: orderId})
+            });
+            const data = await response.json();
+            if (data.success) {
+                showPaymentModal(orderId);
+                loadTables();
+            }
+        } catch (error) {
+            alert('Ошибка: ' + error);
+        }
+    }
+    
+    async function showPaymentModal(orderId) {
+        // Получаем данные заказа для чека
+        const receiptResponse = await fetch(`/api/orders/receipt/${orderId}/`);
+        const receiptData = await receiptResponse.json();
+        
+        if (receiptData.success) {
+            const order = receiptData.data;
+            let itemsHtml = '';
+            for (const item of order.items) {
+                itemsHtml += `
+                    <tr>
+                        <td>${item.name} x${item.quantity}</td>
+                        <td style="text-align: right;">${item.total} ₽</td>
+                    </tr>
+                `;
+            }
+            
+            const modalHtml = `
+                <div class="modal fade" id="paymentModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background: rgba(20,20,60,0.95);">
+                            <div class="modal-header">
+                                <h5 class="modal-title" style="color: #ffd700;">Оплата заказа #${order.order_id}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Способ оплаты</label>
+                                    <select id="payment-method" class="form-control">
+                                        <option value="cash">Наличные</option>
+                                        <option value="card">Карта</option>
+                                        <option value="qr">QR-код</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-warning w-100" onclick="confirmPayment(${orderId})">Оплатить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const oldModal = document.getElementById('paymentModal');
+            if (oldModal) oldModal.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            modal.show();
+        }
+    }
+    
+    async function confirmPayment(orderId) {
+        const paymentMethod = document.getElementById('payment-method').value;
+        
+        const response = await fetch('/api/orders/pay/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({order_id: orderId, payment_method: paymentMethod})
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            if (modal) modal.hide();
+            await showReceipt(orderId);
+        } else {
+            alert('Ошибка оплаты: ' + data.error);
+        }
+    }
+    
+    async function showReceipt(orderId) {
+        const response = await fetch(`/api/orders/receipt/${orderId}/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const order = data.data;
+            let itemsHtml = '';
+            for (const item of order.items) {
+                itemsHtml += `
+                    <tr>
+                        <td>${item.name} x${item.quantity}</td>
+                        <td style="text-align: right;">${item.total} ₽</td>
+                    </tr>
+                `;
+            }
+            
+            const receiptHtml = `
+                <div class="modal fade" id="receiptModal" tabindex="-1">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content" style="background: white; color: black; font-family: monospace;">
+                            <div class="modal-body" style="text-align: center; padding: 20px;">
+                                <h3 style="margin-bottom: 5px;">АИС "ОБЩЕПИТ"</h3>
+                                <p style="margin-bottom: 20px;">${order.created_at}</p>
+                                <p style="margin-bottom: 20px;">Стол ${order.table_number} | Заказ #${order.order_id}</p>
+                                <hr>
+                                <table style="width: 100%; margin-bottom: 20px;">
+                                    ${itemsHtml}
+                                </table>
+                                <hr>
+                                <h4>ИТОГО: ${order.total} ₽</h4>
+                                <p>Оплата: ${order.payment_method === 'cash' ? 'Наличные' : (order.payment_method === 'card' ? 'Карта' : 'QR-код')}</p>
+                                <hr>
+                                <p>Спасибо за заказ!</p>
+                                <p>Приходите ещё</p>
+                                <button class="btn btn-primary btn-sm mt-3" onclick="window.print()">Распечатать чек</button>
+                                <button class="btn btn-secondary btn-sm mt-3" data-bs-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const oldReceipt = document.getElementById('receiptModal');
+            if (oldReceipt) oldReceipt.remove();
+            
+            document.body.insertAdjacentHTML('beforeend', receiptHtml);
+            const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+            modal.show();
+            loadTables();
+        }
+    }
+    
+    function openOrderModal(tableId, tableNumber) {
+        currentTableId = tableId;
+        currentTableNumber = tableNumber;
+        currentCart = [];
+        updateCartDisplay();
+        loadMenu();
+        
+        const modalHtml = `
+            <div class="modal fade" id="orderModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content" style="background: rgba(20,20,60,0.95);">
+                        <div class="modal-header">
+                            <h5 class="modal-title" style="color: #ffd700;">Заказ для стола ${tableNumber}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-7" id="menu-container"></div>
+                                <div class="col-md-5">
+                                    <div style="background: rgba(30,30,80,0.8); border-radius: 10px; padding: 15px;">
+                                        <h5 style="color: #ffd700;">Корзина</h5>
+                                        <div id="cart-items">Корзина пуста</div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Итого:</strong>
+                                            <span id="total" style="color: #ffd700;">0 ₽</span>
+                                        </div>
+                                        <div class="mt-3">
+                                            <label>Количество гостей</label>
+                                            <input type="number" id="guest-count" class="form-control" value="2" min="1">
+                                        </div>
+                                        <div class="mt-3 d-grid gap-2">
+                                            <button class="btn btn-warning" onclick="submitOrder()">Оформить заказ</button>
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    
-                    const oldModal = document.getElementById('orderModal');
-                    if (oldModal) oldModal.remove();
-                    
-                    document.body.insertAdjacentHTML('beforeend', modalHtml);
-                    
-                    window.currentCart = [];
-                    window.updateCartDisplay = function() {
-                        let total = 0;
-                        let html = '';
-                        if (window.currentCart.length === 0) {
-                            html = '<p class="text-center">Корзина пуста</p>';
-                        } else {
-                            window.currentCart.forEach((item, idx) => {
-                                total += item.price * item.quantity;
-                                html += `
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <div>${item.name} x${item.quantity}</div>
-                                        <div>${item.price * item.quantity} ₽ <button class="btn btn-sm btn-danger" onclick="removeFromCart(${idx})">X</button></div>
-                                    </div>
-                                `;
-                            });
-                        }
-                        document.getElementById('cart-items').innerHTML = html;
-                        document.getElementById('total').innerHTML = total + ' ₽';
-                    };
-                    
-                    window.addToCart = function(id, name, price) {
-                        const existing = window.currentCart.find(item => item.id === id);
-                        if (existing) {
-                            existing.quantity++;
-                        } else {
-                            window.currentCart.push({id, name, price, quantity: 1});
-                        }
-                        window.updateCartDisplay();
-                    };
-                    
-                    window.removeFromCart = function(index) {
-                        window.currentCart.splice(index, 1);
-                        window.updateCartDisplay();
-                    };
-                    
-                    window.submitOrder = function(tableId) {
-                        if (window.currentCart.length === 0) {
-                            alert('Добавьте блюда в заказ');
-                            return;
-                        }
-                        
-                        const items = window.currentCart.map(item => ({
-                            dish_id: item.id,
-                            quantity: item.quantity
-                        }));
-                        
-                        const guestCount = document.getElementById('guest-count').value;
-                        
-                        fetch('/api/orders/create/', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({
-                                table_id: tableId,
-                                items: items,
-                                guest_count: guestCount
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
-                                if (modal) modal.hide();
-                                loadTables();
-                            } else {
-                                alert('Ошибка: ' + data.error);
-                            }
-                        });
-                    };
-                    
-                    window.updateCartDisplay();
-                    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
-                    modal.show();
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const oldModal = document.getElementById('orderModal');
+        if (oldModal) oldModal.remove();
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+        modal.show();
+    }
+    
+    async function loadMenu() {
+        const response = await fetch('/api/dishes/');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            const categories = {};
+            data.data.forEach(dish => {
+                if (!categories[dish.category]) {
+                    categories[dish.category] = [];
                 }
+                categories[dish.category].push(dish);
             });
+            
+            let html = '';
+            for (const [category, dishes] of Object.entries(categories)) {
+                html += `<h6 style="color: #ffd700; margin-top: 15px;">${category}</h6>`;
+                html += '<div class="row">';
+                dishes.forEach(dish => {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 8px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong style="color: white;">${dish.name}</strong>
+                                        <div style="color: #ffd700;">${dish.price} ₽</div>
+                                    </div>
+                                    <button class="btn btn-sm btn-success" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            document.getElementById('menu-container').innerHTML = html;
+        }
+    }
+    
+    window.addToCart = function(id, name, price) {
+        const existing = currentCart.find(item => item.id === id);
+        if (existing) {
+            existing.quantity++;
+        } else {
+            currentCart.push({id, name, price, quantity: 1});
+        }
+        updateCartDisplay();
+    };
+    
+    function updateCartDisplay() {
+        let total = 0;
+        let html = '';
+        
+        if (currentCart.length === 0) {
+            html = '<p class="text-center">Корзина пуста</p>';
+        } else {
+            currentCart.forEach((item, idx) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                html += `
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>${item.name} x${item.quantity}</div>
+                        <div>${itemTotal} ₽ <button class="btn btn-sm btn-danger" onclick="removeFromCart(${idx})">X</button></div>
+                    </div>
+                `;
+            });
+        }
+        
+        document.getElementById('cart-items').innerHTML = html;
+        document.getElementById('total').innerHTML = total + ' ₽';
+    }
+    
+    window.removeFromCart = function(index) {
+        currentCart.splice(index, 1);
+        updateCartDisplay();
+    };
+    
+    async function submitOrder() {
+        if (currentCart.length === 0) {
+            alert('Добавьте блюда в заказ');
+            return;
+        }
+        
+        const items = currentCart.map(item => ({
+            dish_id: item.id,
+            quantity: item.quantity
+        }));
+        
+        const guestCount = document.getElementById('guest-count').value;
+        
+        const response = await fetch('/api/orders/create/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                table_id: currentTableId,
+                items: items,
+                guest_count: guestCount
+            })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+            if (modal) modal.hide();
+            loadTables();
+        } else {
+            alert('Ошибка: ' + data.error);
+        }
     }
     
     loadTables();
+    setInterval(loadTables, 10000);
 </script>
 {% endblock %}
