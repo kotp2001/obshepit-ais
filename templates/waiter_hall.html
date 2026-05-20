@@ -17,12 +17,12 @@
 </div>
 
 <!-- Модальное окно для создания заказа -->
-<div id="order-modal" class="modal fade" tabindex="-1">
+<div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+        <div class="modal-content" style="background: rgba(20,20,60,0.95);">
             <div class="modal-header">
-                <h5 class="modal-title">Создание заказа</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" style="color: #ffd700;">Создание заказа</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -31,25 +31,21 @@
                         <div id="menu-list" style="max-height: 400px; overflow-y: auto;"></div>
                     </div>
                     <div class="col-md-5">
-                        <div class="card" style="background: rgba(20,20,50,0.9);">
-                            <div class="card-header" style="background: rgba(15,15,40,0.9);">
-                                <h5 class="mb-0" style="color: #ffd700;">Корзина</h5>
+                        <div style="background: rgba(30,30,80,0.8); border-radius: 10px; padding: 15px;">
+                            <h5 style="color: #ffd700;">Корзина</h5>
+                            <div id="cart-items" style="min-height: 150px;"></div>
+                            <hr style="border-color: rgba(255,255,255,0.2);">
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong style="color: white;">Итого:</strong>
+                                <span id="total" style="color: #ffd700; font-size: 1.3rem;">0 ₽</span>
                             </div>
-                            <div class="card-body">
-                                <div id="cart-items" style="min-height: 150px;"></div>
-                                <hr style="border-color: rgba(255,255,255,0.2);">
-                                <div class="d-flex justify-content-between">
-                                    <strong style="color: white;">Итого:</strong>
-                                    <span class="total" id="total" style="color: #ffd700; font-size: 1.3rem;">0 ₽</span>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Количество гостей</label>
-                                    <input type="number" id="guest-count" class="form-control" value="2" min="1">
-                                </div>
-                                <div class="mt-3 d-grid gap-2">
-                                    <button class="btn btn-primary" onclick="createOrder()">Оформить заказ</button>
-                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label" style="color: white;">Количество гостей</label>
+                                <input type="number" id="guest-count" class="form-control" value="2" min="1" style="background: rgba(50,50,100,0.8); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="createOrder()">Оформить заказ</button>
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                             </div>
                         </div>
                     </div>
@@ -61,8 +57,7 @@
 
 <script>
     let currentTableId = null;
-    let cart = [];
-    let modal;
+    let currentCart = [];
     
     function loadTables() {
         fetch('/api/tables/')
@@ -71,27 +66,27 @@
                 if (data.success && data.data) {
                     let html = '<div class="row">';
                     data.data.forEach(table => {
-                        let statusText = '';
-                        let clickable = '';
                         let bgColor = '';
+                        let statusText = '';
+                        let clickAttr = '';
                         
                         if (table.status === 'free') {
-                            statusText = 'Свободен';
-                            clickable = 'onclick="openOrderModal(' + table.id + ')"';
                             bgColor = 'rgba(40,90,40,0.7)';
+                            statusText = 'Свободен';
+                            clickAttr = `onclick="openOrderModal(${table.id})" style="cursor: pointer;"`;
                         } else if (table.status === 'occupied') {
-                            statusText = 'Занят';
-                            clickable = '';
                             bgColor = 'rgba(140,40,40,0.7)';
+                            statusText = 'Занят';
+                            clickAttr = `style="cursor: not-allowed; opacity: 0.6;"`;
                         } else {
-                            statusText = 'Забронирован';
-                            clickable = '';
                             bgColor = 'rgba(140,100,30,0.7)';
+                            statusText = 'Забронирован';
+                            clickAttr = `style="cursor: not-allowed; opacity: 0.6;"`;
                         }
                         
                         html += `
                             <div class="col-md-3 mb-3">
-                                <div class="card text-center" style="background: ${bgColor}; cursor: ${clickable ? 'pointer' : 'not-allowed'};" ${clickable}>
+                                <div class="card text-center" style="background: ${bgColor};" ${clickAttr}>
                                     <div class="card-body">
                                         <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
                                         <h3 style="color: white;">Стол ${table.number}</h3>
@@ -115,10 +110,10 @@
     
     function openOrderModal(tableId) {
         currentTableId = tableId;
-        cart = [];
-        updateCart();
+        currentCart = [];
+        updateCartDisplay();
         loadMenu();
-        modal = new bootstrap.Modal(document.getElementById('order-modal'));
+        const modal = new bootstrap.Modal(document.getElementById('orderModal'));
         modal.show();
     }
     
@@ -142,15 +137,13 @@
                         dishes.forEach(dish => {
                             html += `
                                 <div class="col-md-6 mb-2">
-                                    <div class="card" style="background: rgba(40,40,90,0.6);">
-                                        <div class="card-body py-2">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong style="color: white;">${dish.name}</strong>
-                                                    <small class="d-block" style="color: #ffd700;">${dish.price} ₽</small>
-                                                </div>
-                                                <button class="btn btn-sm btn-add" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">+</button>
+                                    <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 10px;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong style="color: white;">${dish.name}</strong>
+                                                <div style="color: #ffd700;">${dish.price} ₽</div>
                                             </div>
+                                            <button class="btn btn-sm" style="background: #28a745; color: white; border-radius: 50%; width: 32px; height: 32px;" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">+</button>
                                         </div>
                                     </div>
                                 </div>
@@ -159,19 +152,22 @@
                         html += '</div>';
                     }
                     document.getElementById('menu-list').innerHTML = html;
+                } else {
+                    document.getElementById('menu-list').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
                 }
             });
     }
     
     function addToCart(id, name, price) {
-        const existing = cart.find(item => item.id === id);
+        const existing = currentCart.find(item => item.id === id);
         if (existing) {
             existing.quantity++;
         } else {
-            cart.push({id, name, price, quantity: 1});
+            currentCart.push({id, name, price, quantity: 1});
         }
-        updateCart();
+        updateCartDisplay();
         
+        // Визуальный эффект
         const btn = event.target;
         btn.innerHTML = '✓';
         setTimeout(() => {
@@ -179,15 +175,16 @@
         }, 500);
     }
     
-    function updateCart() {
+    function updateCartDisplay() {
         let total = 0;
         let html = '';
         
-        if (cart.length === 0) {
-            html = '<p class="text-muted text-center">Корзина пуста</p>';
+        if (currentCart.length === 0) {
+            html = '<p class="text-center text-muted">Корзина пуста</p>';
         } else {
-            cart.forEach((item, index) => {
-                total += item.price * item.quantity;
+            currentCart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
                 html += `
                     <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">
                         <div>
@@ -195,8 +192,8 @@
                             <div style="color: #ffd700;">${item.price} ₽ × ${item.quantity}</div>
                         </div>
                         <div>
-                            <span style="color: white;">${item.price * item.quantity} ₽</span>
-                            <button class="btn btn-sm btn-danger ms-2" onclick="removeFromCart(${index})">X</button>
+                            <span style="color: white;">${itemTotal} ₽</span>
+                            <button class="btn btn-sm btn-danger ms-2" onclick="removeFromCart(${index})">Удалить</button>
                         </div>
                     </div>
                 `;
@@ -208,17 +205,17 @@
     }
     
     function removeFromCart(index) {
-        cart.splice(index, 1);
-        updateCart();
+        currentCart.splice(index, 1);
+        updateCartDisplay();
     }
     
     function createOrder() {
-        if (cart.length === 0) {
+        if (currentCart.length === 0) {
             alert('Добавьте блюда в заказ');
             return;
         }
         
-        const items = cart.map(item => ({
+        const items = currentCart.map(item => ({
             dish_id: item.id,
             quantity: item.quantity
         }));
@@ -238,39 +235,23 @@
         .then(data => {
             if (data.success) {
                 alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
-                modal.hide();
+                // Закрываем модальное окно
+                const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+                if (modal) modal.hide();
+                // Обновляем таблицу столов
                 loadTables();
             } else {
                 alert('Ошибка: ' + data.error);
             }
+        })
+        .catch(error => {
+            alert('Ошибка соединения: ' + error);
         });
     }
     
+    // Загружаем столы при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         loadTables();
     });
 </script>
-
-<style>
-    .btn-add {
-        background: #28a745;
-        color: white;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        transition: all 0.1s ease;
-    }
-    .btn-add:hover {
-        background: #218838;
-        transform: scale(1.05);
-    }
-    .btn-add:active {
-        transform: scale(0.95);
-    }
-</style>
 {% endblock %}
