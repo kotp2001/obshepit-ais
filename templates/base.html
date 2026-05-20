@@ -62,15 +62,18 @@
             color: #ffd700 !important;
         }
         
-        .nav-link {
-            color: rgba(255,255,255,0.8) !important;
-            padding: 6px 16px !important;
-            margin: 0 2px;
-            font-weight: 500;
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
         }
         
-        .nav-link:hover {
-            color: #ffd700 !important;
+        .btn-logout:hover {
+            background: #c82333;
+            transform: translateY(-1px);
         }
         
         .card {
@@ -210,11 +213,11 @@
 <body>
     <div class="stars" id="stars"></div>
     
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="/">АИС Общепит</a>
-            <div class="ms-auto">
-                <button class="btn btn-danger btn-sm" onclick="logout()" id="logout-btn" style="display: none;">Выйти</button>
+            <div>
+                <button class="btn-logout" onclick="logout()" id="logout-btn" style="display: none;">Выйти</button>
             </div>
         </div>
     </nav>
