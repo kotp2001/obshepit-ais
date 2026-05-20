@@ -6,7 +6,6 @@
     <title>АИС Общепит - {% block title %}Ресторан{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -66,42 +65,25 @@
             color: #ffd700 !important;
         }
         
-        .navbar-brand i {
-            margin-right: 8px;
+        .navbar-nav {
+            display: flex;
+            align-items: center;
         }
         
         .nav-link {
             color: rgba(255,255,255,0.8) !important;
-            transition: all 0.15s ease;
-            border-radius: 20px;
             padding: 6px 16px !important;
             margin: 0 2px;
             font-weight: 500;
         }
         
-        .nav-link:hover {
-            background: rgba(255,215,0,0.2);
-            color: #ffd700 !important;
-            transform: translateY(-1px);
-        }
-        
-        .nav-link:active {
-            transform: translateY(1px);
-        }
-        
-        /* Полупрозрачные карточки */
+        /* Карточки */
         .card {
             background: rgba(30,30,70,0.6);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 15px;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
         }
         
         .card-header {
@@ -116,13 +98,27 @@
             padding: 20px;
         }
         
-        /* Кнопки - только нажимаемые кнопки имеют анимацию */
+        /* Кнопки - анимация только на кнопках */
         .btn {
             border-radius: 25px;
             padding: 8px 20px;
             font-weight: 500;
-            transition: all 0.1s ease;
+            transition: transform 0.1s ease, background 0.1s ease;
             border: none;
+        }
+        
+        .btn:active {
+            transform: scale(0.97);
+        }
+        
+        .btn-warning {
+            background: #ffd700;
+            color: #1a1a4a;
+        }
+        
+        .btn-warning:hover {
+            background: #e6c200;
+            transform: translateY(-1px);
         }
         
         .btn-primary {
@@ -134,10 +130,6 @@
             transform: translateY(-1px);
         }
         
-        .btn-primary:active {
-            transform: translateY(1px);
-        }
-        
         .btn-success {
             background: #2a5a2a;
         }
@@ -147,135 +139,18 @@
             transform: translateY(-1px);
         }
         
-        .btn-success:active {
-            transform: translateY(1px);
+        .btn-danger {
+            background: #dc3545;
         }
         
-        .btn-warning {
-            background: #d4a017;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e4b027;
+        .btn-danger:hover {
+            background: #c82333;
             transform: translateY(-1px);
-        }
-        
-        .btn-warning:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-info {
-            background: #1780a0;
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background: #2790b0;
-            transform: translateY(-1px);
-        }
-        
-        .btn-info:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-light {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        
-        .btn-light:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
-        }
-        
-        .btn-light:active {
-            transform: translateY(1px);
         }
         
         .btn-secondary {
             background: rgba(100,100,140,0.8);
-            color: white;
         }
-        
-        .btn-secondary:hover {
-            background: rgba(120,120,160,0.9);
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary:active {
-            transform: translateY(1px);
-        }
-        
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-        
-        /* Столы */
-        .table-card {
-            cursor: pointer;
-            transition: all 0.1s ease;
-            text-align: center;
-            padding: 15px;
-            border-radius: 12px;
-        }
-        
-        .table-card:active {
-            transform: scale(0.98);
-        }
-        
-        .table-free {
-            background: rgba(40,90,40,0.6);
-            cursor: pointer;
-        }
-        
-        .table-free:hover {
-            background: rgba(50,110,50,0.7);
-            transform: translateY(-2px);
-        }
-        
-        .table-occupied {
-            background: rgba(140,40,40,0.6);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        
-        .table-reserved {
-            background: rgba(140,100,30,0.6);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        
-        .table-occupied:active, .table-reserved:active {
-            transform: none;
-        }
-        
-        /* Бейджи статусов */
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        
-        .price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffd700;
-        }
-        
-        /* Футер */
-       .footer {
-    background: rgba(20,20,50,0.8);
-    backdrop-filter: blur(10px);
-    margin-top: 40px;
-    padding: 15px;
-    text-align: center;
-    color: #ffd700;
-    font-size: 13px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-}
         
         /* Формы */
         .form-control {
@@ -291,26 +166,23 @@
             box-shadow: none;
         }
         
-        .form-label {
-            color: rgba(255,255,255,0.9);
-        }
-        
-        /* Модальное окно */
-        .modal-content {
-            background: rgba(30,30,70,0.95);
+        .footer {
+            background: rgba(20,20,50,0.8);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 40px;
+            padding: 15px;
+            text-align: center;
+            color: #ffd700;
+            font-size: 13px;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
         
-        .modal-header {
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+        /* Одинаковая высота карточек */
+        .h-100 {
+            height: 100% !important;
+            min-height: 280px;
         }
         
-        .modal-footer {
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        /* Анимация появления */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -320,7 +192,6 @@
             animation: fadeIn 0.4s ease forwards;
         }
         
-        /* Скролл */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -343,22 +214,16 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/">АИС Общепит</a>
-                <i class="fas fa-utensils"></i> АИС Общепит
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <ul class="navbar-nav ms-auto">
-    <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
-    <li class="nav-item"><a class="nav-link" href="/menu/">Меню</a></li>
-    <li class="nav-item"><a class="nav-link" href="/booking/">Бронирование</a></li>
-    <li class="nav-item" id="waiter-link" style="display: none;"><a class="nav-link" href="/waiter/">Зал</a></li>
-    <li class="nav-item" id="kitchen-link" style="display: none;"><a class="nav-link" href="/kitchen/">Кухня</a></li>
-    <li class="nav-item" id="admin-link" style="display: none;"><a class="nav-link" href="/admin-panel/">Админ панель</a></li>
-    <li class="nav-item" id="logout-item" style="display: none;"><a class="nav-link" href="#" onclick="logout()">Выйти</a></li>
-</ul>
+                    <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
+                    <li class="nav-item" id="waiter-link" style="display: none;"><a class="nav-link" href="/waiter/">Зал</a></li>
+                    <li class="nav-item" id="kitchen-link" style="display: none;"><a class="nav-link" href="/kitchen/">Кухня</a></li>
+                    <li class="nav-item" id="admin-link" style="display: none;"><a class="nav-link" href="/admin-panel/">Админ панель</a></li>
+                    <li class="nav-item" id="logout-item" style="display: none;"><a class="nav-link" href="#" onclick="logout()">Выйти</a></li>
                 </ul>
             </div>
         </div>
@@ -373,9 +238,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Генерация звёзд
         function createStars() {
             const starsContainer = document.getElementById('stars');
             for (let i = 0; i < 200; i++) {
@@ -388,33 +251,33 @@
                 star.style.animationDelay = Math.random() * 5 + 's';
                 star.style.animationDuration = 2 + Math.random() * 3 + 's';
                 starsContainer.appendChild(star);
-
-function checkAuth() {
-    const role = localStorage.getItem('user_role');
-    if (role === 'admin') {
-        document.getElementById('admin-link').style.display = 'block';
-        document.getElementById('waiter-link').style.display = 'block';
-        document.getElementById('kitchen-link').style.display = 'block';
-        document.getElementById('logout-item').style.display = 'block';
-    } else if (role === 'waiter') {
-        document.getElementById('waiter-link').style.display = 'block';
-        document.getElementById('logout-item').style.display = 'block';
-    } else if (role === 'chef') {
-        document.getElementById('kitchen-link').style.display = 'block';
-        document.getElementById('logout-item').style.display = 'block';
-    }
-}
-
-function logout() {
-    localStorage.removeItem('user_role');
-    localStorage.removeItem('user_name');
-    window.location.href = '/';
-}
-
-checkAuth();
             }
         }
         createStars();
+        
+        function checkAuth() {
+            const role = localStorage.getItem('user_role');
+            if (role === 'admin') {
+                document.getElementById('admin-link').style.display = 'block';
+                document.getElementById('waiter-link').style.display = 'block';
+                document.getElementById('kitchen-link').style.display = 'block';
+                document.getElementById('logout-item').style.display = 'block';
+            } else if (role === 'waiter') {
+                document.getElementById('waiter-link').style.display = 'block';
+                document.getElementById('logout-item').style.display = 'block';
+            } else if (role === 'chef') {
+                document.getElementById('kitchen-link').style.display = 'block';
+                document.getElementById('logout-item').style.display = 'block';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('user_name');
+            window.location.href = '/';
+        }
+        
+        checkAuth();
     </script>
     {% block extra_js %}{% endblock %}
 </body>
