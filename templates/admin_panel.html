@@ -6,13 +6,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header" style="background: rgba(20,20,50,0.9);">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0" style="color: #ffd700;">Панель администратора</h4>
-                        <div>
-                            <span class="badge bg-warning me-2" style="color: #1a1a4a;">Администратор</span>
-                            <button class="btn btn-danger btn-sm" onclick="logout()">Выйти</button>
-                        </div>
-                    </div>
+                    <h4 class="mb-0" style="color: #ffd700;">Панель администратора</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -22,7 +16,7 @@
                                     <i class="fas fa-utensils fa-3x mb-3" style="color: #ffd700;"></i>
                                     <h5 style="color: white;">Меню</h5>
                                     <p style="color: rgba(255,255,255,0.7);">Управление блюдами и категориями</p>
-                                    <a href="/admin/restaurant/category/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                    <a href="/admin/restaurant/category/" class="btn btn-warning mt-2">Перейти</a>
                                 </div>
                             </div>
                         </div>
@@ -32,7 +26,7 @@
                                     <i class="fas fa-chair fa-3x mb-3" style="color: #ffd700;"></i>
                                     <h5 style="color: white;">Столы</h5>
                                     <p style="color: rgba(255,255,255,0.7);">Управление столами в зале</p>
-                                    <a href="/admin/restaurant/table/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                    <a href="/admin/restaurant/table/" class="btn btn-warning mt-2">Перейти</a>
                                 </div>
                             </div>
                         </div>
@@ -42,7 +36,7 @@
                                     <i class="fas fa-users fa-3x mb-3" style="color: #ffd700;"></i>
                                     <h5 style="color: white;">Сотрудники</h5>
                                     <p style="color: rgba(255,255,255,0.7);">Управление персоналом</p>
-                                    <a href="/admin/auth/user/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                    <a href="/admin/auth/user/" class="btn btn-warning mt-2">Перейти</a>
                                 </div>
                             </div>
                         </div>
@@ -52,7 +46,7 @@
                                     <i class="fas fa-chart-line fa-3x mb-3" style="color: #ffd700;"></i>
                                     <h5 style="color: white;">Отчёты</h5>
                                     <p style="color: rgba(255,255,255,0.7);">Аналитика и статистика</p>
-                                    <a href="/reports/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                    <a href="/reports/" class="btn btn-warning mt-2">Перейти</a>
                                 </div>
                             </div>
                         </div>
@@ -64,12 +58,6 @@
 </div>
 
 <script>
-    function logout() {
-        localStorage.removeItem('user_role');
-        localStorage.removeItem('user_name');
-        window.location.href = '/';
-    }
-    
     if (localStorage.getItem('user_role') !== 'admin') {
         window.location.href = '/';
     }
