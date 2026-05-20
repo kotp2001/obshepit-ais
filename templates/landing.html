@@ -17,7 +17,7 @@
                     <i class="fas fa-user-friends fa-4x mb-3" style="color: #ffd700;"></i>
                     <h3 class="card-title" style="color: #ffd700;">Гость</h3>
                     <p class="card-text" style="color: rgba(255,255,255,0.8);">Просмотр меню, бронирование столов без регистрации</p>
-                    <a href="/menu/" class="btn btn-warning btn-lg mt-3" style="background: #ffd700; color: #1a1a4a;">Войти как гость</a>
+                    <a href="/menu/" class="btn btn-warning btn-lg mt-3" style="background: #ffd700; color: #1a1a4a; border: none;">Войти как гость</a>
                 </div>
             </div>
         </div>
@@ -29,13 +29,13 @@
                     <i class="fas fa-user-tie fa-4x mb-3" style="color: #ffd700;"></i>
                     <h3 class="card-title" style="color: #ffd700;">Сотрудник</h3>
                     <p class="card-text" style="color: rgba(255,255,255,0.8);">Вход для официантов, поваров, администраторов</p>
-                    <button onclick="showLoginForm()" class="btn btn-primary btn-lg mt-3">Войти как сотрудник</button>
+                    <button onclick="showLoginForm()" class="btn btn-warning btn-lg mt-3" style="background: #ffd700; color: #1a1a4a; border: none;">Войти как сотрудник</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Форма входа для сотрудника (скрыта по умолчанию) -->
+    <!-- Форма входа для сотрудника -->
     <div id="login-form-container" class="row justify-content-center mt-5" style="display: none;">
         <div class="col-md-4">
             <div class="card" style="background: rgba(30,30,70,0.8); backdrop-filter: blur(10px);">
@@ -45,14 +45,14 @@
                 <div class="card-body">
                     <div id="login-error" class="alert alert-danger" style="display: none;"></div>
                     <div class="form-group mb-3">
-                        <label class="form-label">Логин</label>
+                        <label class="form-label" style="color: white;">Логин</label>
                         <input type="text" id="login-username" class="form-control" placeholder="Введите логин">
                     </div>
                     <div class="form-group mb-3">
-                        <label class="form-label">Пароль</label>
+                        <label class="form-label" style="color: white;">Пароль</label>
                         <input type="password" id="login-password" class="form-control" placeholder="Введите пароль">
                     </div>
-                    <button class="btn btn-primary w-100" onclick="employeeLogin()">Войти</button>
+                    <button class="btn btn-warning w-100" onclick="employeeLogin()" style="background: #ffd700; color: #1a1a4a; border: none;">Войти</button>
                     <button class="btn btn-secondary w-100 mt-2" onclick="hideLoginForm()">Назад</button>
                 </div>
             </div>
@@ -82,7 +82,6 @@
             return;
         }
         
-        // Временно используем простую проверку (позже заменим на API)
         if (username === 'admin' && password === 'admin123') {
             localStorage.setItem('user_role', 'admin');
             localStorage.setItem('user_name', username);
@@ -104,28 +103,7 @@
             return;
         }
         
-        // Проверка через API (если пользователи в базе данных)
-        fetch('/api/login/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: username, password: password})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('user_role', data.role);
-                localStorage.setItem('user_name', username);
-                if (data.role === 'admin') window.location.href = '/admin-panel/';
-                else if (data.role === 'waiter') window.location.href = '/waiter/';
-                else if (data.role === 'chef') window.location.href = '/kitchen/';
-                else window.location.href = '/';
-            } else {
-                showError('Неверный логин или пароль');
-            }
-        })
-        .catch(() => {
-            showError('Ошибка соединения с сервером');
-        });
+        showError('Неверный логин или пароль');
     }
     
     function showError(message) {
