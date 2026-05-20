@@ -31,7 +31,6 @@ urlpatterns = [
     path('api/bookings/create/', views.api_create_booking, name='api_create_booking'),
     path('api/bookings/', views.api_bookings, name='api_bookings'),
     path('api/reports/', views.api_reports, name='api_reports'),
-    
     # Export
     path('export/orders/', export_orders_excel, name='export_orders'),
     path('export/popular/', export_popular_excel, name='export_popular'),
