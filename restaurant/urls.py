@@ -35,4 +35,9 @@ urlpatterns = [
     # Export
     path('export/orders/', export_orders_excel, name='export_orders'),
     path('export/popular/', export_popular_excel, name='export_popular'),
+
+    path('api/orders/mark-ready/', views.api_mark_order_ready, name='api_mark_ready'),
+    path('api/orders/take/', views.api_take_order, name='api_take_order'),
+    path('api/orders/pay/', views.api_pay_order, name='api_pay_order'),
+    path('api/orders/receipt/<int:order_id>/', views.api_order_receipt, name='api_receipt'),
 ]
