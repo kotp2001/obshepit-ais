@@ -338,5 +338,12 @@ def api_reports(request):
             'avg_check': avg_check,
             'popular_dishes': popular_dishes,
             'daily_data': daily_data,
+            
+ @csrf_exempt
+@require_http_methods(["POST"])
+def api_logout(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return JsonResponse({'success': True})
         }
     })
