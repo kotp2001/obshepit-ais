@@ -304,5 +304,80 @@ def api_reports(request):
             'avg_check': avg_check,
             'popular_dishes': popular_dishes,
             'daily_data': daily_data,
+
+        
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_mark_order_ready(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'ready'
+        order.ready_at = timezone.now()
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_take_order(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'served'
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_pay_order(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        payment_method = body.get('payment_method')
+        
+        order = Order.objects.get(id=order_id)
+        order.status = 'paid'
+        order.payment_method = payment_method
+        order.save()
+        
+        table = order.table
+        table.status = 'free'
+        table.save()
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_http_methods(["GET"])
+def api_order_receipt(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        items = []
+        for item in order.items.all():
+            items.append({
+                'name': item.dish.name,
+                'quantity': item.quantity,
+                'price': float(item.price),
+                'total': float(item.price * item.quantity)
+            })
+        
+        receipt_data = {
+            'order_id': order.id,
+            'table_number': order.table.number,
+            'created_at': order.created_at.strftime('%d.%m.%Y %H:%M'),
+            'items': items,
+            'total': float(order.total_amount),
+            'payment_method': dict(Order.PAYMENT_CHOICES).get(order.payment_method, 'Не оплачен')
+        }
+        return JsonResponse({'success': True, 'data': receipt_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
         }
     })
