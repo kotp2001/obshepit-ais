@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -338,12 +338,5 @@ def api_reports(request):
             'avg_check': avg_check,
             'popular_dishes': popular_dishes,
             'daily_data': daily_data,
-            
- @csrf_exempt
-@require_http_methods(["POST"])
-def api_logout(request):
-    from django.contrib.auth import logout
-    logout(request)
-    return JsonResponse({'success': True})
         }
     })
