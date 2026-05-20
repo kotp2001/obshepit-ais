@@ -1,35 +1,33 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Название')
-    icon = models.CharField(max_length=50, blank=True, verbose_name='Иконка')
-    order = models.IntegerField(default=0, verbose_name='Порядок')
+    name = models.CharField(max_length=100, unique=True)
+    order = models.IntegerField(default=0, help_text="Порядок отображения")
     
     class Meta:
+        ordering = ['order', 'name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ['order']
     
     def __str__(self):
         return self.name
 
 class Dish(models.Model):
-    name = models.CharField(max_length=200, verbose_name='Название')
-    description = models.TextField(blank=True, verbose_name='Описание')
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='dishes', verbose_name='Категория')
-    image_url = models.CharField(max_length=500, blank=True, verbose_name='URL фото')
-    is_available = models.BooleanField(default=True, verbose_name='Доступно')
-    weight = models.CharField(max_length=50, blank=True, verbose_name='Вес')
-    calories = models.IntegerField(default=0, verbose_name='Калории')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=6, decimal_places=0)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='dishes')
+    is_available = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='dishes/', blank=True, null=True)
     
     class Meta:
+        ordering = ['category__order', 'name']
         verbose_name = 'Блюдо'
         verbose_name_plural = 'Блюда'
     
     def __str__(self):
-        return f'{self.name} - {self.price} ₽'
+        return f"{self.name} — {self.price} ₽"
 
 class Table(models.Model):
     STATUS_CHOICES = [
@@ -38,25 +36,24 @@ class Table(models.Model):
         ('reserved', 'Забронирован'),
     ]
     
-    number = models.IntegerField(unique=True, verbose_name='Номер стола')
-    seats = models.IntegerField(default=4, verbose_name='Количество мест')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='free', verbose_name='Статус')
-    x_position = models.IntegerField(default=0, verbose_name='X позиция')
-    y_position = models.IntegerField(default=0, verbose_name='Y позиция')
+    number = models.IntegerField(unique=True)
+    seats = models.IntegerField(help_text="Количество мест")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='free')
     
     class Meta:
+        ordering = ['number']
         verbose_name = 'Стол'
         verbose_name_plural = 'Столы'
     
     def __str__(self):
-        return f'Стол {self.number} ({self.seats} мест)'
+        return f"Стол №{self.number} ({self.seats} мест)"
 
 class Order(models.Model):
     STATUS_CHOICES = [
         ('new', 'Новый'),
         ('cooking', 'Готовится'),
         ('ready', 'Готов'),
-        ('served', 'Подано'),
+        ('served', 'Подан'),
         ('paid', 'Оплачен'),
         ('cancelled', 'Отменён'),
     ]
@@ -67,69 +64,45 @@ class Order(models.Model):
         ('qr', 'QR-код'),
     ]
     
-    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='orders', verbose_name='Стол')
-    waiter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Официант')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new', verbose_name='Статус')
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Сумма')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, blank=True, null=True, verbose_name='Оплата')
-    guest_count = models.IntegerField(default=1, verbose_name='Количество гостей')
-    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    table = models.ForeignKey(Table, on_delete=models.PROTECT, related_name='orders')
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
+    guests_count = models.IntegerField(default=1)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, blank=True, null=True)
+    paid_at = models.DateTimeField(blank=True, null=True)
     
     class Meta:
+        ordering = ['-created_at']
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-        ordering = ['-created_at']
     
     def __str__(self):
-        return f'Заказ #{self.id} - Стол {self.table.number}'
+        return f"Заказ #{self.id} (Стол {self.table.number})"
+    
+    def get_total(self):
+        return sum(item.get_subtotal() for item in self.items.all())
 
 class OrderItem(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'В очереди'),
+        ('pending', 'Ожидает'),
         ('cooking', 'Готовится'),
         ('ready', 'Готов'),
-        ('served', 'Подано'),
     ]
     
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name='Заказ')
-    dish = models.ForeignKey(Dish, on_delete=models.PROTECT, verbose_name='Блюдо')
-    quantity = models.IntegerField(default=1, verbose_name='Количество')
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Статус')
-    comment = models.CharField(max_length=200, blank=True, verbose_name='Комментарий')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    dish = models.ForeignKey(Dish, on_delete=models.PROTECT)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=6, decimal_places=0)  # цена на момент заказа
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    started_cooking_at = models.DateTimeField(blank=True, null=True)
+    ready_at = models.DateTimeField(blank=True, null=True)
     
     class Meta:
         verbose_name = 'Позиция заказа'
-        verbose_name_plural = 'Позиции заказа'
+        verbose_name_plural = 'Позиции заказов'
     
     def __str__(self):
-        return f'{self.dish.name} x{self.quantity}'
-
-class Booking(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Ожидает'),
-        ('confirmed', 'Подтверждена'),
-        ('cancelled', 'Отменена'),
-        ('completed', 'Завершена'),
-    ]
+        return f"{self.dish.name} × {self.quantity}"
     
-    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='bookings', verbose_name='Стол')
-    guest_name = models.CharField(max_length=100, verbose_name='Имя гостя')
-    guest_phone = models.CharField(max_length=20, verbose_name='Телефон')
-    guest_email = models.CharField(max_length=100, blank=True, verbose_name='Email')
-    guests_count = models.IntegerField(default=2, verbose_name='Количество гостей')
-    booking_date = models.DateField(verbose_name='Дата брони')
-    booking_time = models.TimeField(verbose_name='Время брони')
-    comment = models.TextField(blank=True, verbose_name='Комментарий')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Статус')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создана')
-    ready_at = models.DateTimeField(null=True, blank=True, verbose_name='Время готовности')
-    class Meta:
-        verbose_name = 'Бронь'
-        verbose_name_plural = 'Брони'
-        ordering = ['booking_date', 'booking_time']
-    
-    def __str__(self):
-        return f'Бронь: {self.guest_name} - Стол {self.table.number}'
+    def get_subtotal(self):
+        return self.price * self.quantity
