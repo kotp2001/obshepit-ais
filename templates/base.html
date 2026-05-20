@@ -342,7 +342,7 @@
     
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="/">АИС Общепит</a>
                 <i class="fas fa-utensils"></i> АИС Общепит
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -350,13 +350,15 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/menu/">Меню</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/booking/">Бронирование</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/waiter/">Официант</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/kitchen/">Кухня</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reports/">Отчёты</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/admin/">Админ</a></li>
+                    <ul class="navbar-nav ms-auto">
+    <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
+    <li class="nav-item"><a class="nav-link" href="/menu/">Меню</a></li>
+    <li class="nav-item"><a class="nav-link" href="/booking/">Бронирование</a></li>
+    <li class="nav-item" id="waiter-link" style="display: none;"><a class="nav-link" href="/waiter/">Зал</a></li>
+    <li class="nav-item" id="kitchen-link" style="display: none;"><a class="nav-link" href="/kitchen/">Кухня</a></li>
+    <li class="nav-item" id="admin-link" style="display: none;"><a class="nav-link" href="/admin-panel/">Админ панель</a></li>
+    <li class="nav-item" id="logout-item" style="display: none;"><a class="nav-link" href="#" onclick="logout()">Выйти</a></li>
+</ul>
                 </ul>
             </div>
         </div>
