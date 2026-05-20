@@ -9,6 +9,16 @@ from datetime import datetime, timedelta
 import json
 from .models import Category, Dish, Table, Order, OrderItem, Booking
 from decimal import Decimal
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.utils import timezone
+from datetime import datetime, timedelta
+import json
+from decimal import Decimal
+from collections import defaultdict
+from .models import Category, Dish, Table, Order, OrderItem, Booking
 
 def home(request):
     return render(request, 'index.html')
