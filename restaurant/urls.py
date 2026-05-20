@@ -3,13 +3,22 @@ from . import views
 from .excel import export_orders_excel, export_popular_excel
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    # Главная страница (новая)
+    path('', views.landing, name='landing'),
+    
+    # Страницы сайта
     path('menu/', views.menu_view, name='menu'),
     path('booking/', views.booking_view, name='booking'),
     path('waiter/', views.waiter_hall, name='waiter'),
     path('kitchen/', views.kitchen_view, name='kitchen'),
     path('reports/', views.reports_view, name='reports'),
-    path('login/', views.login_view, name='login'),
+    
+    # Панель администратора
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    
+    # API авторизации
+    path('api/login/', views.api_login, name='api_login'),
+    path('api/logout/', views.api_logout, name='api_logout'),
     
     # API endpoints
     path('api/dishes/', views.api_dishes, name='api_dishes'),
