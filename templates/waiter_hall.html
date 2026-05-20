@@ -5,135 +5,70 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Зал ресторана</h4>
-            <button class="btn btn-light btn-sm" onclick="loadTables()">Обновить</button>
+            <button class="btn btn-warning btn-sm" onclick="loadTables()">Обновить</button>
         </div>
     </div>
-    <div class="card-body" id="hall-container">
-        <div class="text-center py-5">
-            <div class="spinner-border text-light" role="status"></div>
-            <p class="mt-2 text-light">Загрузка схемы зала...</p>
-        </div>
-    </div>
-</div>
-
-<!-- Модальное окно для создания заказа -->
-<div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content" style="background: rgba(20,20,60,0.95);">
-            <div class="modal-header">
-                <h5 class="modal-title" style="color: #ffd700;">Создание заказа для стола <span id="current-table-number"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-7">
-                        <h5 style="color: #ffd700;">Меню</h5>
-                        <div id="menu-list" style="max-height: 400px; overflow-y: auto;">
-                            <div class="text-center py-3">Загрузка меню...</div>
-                        </div>
-                    </div>
-                    <div class="col-md-5">
-                        <div style="background: rgba(30,30,80,0.8); border-radius: 10px; padding: 15px;">
-                            <h5 style="color: #ffd700;">Корзина</h5>
-                            <div id="cart-items" style="min-height: 150px;">Корзина пуста</div>
-                            <hr style="border-color: rgba(255,255,255,0.2);">
-                            <div class="d-flex justify-content-between mb-3">
-                                <strong style="color: white;">Итого:</strong>
-                                <span id="total" style="color: #ffd700; font-size: 1.3rem;">0 ₽</span>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" style="color: white;">Количество гостей</label>
-                                <input type="number" id="guest-count" class="form-control" value="2" min="1" style="background: rgba(50,50,100,0.8); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-primary" id="confirm-order-btn">Оформить заказ</button>
-                                <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card-body">
+        <div id="hall-container" class="row">
+            <div class="text-center py-5">
+                <div class="spinner-border text-light" role="status"></div>
+                <p class="mt-2">Загрузка столов...</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let currentTableId = null;
-    let currentTableNumber = null;
-    let currentCart = [];
-
-    function loadTables() {
-        fetch('/api/tables/')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    let html = '<div class="row">';
-                    data.data.forEach(table => {
-                        let bgColor = '';
-                        let statusText = '';
-                        let clickable = table.status === 'free';
-                        
-                        if (table.status === 'free') {
-                            bgColor = 'rgba(40,90,40,0.7)';
-                            statusText = 'Свободен';
-                        } else if (table.status === 'occupied') {
-                            bgColor = 'rgba(140,40,40,0.7)';
-                            statusText = 'Занят';
-                        } else {
-                            bgColor = 'rgba(140,100,30,0.7)';
-                            statusText = 'Забронирован';
-                        }
-                        
-                        html += `
-                            <div class="col-md-3 mb-3">
-                                <div class="card text-center table-card" style="background: ${bgColor}; ${clickable ? 'cursor: pointer;' : 'cursor: not-allowed; opacity: 0.6;'}" data-table-id="${table.id}" data-table-number="${table.number}" data-table-status="${table.status}">
-                                    <div class="card-body">
-                                        <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
-                                        <h3 style="color: white;">Стол ${table.number}</h3>
-                                        <p style="color: rgba(255,255,255,0.8);">${table.seats} мест</p>
-                                        <span class="badge ${table.status === 'free' ? 'bg-success' : (table.status === 'occupied' ? 'bg-danger' : 'bg-warning')}" style="color: white;">${statusText}</span>
-                                    </div>
+    async function loadTables() {
+        try {
+            const response = await fetch('/api/tables/');
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                let html = '';
+                for (const table of data.data) {
+                    let bgColor = '';
+                    let statusText = '';
+                    let clickHandler = '';
+                    
+                    if (table.status === 'free') {
+                        bgColor = 'rgba(40,90,40,0.7)';
+                        statusText = 'Свободен';
+                        clickHandler = `onclick="createOrderForTable(${table.id}, ${table.number})" style="cursor: pointer;"`;
+                    } else if (table.status === 'occupied') {
+                        bgColor = 'rgba(140,40,40,0.7)';
+                        statusText = 'Занят';
+                        clickHandler = 'style="cursor: not-allowed; opacity: 0.6;"';
+                    } else {
+                        bgColor = 'rgba(140,100,30,0.7)';
+                        statusText = 'Забронирован';
+                        clickHandler = 'style="cursor: not-allowed; opacity: 0.6;"';
+                    }
+                    
+                    html += `
+                        <div class="col-md-3 mb-3">
+                            <div class="card text-center" style="background: ${bgColor};" ${clickHandler}>
+                                <div class="card-body">
+                                    <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
+                                    <h3 style="color: white;">Стол ${table.number}</h3>
+                                    <p style="color: rgba(255,255,255,0.8);">${table.seats} мест</p>
+                                    <span class="badge bg-light" style="color: #1a1a4a;">${statusText}</span>
                                 </div>
                             </div>
-                        `;
-                    });
-                    html += '</div>';
-                    document.getElementById('hall-container').innerHTML = html;
-                    
-                    // Добавляем обработчики на все столы
-                    document.querySelectorAll('.table-card').forEach(card => {
-                        const status = card.getAttribute('data-table-status');
-                        if (status === 'free') {
-                            card.addEventListener('click', function() {
-                                const id = parseInt(this.getAttribute('data-table-id'));
-                                const number = parseInt(this.getAttribute('data-table-number'));
-                                openOrderModal(id, number);
-                            });
-                        }
-                    });
-                } else {
-                    document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
+                        </div>
+                    `;
                 }
-            })
-            .catch(error => {
-                document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка соединения с сервером</p>';
-                console.error('Error:', error);
-            });
+                document.getElementById('hall-container').innerHTML = html;
+            }
+        } catch (error) {
+            document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
+        }
     }
-
-    function openOrderModal(tableId, tableNumber) {
-        currentTableId = tableId;
-        currentTableNumber = tableNumber;
-        currentCart = [];
-        updateCartDisplay();
-        document.getElementById('current-table-number').innerText = tableNumber;
-        loadMenu();
+    
+    function createOrderForTable(tableId, tableNumber) {
+        const items = [];
+        let itemsHtml = '';
         
-        const modal = new bootstrap.Modal(document.getElementById('orderModal'));
-        modal.show();
-    }
-
-    function loadMenu() {
         fetch('/api/dishes/')
             .then(response => response.json())
             .then(data => {
@@ -145,177 +80,151 @@
                         }
                         categories[dish.category].push(dish);
                     });
-
-                    let html = '';
+                    
+                    let menuHtml = '';
                     for (const [category, dishes] of Object.entries(categories)) {
-                        html += `<h6 class="mt-3 mb-2" style="color: #ffd700;">${category}</h6>`;
-                        html += '<div class="row">';
+                        menuHtml += `<h6 style="color: #ffd700; margin-top: 15px;">${category}</h6>`;
+                        menuHtml += '<div class="row">';
                         dishes.forEach(dish => {
-                            html += `
+                            menuHtml += `
                                 <div class="col-md-6 mb-2">
-                                    <div class="dish-card" style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 10px;" data-dish-id="${dish.id}" data-dish-name="${dish.name}" data-dish-price="${dish.price}">
+                                    <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 8px;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <strong style="color: white;">${dish.name}</strong>
                                                 <div style="color: #ffd700;">${dish.price} ₽</div>
                                             </div>
-                                            <button class="btn btn-sm add-to-cart-btn" style="background: #28a745; color: white; border-radius: 50%; width: 32px; height: 32px;">+</button>
+                                            <button class="btn btn-sm btn-success" onclick="addToCart(${dish.id}, '${dish.name}', ${dish.price})">+</button>
                                         </div>
                                     </div>
                                 </div>
                             `;
                         });
-                        html += '</div>';
+                        menuHtml += '</div>';
                     }
-                    document.getElementById('menu-list').innerHTML = html;
                     
-                    // Добавляем обработчики на кнопки добавления
-                    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-                        btn.removeEventListener('click', handleAddToCart);
-                        btn.addEventListener('click', handleAddToCart);
-                    });
-                } else {
-                    document.getElementById('menu-list').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
+                    const modalHtml = `
+                        <div class="modal fade" id="orderModal" tabindex="-1">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content" style="background: rgba(20,20,60,0.95);">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" style="color: #ffd700;">Заказ для стола ${tableNumber}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                ${menuHtml}
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div style="background: rgba(30,30,80,0.8); border-radius: 10px; padding: 15px;">
+                                                    <h5 style="color: #ffd700;">Корзина</h5>
+                                                    <div id="cart-items">Корзина пуста</div>
+                                                    <hr>
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong>Итого:</strong>
+                                                        <span id="total" style="color: #ffd700;">0 ₽</span>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <label>Количество гостей</label>
+                                                        <input type="number" id="guest-count" class="form-control" value="2" min="1">
+                                                    </div>
+                                                    <div class="mt-3 d-grid gap-2">
+                                                        <button class="btn btn-warning" onclick="submitOrder(${tableId})">Оформить заказ</button>
+                                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const oldModal = document.getElementById('orderModal');
+                    if (oldModal) oldModal.remove();
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    
+                    window.currentCart = [];
+                    window.updateCartDisplay = function() {
+                        let total = 0;
+                        let html = '';
+                        if (window.currentCart.length === 0) {
+                            html = '<p class="text-center">Корзина пуста</p>';
+                        } else {
+                            window.currentCart.forEach((item, idx) => {
+                                total += item.price * item.quantity;
+                                html += `
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div>${item.name} x${item.quantity}</div>
+                                        <div>${item.price * item.quantity} ₽ <button class="btn btn-sm btn-danger" onclick="removeFromCart(${idx})">X</button></div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        document.getElementById('cart-items').innerHTML = html;
+                        document.getElementById('total').innerHTML = total + ' ₽';
+                    };
+                    
+                    window.addToCart = function(id, name, price) {
+                        const existing = window.currentCart.find(item => item.id === id);
+                        if (existing) {
+                            existing.quantity++;
+                        } else {
+                            window.currentCart.push({id, name, price, quantity: 1});
+                        }
+                        window.updateCartDisplay();
+                    };
+                    
+                    window.removeFromCart = function(index) {
+                        window.currentCart.splice(index, 1);
+                        window.updateCartDisplay();
+                    };
+                    
+                    window.submitOrder = function(tableId) {
+                        if (window.currentCart.length === 0) {
+                            alert('Добавьте блюда в заказ');
+                            return;
+                        }
+                        
+                        const items = window.currentCart.map(item => ({
+                            dish_id: item.id,
+                            quantity: item.quantity
+                        }));
+                        
+                        const guestCount = document.getElementById('guest-count').value;
+                        
+                        fetch('/api/orders/create/', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                table_id: tableId,
+                                items: items,
+                                guest_count: guestCount
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+                                if (modal) modal.hide();
+                                loadTables();
+                            } else {
+                                alert('Ошибка: ' + data.error);
+                            }
+                        });
+                    };
+                    
+                    window.updateCartDisplay();
+                    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+                    modal.show();
                 }
             });
     }
-
-    function handleAddToCart(event) {
-        event.stopPropagation();
-        const dishCard = event.target.closest('.dish-card');
-        if (dishCard) {
-            const id = parseInt(dishCard.getAttribute('data-dish-id'));
-            const name = dishCard.getAttribute('data-dish-name');
-            const price = parseInt(dishCard.getAttribute('data-dish-price'));
-            
-            const existing = currentCart.find(item => item.id === id);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                currentCart.push({id, name, price, quantity: 1});
-            }
-            updateCartDisplay();
-            
-            event.target.innerHTML = '✓';
-            setTimeout(() => {
-                event.target.innerHTML = '+';
-            }, 500);
-        }
-    }
-
-    function updateCartDisplay() {
-        let total = 0;
-        let html = '';
-
-        if (currentCart.length === 0) {
-            html = '<p class="text-center text-muted">Корзина пуста</p>';
-        } else {
-            html = '<div>';
-            currentCart.forEach((item, index) => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                html += `
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2);">
-                        <div>
-                            <strong style="color: white;">${item.name}</strong>
-                            <div style="color: #ffd700;">${item.price} ₽ × ${item.quantity}</div>
-                        </div>
-                        <div>
-                            <span style="color: white;">${itemTotal} ₽</span>
-                            <button class="btn btn-sm btn-danger ms-2 remove-item-btn" data-index="${index}">Удалить</button>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-        }
-        
-        document.getElementById('cart-items').innerHTML = html;
-        document.getElementById('total').innerHTML = total + ' ₽';
-        
-        // Добавляем обработчики на кнопки удаления
-        document.querySelectorAll('.remove-item-btn').forEach(btn => {
-            btn.removeEventListener('click', handleRemoveFromCart);
-            btn.addEventListener('click', handleRemoveFromCart);
-        });
-    }
-
-    function handleRemoveFromCart(event) {
-        const index = parseInt(event.target.getAttribute('data-index'));
-        currentCart.splice(index, 1);
-        updateCartDisplay();
-    }
-
-    function createOrder() {
-        if (currentCart.length === 0) {
-            alert('Добавьте блюда в заказ');
-            return;
-        }
-        
-        const items = currentCart.map(item => ({
-            dish_id: item.id,
-            quantity: item.quantity
-        }));
-        
-        const guestCount = document.getElementById('guest-count').value;
-        
-        fetch('/api/orders/create/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                table_id: currentTableId,
-                items: items,
-                guest_count: guestCount
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
-                if (modal) modal.hide();
-                loadTables();
-            } else {
-                alert('Ошибка: ' + data.error);
-            }
-        })
-        .catch(error => {
-            alert('Ошибка соединения: ' + error);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        loadTables();
-        
-        // Обработчик для кнопки оформления заказа
-        document.getElementById('confirm-order-btn').addEventListener('click', createOrder);
-    });
+    
+    loadTables();
 </script>
-
-<style>
-    .table-card {
-        transition: transform 0.1s ease;
-    }
-    .table-card[data-table-status="free"]:hover {
-        transform: translateY(-3px);
-    }
-    .table-card[data-table-status="free"]:active {
-        transform: scale(0.98);
-    }
-    .dish-card {
-        transition: transform 0.1s ease;
-    }
-    .dish-card:hover {
-        transform: translateX(5px);
-    }
-    .add-to-cart-btn {
-        transition: all 0.1s ease;
-    }
-    .add-to-cart-btn:hover {
-        transform: scale(1.05);
-    }
-    .add-to-cart-btn:active {
-        transform: scale(0.95);
-    }
-</style>
 {% endblock %}
