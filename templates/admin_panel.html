@@ -5,54 +5,54 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="background: rgba(20,20,50,0.9);">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Панель администратора</h4>
+                        <h4 class="mb-0" style="color: #ffd700;">Панель администратора</h4>
                         <div>
-                            <span class="badge bg-warning me-2" style="color: #1a1a4a;">Администратор: {{ user_name }}</span>
+                            <span class="badge bg-warning me-2" style="color: #1a1a4a;">Администратор</span>
                             <button class="btn btn-danger btn-sm" onclick="logout()">Выйти</button>
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-center" style="background: rgba(40,40,90,0.6);">
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center h-100" style="background: rgba(40,40,90,0.6); border: none;">
                                 <div class="card-body">
-                                    <i class="fas fa-utensils fa-2x mb-2" style="color: #ffd700;"></i>
-                                    <h5>Меню</h5>
-                                    <p>Управление блюдами и категориями</p>
-                                    <a href="/admin/menu/" class="btn btn-primary btn-sm">Перейти</a>
+                                    <i class="fas fa-utensils fa-3x mb-3" style="color: #ffd700;"></i>
+                                    <h5 style="color: white;">Меню</h5>
+                                    <p style="color: rgba(255,255,255,0.7);">Управление блюдами и категориями</p>
+                                    <a href="/admin/restaurant/category/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-center" style="background: rgba(40,40,90,0.6);">
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center h-100" style="background: rgba(40,40,90,0.6); border: none;">
                                 <div class="card-body">
-                                    <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
-                                    <h5>Столы</h5>
-                                    <p>Управление столами в зале</p>
-                                    <a href="/admin/tables/" class="btn btn-primary btn-sm">Перейти</a>
+                                    <i class="fas fa-chair fa-3x mb-3" style="color: #ffd700;"></i>
+                                    <h5 style="color: white;">Столы</h5>
+                                    <p style="color: rgba(255,255,255,0.7);">Управление столами в зале</p>
+                                    <a href="/admin/restaurant/table/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-center" style="background: rgba(40,40,90,0.6);">
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center h-100" style="background: rgba(40,40,90,0.6); border: none;">
                                 <div class="card-body">
-                                    <i class="fas fa-users fa-2x mb-2" style="color: #ffd700;"></i>
-                                    <h5>Сотрудники</h5>
-                                    <p>Управление персоналом</p>
-                                    <a href="/admin/users/" class="btn btn-primary btn-sm">Перейти</a>
+                                    <i class="fas fa-users fa-3x mb-3" style="color: #ffd700;"></i>
+                                    <h5 style="color: white;">Сотрудники</h5>
+                                    <p style="color: rgba(255,255,255,0.7);">Управление персоналом</p>
+                                    <a href="/admin/auth/user/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-center" style="background: rgba(40,40,90,0.6);">
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center h-100" style="background: rgba(40,40,90,0.6); border: none;">
                                 <div class="card-body">
-                                    <i class="fas fa-chart-line fa-2x mb-2" style="color: #ffd700;"></i>
-                                    <h5>Отчёты</h5>
-                                    <p>Аналитика и статистика</p>
-                                    <a href="/reports/" class="btn btn-primary btn-sm">Перейти</a>
+                                    <i class="fas fa-chart-line fa-3x mb-3" style="color: #ffd700;"></i>
+                                    <h5 style="color: white;">Отчёты</h5>
+                                    <p style="color: rgba(255,255,255,0.7);">Аналитика и статистика</p>
+                                    <a href="/reports/" class="btn btn-warning mt-2" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
                                 </div>
                             </div>
                         </div>
@@ -70,7 +70,6 @@
         window.location.href = '/';
     }
     
-    // Проверка авторизации
     if (localStorage.getItem('user_role') !== 'admin') {
         window.location.href = '/';
     }
