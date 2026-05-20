@@ -146,4 +146,20 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:
     font-family: 'Courier New', monospace;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
-.receipt-header { text-align: center; border-bottom: 2px dashed #3
+.receipt-header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 15px; margin-bottom: 15px; }
+.receipt-header h3 { font-size: 18px; margin-bottom: 5px; }
+.receipt-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 14px; }
+.receipt-items { border-bottom: 2px dashed #333; padding-bottom: 15px; margin-bottom: 15px; }
+.receipt-item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 13px; }
+.receipt-total { font-size: 18px; font-weight: 700; text-align: right; margin: 10px 0; }
+.receipt-footer { text-align: center; font-size: 12px; color: #666; margin-top: 20px; }
+.receipt-actions { display: flex; gap: 10px; margin-top: 20px; }
+.receipt-actions button { flex: 1; }
+
+/* === УТИЛИТЫ === */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.flex { display: flex; }
+.gap-10 { gap: 10px; }
+.justify-between { justify-content: space-between; }
