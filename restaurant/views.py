@@ -2,17 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from datetime import datetime, timedelta
-import json
-from .models import Category, Dish, Table, Order, OrderItem, Booking
-from decimal import Decimal
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
@@ -20,8 +9,13 @@ from decimal import Decimal
 from collections import defaultdict
 from .models import Category, Dish, Table, Order, OrderItem, Booking
 
-def home(request):
-    return render(request, 'index.html')
+# ==================== СТРАНИЦЫ ====================
+
+def landing(request):
+    return render(request, 'landing.html')
+
+def admin_panel(request):
+    return render(request, 'admin_panel.html')
 
 def menu_view(request):
     return render(request, 'menu.html')
@@ -38,16 +32,11 @@ def kitchen_view(request):
 def reports_view(request):
     return render(request, 'reports.html')
 
-def landing(request):
-    return render(request, 'landing.html')
-
-def admin_panel(request):
-    return render(request, 'admin_panel.html')
+# ==================== API АВТОРИЗАЦИИ ====================
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_login(request):
-    import json
     try:
         body = json.loads(request.body)
         username = body.get('username')
@@ -72,23 +61,7 @@ def api_login(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-@require_http_methods(["POST"])
-def api_logout(request):
-    from django.contrib.auth import logout
-    logout(request)
-    return JsonResponse({'success': True})
-
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('/')
-        else:
-            return render(request, 'login.html', {'error': 'Неверный логин или пароль'})
-    return render(request, 'login.html')
+# ==================== API ОСНОВНЫЕ ====================
 
 @require_http_methods(["GET"])
 def api_dishes(request):
@@ -127,9 +100,10 @@ def api_create_order(request):
         body = json.loads(request.body)
         table_id = body.get('table_id')
         items = body.get('items', [])
+        guest_count = body.get('guest_count', 1)
         
         table = Table.objects.get(id=table_id)
-        order = Order.objects.create(table=table, status='new')
+        order = Order.objects.create(table=table, status='new', guest_count=guest_count)
         
         total = Decimal('0')
         for item in items:
@@ -154,7 +128,7 @@ def api_create_order(request):
 
 @require_http_methods(["GET"])
 def api_active_orders(request):
-    orders = Order.objects.filter(status__in=['new', 'cooking']).select_related('table').prefetch_related('items__dish')
+    orders = Order.objects.filter(status__in=['new', 'cooking', 'ready']).select_related('table').prefetch_related('items__dish')
     data = []
     for order in orders:
         items = [{
@@ -198,6 +172,33 @@ def api_update_item_status(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+def api_mark_order_ready(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'ready'
+        order.ready_at = timezone.now()
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_take_order(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'served'
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def api_pay_order(request):
     try:
         body = json.loads(request.body)
@@ -209,12 +210,36 @@ def api_pay_order(request):
         order.payment_method = payment_method
         order.save()
         
-        # Освобождаем стол
         table = order.table
         table.status = 'free'
         table.save()
         
         return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@require_http_methods(["GET"])
+def api_order_receipt(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        items = []
+        for item in order.items.all():
+            items.append({
+                'name': item.dish.name,
+                'quantity': item.quantity,
+                'price': float(item.price),
+                'total': float(item.price * item.quantity)
+            })
+        
+        receipt_data = {
+            'order_id': order.id,
+            'table_number': order.table.number,
+            'created_at': order.created_at.strftime('%d.%m.%Y %H:%M'),
+            'items': items,
+            'total': float(order.total_amount),
+            'payment_method': dict(Order.PAYMENT_CHOICES).get(order.payment_method, 'Не оплачен')
+        }
+        return JsonResponse({'success': True, 'data': receipt_data})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -288,7 +313,6 @@ def api_reports(request):
     total_orders = orders.count()
     avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
-    from collections import defaultdict
     dish_count = defaultdict(int)
     for order in orders:
         for item in order.items.all():
@@ -314,80 +338,5 @@ def api_reports(request):
             'avg_check': avg_check,
             'popular_dishes': popular_dishes,
             'daily_data': daily_data,
-
-        
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_mark_order_ready(request):
-    try:
-        body = json.loads(request.body)
-        order_id = body.get('order_id')
-        order = Order.objects.get(id=order_id)
-        order.status = 'ready'
-        order.ready_at = timezone.now()
-        order.save()
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_take_order(request):
-    try:
-        body = json.loads(request.body)
-        order_id = body.get('order_id')
-        order = Order.objects.get(id=order_id)
-        order.status = 'served'
-        order.save()
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_pay_order(request):
-    try:
-        body = json.loads(request.body)
-        order_id = body.get('order_id')
-        payment_method = body.get('payment_method')
-        
-        order = Order.objects.get(id=order_id)
-        order.status = 'paid'
-        order.payment_method = payment_method
-        order.save()
-        
-        table = order.table
-        table.status = 'free'
-        table.save()
-        
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-@require_http_methods(["GET"])
-def api_order_receipt(request, order_id):
-    try:
-        order = Order.objects.get(id=order_id)
-        items = []
-        for item in order.items.all():
-            items.append({
-                'name': item.dish.name,
-                'quantity': item.quantity,
-                'price': float(item.price),
-                'total': float(item.price * item.quantity)
-            })
-        
-        receipt_data = {
-            'order_id': order.id,
-            'table_number': order.table.number,
-            'created_at': order.created_at.strftime('%d.%m.%Y %H:%M'),
-            'items': items,
-            'total': float(order.total_amount),
-            'payment_method': dict(Order.PAYMENT_CHOICES).get(order.payment_method, 'Не оплачен')
-        }
-        return JsonResponse({'success': True, 'data': receipt_data})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
         }
     })
