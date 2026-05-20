@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Вход в систему{% endblock %}
+{% block content %}
+<div class="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center mb-5">
+            <h1 class="display-3 fw-bold" style="color: #ffd700;">АИС Общепит</h1>
+            <p class="lead text-white">Автоматизация работы ресторана, кафе, столовой</p>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Карточка для гостя -->
+        <div class="col-md-5">
+            <div class="card text-center h-100" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px);">
+                <div class="card-body py-5">
+                    <i class="fas fa-user-friends fa-4x mb-3" style="color: #ffd700;"></i>
+                    <h3 class="card-title" style="color: #ffd700;">Гость</h3>
+                    <p class="card-text" style="color: rgba(255,255,255,0.8);">Просмотр меню, бронирование столов без регистрации</p>
+                    <a href="/menu/" class="btn btn-warning btn-lg mt-3" style="background: #ffd700; color: #1a1a4a;">Войти как гость</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка для сотрудника -->
+        <div class="col-md-5">
+            <div class="card text-center h-100" style="background: rgba(30,30,70,0.7); backdrop-filter: blur(10px);">
+                <div class="card-body py-5">
+                    <i class="fas fa-user-tie fa-4x mb-3" style="color: #ffd700;"></i>
+                    <h3 class="card-title" style="color: #ffd700;">Сотрудник</h3>
+                    <p class="card-text" style="color: rgba(255,255,255,0.8);">Вход для официантов, поваров, администраторов</p>
+                    <button onclick="showLoginForm()" class="btn btn-primary btn-lg mt-3">Войти как сотрудник</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Форма входа для сотрудника (скрыта по умолчанию) -->
+    <div id="login-form-container" class="row justify-content-center mt-5" style="display: none;">
+        <div class="col-md-4">
+            <div class="card" style="background: rgba(30,30,70,0.8); backdrop-filter: blur(10px);">
+                <div class="card-header" style="background: rgba(20,20,50,0.9); text-align: center;">
+                    <h5 class="mb-0" style="color: #ffd700;">Вход в систему</h5>
+                </div>
+                <div class="card-body">
+                    <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Логин</label>
+                        <input type="text" id="login-username" class="form-control" placeholder="Введите логин">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="Введите пароль">
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="employeeLogin()">Войти</button>
+                    <button class="btn btn-secondary w-100 mt-2" onclick="hideLoginForm()">Назад</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLoginForm() {
+        document.getElementById('login-form-container').style.display = 'flex';
+        window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+    }
+    
+    function hideLoginForm() {
+        document.getElementById('login-form-container').style.display = 'none';
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-error').style.display = 'none';
+    }
+    
+    function employeeLogin() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        
+        if (!username || !password) {
+            showError('Введите логин и пароль');
+            return;
+        }
+        
+        // Временно используем простую проверку (позже заменим на API)
+        if (username === 'admin' && password === 'admin123') {
+            localStorage.setItem('user_role', 'admin');
+            localStorage.setItem('user_name', username);
+            window.location.href = '/admin-panel/';
+            return;
+        }
+        
+        if (username === 'waiter' && password === 'waiter123') {
+            localStorage.setItem('user_role', 'waiter');
+            localStorage.setItem('user_name', username);
+            window.location.href = '/waiter/';
+            return;
+        }
+        
+        if (username === 'chef' && password === 'chef123') {
+            localStorage.setItem('user_role', 'chef');
+            localStorage.setItem('user_name', username);
+            window.location.href = '/kitchen/';
+            return;
+        }
+        
+        // Проверка через API (если пользователи в базе данных)
+        fetch('/api/login/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: username, password: password})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.setItem('user_role', data.role);
+                localStorage.setItem('user_name', username);
+                if (data.role === 'admin') window.location.href = '/admin-panel/';
+                else if (data.role === 'waiter') window.location.href = '/waiter/';
+                else if (data.role === 'chef') window.location.href = '/kitchen/';
+                else window.location.href = '/';
+            } else {
+                showError('Неверный логин или пароль');
+            }
+        })
+        .catch(() => {
+            showError('Ошибка соединения с сервером');
+        });
+    }
+    
+    function showError(message) {
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.innerHTML = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 3000);
+    }
+</script>
+{% endblock %}
