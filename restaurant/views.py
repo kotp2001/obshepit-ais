@@ -28,6 +28,46 @@ def kitchen_view(request):
 def reports_view(request):
     return render(request, 'reports.html')
 
+def landing(request):
+    return render(request, 'landing.html')
+
+def admin_panel(request):
+    return render(request, 'admin_panel.html')
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_login(request):
+    import json
+    try:
+        body = json.loads(request.body)
+        username = body.get('username')
+        password = body.get('password')
+        
+        from django.contrib.auth import authenticate
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            from django.contrib.auth import login
+            login(request, user)
+            
+            role = 'staff'
+            if user.is_superuser:
+                role = 'admin'
+            elif hasattr(user, 'profile') and user.profile.role:
+                role = user.profile.role
+            
+            return JsonResponse({'success': True, 'role': role, 'username': user.username})
+        else:
+            return JsonResponse({'success': False, 'error': 'Неверный логин или пароль'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@require_http_methods(["POST"])
+def api_logout(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return JsonResponse({'success': True})
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
