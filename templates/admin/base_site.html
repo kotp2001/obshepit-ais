@@ -39,7 +39,7 @@
         border-radius: 15px 15px 0 0;
         padding: 15px 20px;
         position: relative;
-        min-height: 60px;
+        min-height: 70px;
     }
     
     #branding h1 {
@@ -63,11 +63,10 @@
         color: #ffd700;
         font-size: 13px;
         position: absolute;
-        top: 50%;
+        bottom: 12px;
         right: 20px;
-        transform: translateY(-50%);
         background: rgba(0,0,0,0.3);
-        padding: 6px 12px;
+        padding: 5px 12px;
         border-radius: 20px;
         white-space: nowrap;
     }
@@ -88,12 +87,11 @@
     
     .main-menu-btn {
         position: absolute;
-        top: 50%;
+        bottom: 12px;
         right: 280px;
-        transform: translateY(-50%);
         background: #ffd700;
         color: #1a1a4a;
-        padding: 6px 15px;
+        padding: 5px 15px;
         border-radius: 20px;
         text-decoration: none;
         font-weight: bold;
@@ -105,9 +103,16 @@
     
     .main-menu-btn:hover {
         background: #e6c200;
-        transform: translateY(-50%) translateY(-1px);
+        transform: translateY(-1px);
         color: #1a1a4a;
         text-decoration: none;
+    }
+    
+    /* Скрываем кнопку выхода если она дублируется */
+    .logout-link,
+    #logout-form,
+    .submit-logout {
+        display: none !important;
     }
     
     #nav-sidebar {
@@ -177,6 +182,7 @@
         font-size: 11px;
         text-decoration: none;
         white-space: nowrap;
+        margin-left: 8px;
     }
     
     #nav-sidebar .module li .addlink:hover {
@@ -197,7 +203,7 @@
         background: transparent;
     }
     
-    /* Кнопка "Добавить пользователь" - красивое оформление */
+    /* Кнопка "Добавить пользователь" */
     .object-tools {
         margin-bottom: 20px;
         display: flex;
@@ -228,13 +234,14 @@
         transform: translateY(1px) !important;
     }
     
-    /* Таблица */
+    /* Таблица - убираем белые рамки */
     .results {
         background: rgba(30,30,70,0.3) !important;
         border-radius: 15px;
-        border: 1px solid rgba(255,215,0,0.1) !important;
+        border: none !important;
         overflow: hidden;
         margin-top: 15px;
+        box-shadow: none;
     }
     
     .results th {
@@ -242,6 +249,7 @@
         color: #ffd700;
         padding: 12px 15px;
         font-weight: 600;
+        border: none;
     }
     
     .results td {
@@ -249,15 +257,39 @@
         color: white;
         padding: 10px 15px;
         border-bottom: 1px solid rgba(255,255,255,0.05);
+        border: none;
     }
     
     .results tr:hover td {
         background: rgba(60,60,110,0.6);
     }
     
-    /* Кнопка "Выполнить" */
-    .action-checkbox-column {
-        width: 30px;
+    /* Скрываем иконки True/False */
+    .boolean-true,
+    .boolean-false,
+    .boolean-icon {
+        display: none !important;
+    }
+    
+    /* Заменяем True/False текстом */
+    .field-is_active .boolean-true,
+    .field-is_staff .boolean-true,
+    .field-is_superuser .boolean-true {
+        display: inline-block !important;
+    }
+    
+    .field-is_active td:nth-child(6),
+    .field-is_staff td:nth-child(6),
+    .field-is_superuser td:nth-child(6) {
+        text-align: center;
+    }
+    
+    /* Скрываем иконки поиска */
+    .submit-row img,
+    .search-container img,
+    [type="submit"] img,
+    .button img {
+        display: none !important;
     }
     
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
@@ -400,6 +432,23 @@
     
     .submit-row input:hover {
         background: #e6c200;
+    }
+    
+    /* Убираем белые рамки у форм */
+    .module.aligned {
+        background: transparent;
+        border: none;
+    }
+    
+    .form-row {
+        background: rgba(40,40,90,0.4);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .form-row label {
+        color: #ffd700;
     }
 </style>
 {% endblock %}
