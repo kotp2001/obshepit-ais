@@ -5,31 +5,23 @@
 
 {% block extrastyle %}
 <style>
-    /* Общие стили для админки */
-    :root {
-        --primary: #1a1a4a;
-        --secondary: #ffd700;
-        --accent: #ffd700;
-        --primary-fg: #fff;
-        --body-fg: #333;
-        --body-bg: #f5f5f5;
-        --body-quiet-color: #666;
-        --body-loud-color: #000;
-        --header-color: #ffd700;
-        --header-branding-color: #ffd700;
-        --header-bg: #0a0a2a;
-        --header-link-color: #ffd700;
-        --link-fg: #1a1a4a;
-        --link-hover-color: #ffd700;
-        --link-selected-fg: #ffd700;
-        --hairline-color: #eee;
-        --border-color: #ddd;
+    body {
+        background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* Шапка админки */
+    #container {
+        background: rgba(30,30,70,0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        margin: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
     #header {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
         border-bottom: 3px solid #ffd700;
+        border-radius: 15px 15px 0 0;
         padding: 15px 20px;
     }
     
@@ -61,10 +53,8 @@
     
     #user-tools a:hover {
         color: #e6c200;
-        border-bottom-color: #e6c200;
     }
     
-    /* Боковое меню */
     .module h2, .inline-group h2 {
         background: #1a1a4a;
         color: #ffd700;
@@ -77,7 +67,6 @@
         color: #ffd700;
     }
     
-    /* Кнопки */
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
         background: #ffd700;
         color: #1a1a4a;
@@ -107,7 +96,6 @@
         background: #2a2a5a;
     }
     
-    /* Таблицы */
     .dashboard .module table th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
@@ -123,20 +111,20 @@
         background: rgba(60,60,110,0.7);
     }
     
-    /* Ссылки */
     a:link, a:visited {
-        color: #1a1a4a;
+        color: #ffd700;
         text-decoration: none;
     }
     
     a:hover {
-        color: #ffd700;
+        color: #e6c200;
     }
     
-    /* Формы */
     input, textarea, select {
+        background: rgba(50,50,100,0.8);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
         border-radius: 8px;
-        border: 1px solid #ddd;
         padding: 8px 12px;
     }
     
@@ -146,27 +134,24 @@
         box-shadow: 0 0 5px rgba(255,215,0,0.3);
     }
     
-    /* Боковая панель навигации */
     #nav-sidebar .current-model {
         background: #ffd700;
         color: #1a1a4a;
         border-radius: 8px;
     }
     
-    /* Хлебные крошки */
     div.breadcrumbs {
         background: #1a1a4a;
         color: #ffd700;
         padding: 10px 15px;
         border-radius: 8px;
-        margin-bottom: 20px;
+        margin: 15px 15px 0 15px;
     }
     
     div.breadcrumbs a {
         color: #ffd700;
     }
     
-    /* Кнопка добавления */
     .addlink {
         background: #28a745;
         color: white;
@@ -179,7 +164,6 @@
         transform: translateY(-1px);
     }
     
-    /* Кнопка удаления */
     .deletelink {
         background: #dc3545;
         color: white;
@@ -191,7 +175,6 @@
         background: #c82333;
     }
     
-    /* Пагинация */
     .paginator {
         background: rgba(40,40,90,0.6);
         color: white;
@@ -203,7 +186,6 @@
         color: #ffd700;
     }
     
-    /* Сообщения об успехе/ошибке */
     .messagelist li {
         border-radius: 8px;
         padding: 10px;
@@ -221,14 +203,32 @@
         color: #dc3545;
     }
     
-    /* Футер */
     #footer {
         background: #0a0a2a;
         color: #ffd700;
         text-align: center;
         padding: 15px;
-        margin-top: 30px;
+        margin-top: 20px;
         border-top: 1px solid rgba(255,215,0,0.3);
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .results th, .results td {
+        color: white;
+    }
+    
+    .results th a, .results td a {
+        color: #ffd700;
+    }
+    
+    .object-tools a {
+        background: #ffd700;
+        color: #1a1a4a;
+        border-radius: 8px;
+    }
+    
+    .object-tools a:hover {
+        background: #e6c200;
     }
 </style>
 {% endblock %}
