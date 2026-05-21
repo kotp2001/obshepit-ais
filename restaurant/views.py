@@ -253,21 +253,29 @@ def api_order_receipt(request, order_id):
 def api_reports(request):
     period = request.GET.get('period', 'week')
     
-    if period == 'day':
-        start_date = timezone.now().date()
-    elif period == 'week':
-        start_date = timezone.now().date() - timedelta(days=7)
-    elif period == 'month':
-        start_date = timezone.now().date() - timedelta(days=30)
-    else:
-        start_date = timezone.now().date() - timedelta(days=7)
+    today = timezone.now().date()
     
-    orders = Order.objects.filter(created_at__date__gte=start_date, status='paid')
+    if period == 'day':
+        start_date = today
+    elif period == 'week':
+        start_date = today - timedelta(days=7)
+    elif period == 'month':
+        start_date = today - timedelta(days=30)
+    else:
+        start_date = today - timedelta(days=7)
+    
+    # Получаем оплаченные заказы
+    orders = Order.objects.filter(
+        status='paid',
+        created_at__date__gte=start_date
+    ).order_by('created_at')
     
     total_revenue = sum(float(o.total_amount) for o in orders)
     total_orders = orders.count()
     avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
+    # Популярные блюда
+    from collections import defaultdict
     dish_count = defaultdict(int)
     for order in orders:
         for item in order.items.all():
@@ -275,15 +283,29 @@ def api_reports(request):
     
     popular_dishes = [{'name': k, 'count': v} for k, v in sorted(dish_count.items(), key=lambda x: -x[1])[:5]]
     
+    # Данные по дням для графика
     daily_data = []
     for i in range(7):
         day = start_date + timedelta(days=i)
+        if day > today:
+            break
         day_orders = orders.filter(created_at__date=day)
         daily_data.append({
             'date': day.strftime('%d.%m'),
             'revenue': sum(float(o.total_amount) for o in day_orders),
             'orders': day_orders.count(),
         })
+    
+    return JsonResponse({
+        'success': True,
+        'data': {
+            'total_revenue': total_revenue,
+            'total_orders': total_orders,
+            'avg_check': avg_check,
+            'popular_dishes': popular_dishes,
+            'daily_data': daily_data,
+        }
+    })
     
     return JsonResponse({
         'success': True,
