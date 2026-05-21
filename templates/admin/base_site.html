@@ -16,6 +16,7 @@
         border-radius: 15px;
         margin: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        color: white;
     }
     
     #header {
@@ -23,6 +24,7 @@
         border-bottom: 3px solid #ffd700;
         border-radius: 15px 15px 0 0;
         padding: 15px 20px;
+        position: relative;
     }
     
     #branding h1 {
@@ -44,6 +46,9 @@
     #user-tools {
         color: #ffd700;
         font-size: 14px;
+        position: absolute;
+        top: 15px;
+        right: 20px;
     }
     
     #user-tools a {
@@ -55,6 +60,104 @@
         color: #e6c200;
     }
     
+    /* Главное меню справа сверху */
+    .main-menu-btn {
+        position: absolute;
+        top: 15px;
+        right: 200px;
+        background: #ffd700;
+        color: #1a1a4a;
+        padding: 5px 15px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
+        transition: all 0.1s ease;
+    }
+    
+    .main-menu-btn:hover {
+        background: #e6c200;
+        transform: translateY(-1px);
+        color: #1a1a4a;
+    }
+    
+    /* Боковое меню - вертикальное расположение */
+    #nav-sidebar {
+        float: left;
+        width: 260px;
+        margin-right: 20px;
+        background: rgba(20,20,50,0.8);
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    #nav-sidebar .module {
+        background: transparent;
+    }
+    
+    #nav-sidebar .module h2 {
+        background: #1a1a4a;
+        color: #ffd700;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+    
+    #nav-sidebar .module ul {
+        margin: 0;
+        padding: 0;
+    }
+    
+    #nav-sidebar .module li {
+        list-style: none;
+        margin-bottom: 5px;
+    }
+    
+    #nav-sidebar .module li a {
+        display: block;
+        padding: 8px 15px;
+        background: rgba(40,40,90,0.6);
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.1s ease;
+    }
+    
+    #nav-sidebar .module li a:hover {
+        background: #ffd700;
+        color: #1a1a4a;
+        transform: translateX(5px);
+    }
+    
+    .addlink {
+        display: inline-block;
+        background: #28a745;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 11px;
+        margin-left: 10px;
+    }
+    
+    .addlink:hover {
+        background: #218838;
+        color: white;
+    }
+    
+    /* Основной контент */
+    #content {
+        margin-left: 280px;
+        padding: 20px;
+        background: rgba(30,30,70,0.4);
+        border-radius: 10px;
+    }
+    
+    #content-main {
+        color: white;
+    }
+    
+    /* Заголовки */
     .module h2, .inline-group h2 {
         background: #1a1a4a;
         color: #ffd700;
@@ -67,6 +170,7 @@
         color: #ffd700;
     }
     
+    /* Кнопки */
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
         background: #ffd700;
         color: #1a1a4a;
@@ -83,10 +187,6 @@
         transform: translateY(-1px);
     }
     
-    .button:active, input[type=submit]:active, input[type=button]:active, .submit-row input:active {
-        transform: translateY(1px);
-    }
-    
     .default {
         background: #1a1a4a;
         color: white;
@@ -96,6 +196,7 @@
         background: #2a2a5a;
     }
     
+    /* Таблицы */
     .dashboard .module table th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
@@ -111,6 +212,15 @@
         background: rgba(60,60,110,0.7);
     }
     
+    .results th, .results td {
+        color: white;
+    }
+    
+    .results th a, .results td a {
+        color: #ffd700;
+    }
+    
+    /* Ссылки */
     a:link, a:visited {
         color: #ffd700;
         text-decoration: none;
@@ -120,6 +230,7 @@
         color: #e6c200;
     }
     
+    /* Формы */
     input, textarea, select {
         background: rgba(50,50,100,0.8);
         border: 1px solid rgba(255,255,255,0.2);
@@ -134,47 +245,24 @@
         box-shadow: 0 0 5px rgba(255,215,0,0.3);
     }
     
-    #nav-sidebar .current-model {
-        background: #ffd700;
-        color: #1a1a4a;
-        border-radius: 8px;
+    label {
+        color: #ffd700;
     }
     
+    /* Хлебные крошки */
     div.breadcrumbs {
         background: #1a1a4a;
         color: #ffd700;
         padding: 10px 15px;
         border-radius: 8px;
-        margin: 15px 15px 0 15px;
+        margin-bottom: 20px;
     }
     
     div.breadcrumbs a {
         color: #ffd700;
     }
     
-    .addlink {
-        background: #28a745;
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-    }
-    
-    .addlink:hover {
-        background: #218838;
-        transform: translateY(-1px);
-    }
-    
-    .deletelink {
-        background: #dc3545;
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-    }
-    
-    .deletelink:hover {
-        background: #c82333;
-    }
-    
+    /* Пагинация */
     .paginator {
         background: rgba(40,40,90,0.6);
         color: white;
@@ -186,6 +274,7 @@
         color: #ffd700;
     }
     
+    /* Сообщения */
     .messagelist li {
         border-radius: 8px;
         padding: 10px;
@@ -203,6 +292,7 @@
         color: #dc3545;
     }
     
+    /* Футер */
     #footer {
         background: #0a0a2a;
         color: #ffd700;
@@ -213,14 +303,35 @@
         border-radius: 0 0 15px 15px;
     }
     
-    .results th, .results td {
+    /* Строка поиска */
+    #searchbar {
+        background: rgba(50,50,100,0.8);
+        border: 1px solid #ffd700;
+        border-radius: 20px;
+        padding: 8px 15px;
         color: white;
     }
     
-    .results th a, .results td a {
+    /* Фильтры */
+    #changelist-filter {
+        background: rgba(20,20,50,0.8);
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    #changelist-filter h2, #changelist-filter h3 {
         color: #ffd700;
     }
     
+    #changelist-filter a {
+        color: white;
+    }
+    
+    #changelist-filter a:hover {
+        color: #ffd700;
+    }
+    
+    /* Кнопки действий */
     .object-tools a {
         background: #ffd700;
         color: #1a1a4a;
@@ -241,12 +352,7 @@
 {% endblock %}
 
 {% block nav-global %}
-<div style="position: absolute; top: 15px; right: 20px;">
-    <a href="/" style="color: #ffd700; margin-right: 15px; text-decoration: none;">
-        <i class="fas fa-home"></i> На сайт
-    </a>
-    <a href="/help/" style="color: #ffd700; text-decoration: none;">
-        <i class="fas fa-question-circle"></i> Помощь
-    </a>
-</div>
+<a href="/admin-panel/" class="main-menu-btn">
+    <i class="fas fa-home"></i> Главное меню
+</a>
 {% endblock %}
