@@ -1,27 +1,172 @@
-<!-- Карточка Заказы -->
-<div class="col-md-3 mb-4">
-    <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
-        <div class="card-body">
-            <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
-                <i class="fas fa-shopping-cart fa-2x" style="color: #ffd700;"></i>
+{% extends 'base.html' %}
+{% block title %}Панель администратора{% endblock %}
+{% block content %}
+<div class="fade-in">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header" style="background: rgba(20,20,50,0.9); border-bottom: 1px solid rgba(255,215,0,0.3);">
+                    <h4 class="mb-0" style="color: #ffd700;">Панель администратора</h4>
+                    <p class="mb-0 mt-1" style="color: rgba(255,255,255,0.6); font-size: 13px;">Управление системой ресторана</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Карточка Меню -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-utensils fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Меню</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Управление блюдами и категориями</p>
+                                    <a href="/admin/restaurant/category/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карточка Столы -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-chair fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Столы</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Управление столами в зале</p>
+                                    <a href="/admin/restaurant/table/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карточка Сотрудники -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-users fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Сотрудники</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Управление персоналом</p>
+                                    <a href="/admin/auth/user/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карточка Заказы -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-shopping-cart fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Заказы</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Просмотр всех заказов</p>
+                                    <a href="/admin/restaurant/order/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карточка Бронирования -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-calendar-alt fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Бронирования</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Управление бронями столов</p>
+                                    <a href="/admin/restaurant/booking/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Карточка Отчёты -->
+                        <div class="col-md-3 mb-4">
+                            <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
+                                <div class="card-body">
+                                    <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
+                                        <i class="fas fa-chart-line fa-2x" style="color: #ffd700;"></i>
+                                    </div>
+                                    <h5 style="color: white;">Отчёты</h5>
+                                    <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Аналитика и статистика</p>
+                                    <a href="/reports/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Информационная панель -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card" style="background: rgba(20,20,50,0.5); border: 1px solid rgba(255,255,255,0.1);">
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-4">
+                                            <h3 style="color: #ffd700;" id="stat-orders">0</h3>
+                                            <p style="color: rgba(255,255,255,0.6); margin-bottom: 0;">Всего заказов</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 style="color: #ffd700;" id="stat-tables">0</h3>
+                                            <p style="color: rgba(255,255,255,0.6); margin-bottom: 0;">Столов</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <h3 style="color: #ffd700;" id="stat-dishes">0</h3>
+                                            <p style="color: rgba(255,255,255,0.6); margin-bottom: 0;">Блюд в меню</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h5 style="color: white;">Заказы</h5>
-            <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Просмотр всех заказов</p>
-            <a href="/admin/restaurant/order/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
         </div>
     </div>
 </div>
 
-<!-- Карточка Бронирования -->
-<div class="col-md-3 mb-4">
-    <div class="card text-center admin-card" style="background: rgba(40,40,90,0.6); border: 1px solid rgba(255,215,0,0.3);">
-        <div class="card-body">
-            <div style="width: 60px; height: 60px; background: rgba(255,215,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto;">
-                <i class="fas fa-calendar-alt fa-2x" style="color: #ffd700;"></i>
-            </div>
-            <h5 style="color: white;">Бронирования</h5>
-            <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Управление бронями столов</p>
-            <a href="/admin/restaurant/booking/" class="btn btn-warning btn-sm" style="background: #ffd700; color: #1a1a4a;">Перейти</a>
-        </div>
-    </div>
-</div>
+<script>
+    if (localStorage.getItem('user_role') !== 'admin') {
+        window.location.href = '/';
+    }
+    
+    async function loadStats() {
+        try {
+            const ordersResponse = await fetch('/api/orders/active/');
+            const ordersData = await ordersResponse.json();
+            if (ordersData.success) {
+                document.getElementById('stat-orders').innerText = ordersData.data.length;
+            }
+            
+            const tablesResponse = await fetch('/api/tables/');
+            const tablesData = await tablesResponse.json();
+            if (tablesData.success) {
+                document.getElementById('stat-tables').innerText = tablesData.data.length;
+            }
+            
+            const dishesResponse = await fetch('/api/dishes/');
+            const dishesData = await dishesResponse.json();
+            if (dishesData.success) {
+                document.getElementById('stat-dishes').innerText = dishesData.data.length;
+            }
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+    
+    loadStats();
+</script>
+
+<style>
+    .admin-card {
+        transition: transform 0.1s ease;
+        cursor: pointer;
+    }
+    .admin-card:active {
+        transform: scale(0.98);
+    }
+    .admin-card:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
