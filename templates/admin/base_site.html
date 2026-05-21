@@ -14,12 +14,10 @@
     }
     
     #container {
-        background: transparent !important;
+        background: transparent;
         margin: 20px;
         color: white;
         flex: 1;
-        border: none;
-        box-shadow: none;
     }
     
     #header {
@@ -61,6 +59,11 @@
     
     #user-tools a:hover {
         color: #e6c200;
+    }
+    
+    /* Скрываем только кнопки Toggle theme */
+    .theme-toggle {
+        display: none !important;
     }
     
     .main-menu-btn {
@@ -160,61 +163,22 @@
         color: white;
     }
     
-    /* Основной контент - ПОЛНОСТЬЮ ПРОЗРАЧНЫЙ */
     #content {
         margin-left: 300px;
         padding: 0;
-        background: transparent !important;
+        background: transparent;
         min-height: 500px;
     }
     
     #content-main {
         color: white;
-        background: transparent !important;
+        background: transparent;
     }
     
-    /* Убираем фон у таблиц */
-    #content-main .results,
-    #content-main .results table,
-    #changelist .results {
-        background: transparent !important;
-    }
-    
-    #content-main .results tbody tr {
-        background: rgba(40,40,90,0.4) !important;
-    }
-    
-    #content-main .results tbody tr:hover {
-        background: rgba(60,60,110,0.6) !important;
-    }
-    
-    .change-list, .change-list .module {
-        background: transparent !important;
-    }
-    
-    .module {
-        background: transparent !important;
-        border: none !important;
-    }
-    
-    .module h2, .inline-group h2 {
-        background: rgba(26,26,74,0.9);
-        color: #ffd700;
-        border-radius: 10px;
-        padding: 10px 15px;
-        border: 1px solid rgba(255,215,0,0.2);
-    }
-    
-    .module caption, .inline-group caption {
-        background: rgba(10,10,42,0.9);
-        color: #ffd700;
-    }
-    
-    /* Таблицы */
+    /* Убираем белый фон вокруг таблицы */
     .results {
         background: rgba(30,30,70,0.3) !important;
         border-radius: 10px;
-        overflow: hidden;
         border: 1px solid rgba(255,215,0,0.1) !important;
     }
     
@@ -222,7 +186,6 @@
         background: rgba(26,26,74,0.9);
         color: #ffd700;
         padding: 12px;
-        border: none;
     }
     
     .results td {
@@ -386,10 +349,6 @@
     
     .submit-row input:hover {
         background: #e6c200;
-    }
-    
-    .results table {
-        background: transparent !important;
     }
 </style>
 {% endblock %}
