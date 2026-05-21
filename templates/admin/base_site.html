@@ -8,6 +8,9 @@
     body {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
     }
     
     #container {
@@ -17,6 +20,7 @@
         margin: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         color: white;
+        flex: 1;
     }
     
     #header {
@@ -60,7 +64,6 @@
         color: #e6c200;
     }
     
-    /* Главное меню справа сверху */
     .main-menu-btn {
         position: absolute;
         top: 15px;
@@ -81,7 +84,6 @@
         color: #1a1a4a;
     }
     
-    /* Боковое меню - вертикальное расположение */
     #nav-sidebar {
         float: left;
         width: 260px;
@@ -145,7 +147,6 @@
         color: white;
     }
     
-    /* Основной контент */
     #content {
         margin-left: 280px;
         padding: 20px;
@@ -157,7 +158,6 @@
         color: white;
     }
     
-    /* Заголовки */
     .module h2, .inline-group h2 {
         background: #1a1a4a;
         color: #ffd700;
@@ -170,7 +170,6 @@
         color: #ffd700;
     }
     
-    /* Кнопки */
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
         background: #ffd700;
         color: #1a1a4a;
@@ -196,7 +195,6 @@
         background: #2a2a5a;
     }
     
-    /* Таблицы */
     .dashboard .module table th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
@@ -220,7 +218,6 @@
         color: #ffd700;
     }
     
-    /* Ссылки */
     a:link, a:visited {
         color: #ffd700;
         text-decoration: none;
@@ -230,7 +227,6 @@
         color: #e6c200;
     }
     
-    /* Формы */
     input, textarea, select {
         background: rgba(50,50,100,0.8);
         border: 1px solid rgba(255,255,255,0.2);
@@ -249,7 +245,6 @@
         color: #ffd700;
     }
     
-    /* Хлебные крошки */
     div.breadcrumbs {
         background: #1a1a4a;
         color: #ffd700;
@@ -262,7 +257,6 @@
         color: #ffd700;
     }
     
-    /* Пагинация */
     .paginator {
         background: rgba(40,40,90,0.6);
         color: white;
@@ -274,7 +268,6 @@
         color: #ffd700;
     }
     
-    /* Сообщения */
     .messagelist li {
         border-radius: 8px;
         padding: 10px;
@@ -292,7 +285,6 @@
         color: #dc3545;
     }
     
-    /* Футер */
     #footer {
         background: #0a0a2a;
         color: #ffd700;
@@ -303,7 +295,6 @@
         border-radius: 0 0 15px 15px;
     }
     
-    /* Строка поиска */
     #searchbar {
         background: rgba(50,50,100,0.8);
         border: 1px solid #ffd700;
@@ -312,7 +303,6 @@
         color: white;
     }
     
-    /* Фильтры */
     #changelist-filter {
         background: rgba(20,20,50,0.8);
         border-radius: 10px;
@@ -331,7 +321,6 @@
         color: #ffd700;
     }
     
-    /* Кнопки действий */
     .object-tools a {
         background: #ffd700;
         color: #1a1a4a;
@@ -340,6 +329,25 @@
     
     .object-tools a:hover {
         background: #e6c200;
+    }
+    
+    .admin-footer {
+        background: #0a0a2a;
+        color: #ffd700;
+        text-align: center;
+        padding: 15px;
+        margin: 20px 20px 0 20px;
+        border-top: 1px solid rgba(255,215,0,0.3);
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .admin-footer a {
+        color: #ffd700;
+        text-decoration: none;
+    }
+    
+    .admin-footer a:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %}
@@ -355,4 +363,16 @@
 <a href="/admin-panel/" class="main-menu-btn">
     <i class="fas fa-home"></i> Главное меню
 </a>
+{% endblock %}
+
+{% block footer %}
+<div class="admin-footer">
+    <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
+    <p class="mb-0 mt-1" style="font-size: 11px;">
+        <a href="/help/">Руководство пользователя</a> | 
+        <a href="/docs/">Регламенты</a> | 
+        <a href="/maintenance-log/">Журнал ТО</a> |
+        <a href="https://forms.yandex.ru/u/69f11c7990fa7b3c1459172e" target="_blank">Обратная связь</a>
+    </p>
+</div>
 {% endblock %}
