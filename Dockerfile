@@ -12,9 +12,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Создаём папку для бэкапов
+RUN mkdir -p backups
+
+# Выполняем миграции
 RUN python manage.py makemigrations restaurant
 RUN python manage.py migrate
+
+# Создаём суперпользователя и заполняем данные
 RUN python create_migrations.py
+
+# Создаём резервную копию при сборке
+RUN python backup.py
 
 EXPOSE 8000
 
