@@ -11,7 +11,6 @@ import json
 import sqlite3
 import os
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Employee
-from .forms import CustomLoginForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
