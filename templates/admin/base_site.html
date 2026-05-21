@@ -5,45 +5,230 @@
 
 {% block extrastyle %}
 <style>
+    /* Общие стили для админки */
+    :root {
+        --primary: #1a1a4a;
+        --secondary: #ffd700;
+        --accent: #ffd700;
+        --primary-fg: #fff;
+        --body-fg: #333;
+        --body-bg: #f5f5f5;
+        --body-quiet-color: #666;
+        --body-loud-color: #000;
+        --header-color: #ffd700;
+        --header-branding-color: #ffd700;
+        --header-bg: #0a0a2a;
+        --header-link-color: #ffd700;
+        --link-fg: #1a1a4a;
+        --link-hover-color: #ffd700;
+        --link-selected-fg: #ffd700;
+        --hairline-color: #eee;
+        --border-color: #ddd;
+    }
+    
+    /* Шапка админки */
     #header {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
-        border-bottom: 2px solid #ffd700;
+        border-bottom: 3px solid #ffd700;
+        padding: 15px 20px;
     }
+    
     #branding h1 {
         color: #ffd700;
         font-weight: 600;
+        font-size: 24px;
+        margin: 0;
     }
+    
     #branding h1 a {
         color: #ffd700;
+        text-decoration: none;
     }
+    
+    #branding h1 a:hover {
+        color: #e6c200;
+    }
+    
+    #user-tools {
+        color: #ffd700;
+        font-size: 14px;
+    }
+    
+    #user-tools a {
+        color: #ffd700;
+        border-bottom: 1px solid rgba(255,215,0,0.3);
+    }
+    
+    #user-tools a:hover {
+        color: #e6c200;
+        border-bottom-color: #e6c200;
+    }
+    
+    /* Боковое меню */
     .module h2, .inline-group h2 {
         background: #1a1a4a;
         color: #ffd700;
+        border-radius: 8px 8px 0 0;
+        padding: 10px 15px;
     }
-    a:link, a:visited {
+    
+    .module caption, .inline-group caption {
+        background: #0a0a2a;
         color: #ffd700;
     }
+    
+    /* Кнопки */
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
         background: #ffd700;
         color: #1a1a4a;
         border: none;
         border-radius: 8px;
         font-weight: 600;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.1s ease;
     }
+    
     .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
         background: #e6c200;
         transform: translateY(-1px);
     }
+    
     .button:active, input[type=submit]:active, input[type=button]:active, .submit-row input:active {
         transform: translateY(1px);
     }
+    
+    .default {
+        background: #1a1a4a;
+        color: white;
+    }
+    
+    .default:hover {
+        background: #2a2a5a;
+    }
+    
+    /* Таблицы */
     .dashboard .module table th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
+        font-weight: 600;
     }
+    
     .dashboard .module table td {
         background: rgba(40,40,90,0.6);
         color: white;
+    }
+    
+    .dashboard .module table tr:hover td {
+        background: rgba(60,60,110,0.7);
+    }
+    
+    /* Ссылки */
+    a:link, a:visited {
+        color: #1a1a4a;
+        text-decoration: none;
+    }
+    
+    a:hover {
+        color: #ffd700;
+    }
+    
+    /* Формы */
+    input, textarea, select {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: #ffd700;
+        outline: none;
+        box-shadow: 0 0 5px rgba(255,215,0,0.3);
+    }
+    
+    /* Боковая панель навигации */
+    #nav-sidebar .current-model {
+        background: #ffd700;
+        color: #1a1a4a;
+        border-radius: 8px;
+    }
+    
+    /* Хлебные крошки */
+    div.breadcrumbs {
+        background: #1a1a4a;
+        color: #ffd700;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    div.breadcrumbs a {
+        color: #ffd700;
+    }
+    
+    /* Кнопка добавления */
+    .addlink {
+        background: #28a745;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    
+    .addlink:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    /* Кнопка удаления */
+    .deletelink {
+        background: #dc3545;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    
+    .deletelink:hover {
+        background: #c82333;
+    }
+    
+    /* Пагинация */
+    .paginator {
+        background: rgba(40,40,90,0.6);
+        color: white;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .paginator a {
+        color: #ffd700;
+    }
+    
+    /* Сообщения об успехе/ошибке */
+    .messagelist li {
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .success {
+        background: rgba(40,167,69,0.2);
+        border: 1px solid #28a745;
+        color: #28a745;
+    }
+    
+    .error {
+        background: rgba(220,53,69,0.2);
+        border: 1px solid #dc3545;
+        color: #dc3545;
+    }
+    
+    /* Футер */
+    #footer {
+        background: #0a0a2a;
+        color: #ffd700;
+        text-align: center;
+        padding: 15px;
+        margin-top: 30px;
+        border-top: 1px solid rgba(255,215,0,0.3);
     }
 </style>
 {% endblock %}
@@ -55,4 +240,13 @@
 </h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block nav-global %}
+<div style="position: absolute; top: 15px; right: 20px;">
+    <a href="/" style="color: #ffd700; margin-right: 15px; text-decoration: none;">
+        <i class="fas fa-home"></i> На сайт
+    </a>
+    <a href="/help/" style="color: #ffd700; text-decoration: none;">
+        <i class="fas fa-question-circle"></i> Помощь
+    </a>
+</div>
+{% endblock %}
