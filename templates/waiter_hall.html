@@ -52,8 +52,8 @@
                     
                     html += `
                         <div class="col-md-3 mb-3">
-                            <div class="card text-center" 
-                                 style="background: ${bgColor}; ${clickable ? 'cursor: pointer;' : 'cursor: not-allowed; opacity: 0.6;'}"
+                            <div class="card text-center table-card" 
+                                 style="background: ${bgColor}; cursor: ${clickable ? 'pointer' : 'not-allowed'}; ${clickable ? 'transition: transform 0.1s ease;' : 'opacity: 0.6;'}"
                                  data-table-id="${table.id}"
                                  data-table-number="${table.number}"
                                  data-table-status="${table.status}">
@@ -70,10 +70,11 @@
                 html += '</div>';
                 document.getElementById('hall-container').innerHTML = html;
                 
-                // Добавляем обработчики кликов на все столы
-                document.querySelectorAll('#hall-container .card').forEach(card => {
+                // Добавляем обработчики кликов
+                document.querySelectorAll('.table-card').forEach(card => {
                     const status = card.getAttribute('data-table-status');
                     if (status === 'free') {
+                        card.style.cursor = 'pointer';
                         card.addEventListener('click', function(e) {
                             const tableId = parseInt(this.getAttribute('data-table-id'));
                             const tableNumber = parseInt(this.getAttribute('data-table-number'));
@@ -84,7 +85,7 @@
             }
             await loadReadyOrders();
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error loading tables:', error);
             document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
         }
     }
@@ -104,7 +105,7 @@
                 for (const order of readyOrders) {
                     html += `
                         <div class="col-md-4 mb-3">
-                            <div class="card" style="background: rgba(40,100,40,0.7); cursor: pointer;" data-order-id="${order.id}" data-order-table="${order.table_number}">
+                            <div class="card ready-order-card" style="background: rgba(40,100,40,0.7); cursor: pointer;" data-order-id="${order.id}" data-order-table="${order.table_number}">
                                 <div class="card-body">
                                     <h5 style="color: #ffd700;">Заказ для стола ${order.table_number}</h5>
                                     <p style="color: white;">Создан: ${order.created_at}</p>
@@ -116,8 +117,7 @@
                 }
                 document.getElementById('ready-orders-list').innerHTML = html;
                 
-                // Добавляем обработчики на готовые заказы
-                document.querySelectorAll('#ready-orders-list .card').forEach(card => {
+                document.querySelectorAll('.ready-order-card').forEach(card => {
                     card.addEventListener('click', function(e) {
                         const orderId = parseInt(this.getAttribute('data-order-id'));
                         takeOrder(orderId);
@@ -125,7 +125,7 @@
                 });
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error loading ready orders:', error);
         }
     }
     
@@ -280,9 +280,8 @@
     function openOrderModal(tableId, tableNumber) {
         currentTableId = tableId;
         currentCart = [];
-        updateCartDisplay();
-        loadMenu(tableNumber);
         
+        // Создаём модальное окно с меню
         const modalHtml = `
             <div class="modal fade" id="orderModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
@@ -322,9 +321,13 @@
                 </div>
             </div>
         `;
+        
         const oldModal = document.getElementById('orderModal');
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Загружаем меню
+        loadMenuIntoModal();
         
         document.getElementById('submit-order-btn').addEventListener('click', function() {
             submitOrder();
@@ -334,48 +337,53 @@
         modal.show();
     }
     
-    // Загрузка меню
-    async function loadMenu(tableNumber) {
-        const response = await fetch('/api/dishes/');
-        const data = await response.json();
-        if (data.success && data.data) {
-            const categories = {};
-            data.data.forEach(dish => {
-                if (!categories[dish.category]) categories[dish.category] = [];
-                categories[dish.category].push(dish);
-            });
-            let html = '';
-            for (const [category, dishes] of Object.entries(categories)) {
-                html += `<h6 style="color: #ffd700; margin-top: 15px;">${category}</h6>`;
-                html += '<div class="row">';
-                dishes.forEach(dish => {
-                    html += `
-                        <div class="col-md-6 mb-2">
-                            <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 8px;">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong style="color: white;">${dish.name}</strong>
-                                        <div style="color: #ffd700;">${dish.price} ₽</div>
+    // Загрузка меню в модальное окно
+    async function loadMenuIntoModal() {
+        try {
+            const response = await fetch('/api/dishes/');
+            const data = await response.json();
+            if (data.success && data.data) {
+                const categories = {};
+                data.data.forEach(dish => {
+                    if (!categories[dish.category]) categories[dish.category] = [];
+                    categories[dish.category].push(dish);
+                });
+                let html = '';
+                for (const [category, dishes] of Object.entries(categories)) {
+                    html += `<h6 style="color: #ffd700; margin-top: 15px;">${category}</h6>`;
+                    html += '<div class="row">';
+                    dishes.forEach(dish => {
+                        html += `
+                            <div class="col-md-6 mb-2">
+                                <div style="background: rgba(40,40,90,0.5); border-radius: 8px; padding: 8px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong style="color: white;">${dish.name}</strong>
+                                            <div style="color: #ffd700;">${dish.price} ₽</div>
+                                        </div>
+                                        <button class="btn btn-sm btn-success add-to-cart" data-id="${dish.id}" data-name="${dish.name}" data-price="${dish.price}">+</button>
                                     </div>
-                                    <button class="btn btn-sm btn-success add-to-cart" data-id="${dish.id}" data-name="${dish.name}" data-price="${dish.price}">+</button>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    });
+                    html += '</div>';
+                }
+                document.getElementById('menu-list').innerHTML = html;
+                
+                document.querySelectorAll('.add-to-cart').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id);
+                        const name = this.dataset.name;
+                        const price = parseInt(this.dataset.price);
+                        addToCart(id, name, price);
+                    });
                 });
-                html += '</div>';
             }
-            document.getElementById('menu-list').innerHTML = html;
-            
-            document.querySelectorAll('.add-to-cart').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const id = parseInt(this.dataset.id);
-                    const name = this.dataset.name;
-                    const price = parseInt(this.dataset.price);
-                    addToCart(id, name, price);
-                });
-            });
+        } catch (error) {
+            console.error('Error loading menu:', error);
+            document.getElementById('menu-list').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
         }
     }
     
@@ -388,15 +396,6 @@
             currentCart.push({id, name, price, quantity: 1});
         }
         updateCartDisplay();
-        
-        // Визуальный эффект
-        const btns = document.querySelectorAll('.add-to-cart');
-        btns.forEach(btn => {
-            if (parseInt(btn.dataset.id) === id) {
-                btn.innerHTML = '✓';
-                setTimeout(() => { btn.innerHTML = '+'; }, 500);
-            }
-        });
     }
     
     // Обновление корзины
@@ -410,15 +409,17 @@
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
                 html += `
-                    <div class="d-flex justify-content-between mb-2" style="color: white;">
+                    <div class="d-flex justify-content-between mb-2" style="color: white; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;">
                         <div>${item.name} x${item.quantity}</div>
                         <div>${itemTotal} ₽ <button class="btn btn-sm btn-danger remove-item" data-index="${idx}">Удалить</button></div>
                     </div>
                 `;
             });
         }
-        document.getElementById('cart-items').innerHTML = html;
-        document.getElementById('total').innerHTML = total + ' ₽';
+        const cartItemsDiv = document.getElementById('cart-items');
+        const totalSpan = document.getElementById('total');
+        if (cartItemsDiv) cartItemsDiv.innerHTML = html;
+        if (totalSpan) totalSpan.innerHTML = total + ' ₽';
         
         document.querySelectorAll('.remove-item').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -437,19 +438,23 @@
         }
         const items = currentCart.map(item => ({dish_id: item.id, quantity: item.quantity}));
         const guestCount = document.getElementById('guest-count').value;
-        const response = await fetch('/api/orders/create/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({table_id: currentTableId, items: items, guest_count: guestCount})
-        });
-        const data = await response.json();
-        if (data.success) {
-            alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
-            if (modal) modal.hide();
-            loadTables();
-        } else {
-            alert('Ошибка: ' + data.error);
+        try {
+            const response = await fetch('/api/orders/create/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({table_id: currentTableId, items: items, guest_count: guestCount})
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+                if (modal) modal.hide();
+                loadTables();
+            } else {
+                alert('Ошибка: ' + data.error);
+            }
+        } catch (error) {
+            alert('Ошибка соединения: ' + error);
         }
     }
     
