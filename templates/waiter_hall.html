@@ -81,7 +81,7 @@
             if (data.success && data.data) {
                 const readyOrders = data.data.filter(order => order.status === 'ready');
                 if (readyOrders.length === 0) {
-                    document.getElementById('ready-orders-list').innerHTML = '<p class="text-muted">Нет готовых заказов</p>';
+                    document.getElementById('ready-orders-list').innerHTML = '<p class="text-center" style="color: white;">Нет готовых заказов</p>';
                     return;
                 }
                 let html = '';
@@ -127,7 +127,7 @@
             const modalHtml = `
                 <div class="modal fade" id="paymentModal" tabindex="-1">
                     <div class="modal-dialog">
-                        <div class="modal-content" style="background: rgba(20,20,60,0.95);">
+                        <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" style="color: #ffd700;">Оплата заказа #${order.order_id}</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -254,7 +254,7 @@
         const modalHtml = `
             <div class="modal fade" id="orderModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
-                    <div class="modal-content" style="background: rgba(20,20,60,0.95);">
+                    <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" style="color: #ffd700;">Заказ для стола ${tableNumber}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
