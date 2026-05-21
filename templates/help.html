@@ -8,6 +8,11 @@
             <small>По ГОСТ 19.505-79 ЕСПД</small>
         </div>
         <div class="card-body">
+            <div class="alert alert-info mb-4" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700;">
+                <strong>Где находится помощь?</strong>
+                <p class="mb-0 mt-1" style="color: rgba(255,255,255,0.8);">Ссылка на это руководство находится в правом верхнем углу панели администратора (иконка "Помощь"). Также вы можете перейти по прямой ссылке: <code style="background: #333; padding: 2px 5px;">/help/</code></p>
+            </div>
+            
             <!-- 1. Назначение системы -->
             <h4 style="color: #ffd700; margin-top: 20px;">1. Назначение системы</h4>
             <p>АИС "Общепит" предназначена для автоматизации учёта заказов на предприятиях общественного питания (кафе, рестораны, столовые). Доступ только для сотрудников: администраторов, официантов и поваров.</p>
@@ -62,15 +67,6 @@
                 <li>Введите логин и пароль</li>
             </ol>
             
-            <!-- Плейсхолдер для скриншота авторизации -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 1 - Страница авторизации</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот страницы входа)</p>
-                </div>
-            </div>
-            
             <table class="table table-dark table-bordered" style="margin-top: 10px;">
                 <thead>
                     <tr>
@@ -88,69 +84,24 @@
             
             <!-- 4. Работа официанта -->
             <h4 style="color: #ffd700; margin-top: 30px;">4. Работа официанта</h4>
-            <h5>4.1. Схема зала</h5>
+            <h5>4.1. Приём заказа</h5>
             <ol>
                 <li>Войдите в систему как официант</li>
-                <li>Вы увидите схему зала с цветовой индикацией столов</li>
-            </ol>
-            
-            <!-- Плейсхолдер для скриншота зала -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 2 - Схема зала</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот схемы зала со столами)</p>
-                </div>
-            </div>
-            
-            <h5>4.2. Приём заказа</h5>
-            <ol>
                 <li>Нажмите на свободный зелёный стол в схеме зала</li>
                 <li>В открывшемся окне выберите блюда из меню, нажимая кнопку "+"</li>
                 <li>Укажите количество гостей</li>
                 <li>Нажмите "Оформить заказ"</li>
+                <li>Заказ отправлен на кухню, стол стал красным (занят)</li>
             </ol>
             
-            <!-- Плейсхолдер для скриншота заказа -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 3 - Создание заказа</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот окна создания заказа)</p>
-                </div>
-            </div>
-            
-            <h5>4.3. Готовые заказы и оплата</h5>
+            <h5>4.2. Готовые заказы и оплата</h5>
             <ol>
                 <li>Когда заказ готов, он появится в разделе "Готовые заказы"</li>
                 <li>Нажмите "Забрать заказ"</li>
                 <li>Выберите способ оплаты: Наличные / Карта / QR-код</li>
                 <li>Нажмите "Оплатить"</li>
+                <li>Откроется чек с возможностью печати или скачивания PDF</li>
             </ol>
-            
-            <!-- Плейсхолдер для скриншота оплаты -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 4 - Оплата заказа</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот окна оплаты)</p>
-                </div>
-            </div>
-            
-            <h5>4.4. Чек</h5>
-            <ol>
-                <li>После оплаты откроется чек</li>
-                <li>Можно распечатать чек или скачать в PDF</li>
-            </ol>
-            
-            <!-- Плейсхолдер для скриншота чека -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 5 - Чек</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот чека)</p>
-                </div>
-            </div>
             
             <!-- 5. Работа повара -->
             <h4 style="color: #ffd700; margin-top: 30px;">5. Работа повара</h4>
@@ -160,16 +111,8 @@
                 <li>У каждого блюда нажмите "Начать готовку" (статус "Готовится")</li>
                 <li>После приготовления нажмите "Готово" (статус "Готов")</li>
                 <li>Когда все блюда готовы, нажмите "Заказ готов"</li>
+                <li>Официант получит уведомление о готовности заказа</li>
             </ol>
-            
-            <!-- Плейсхолдер для скриншота кухни -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 6 - Панель повара</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот панели повара)</p>
-                </div>
-            </div>
             
             <!-- 6. Работа администратора -->
             <h4 style="color: #ffd700; margin-top: 30px;">6. Работа администратора</h4>
@@ -181,80 +124,38 @@
                         <li><strong>Столы</strong> - управление столами</li>
                         <li><strong>Сотрудники</strong> - управление пользователями</li>
                         <li><strong>Заказы</strong> - просмотр всех заказов</li>
-                        <li><strong>Бронирования</strong> - управление бронями</li>
                         <li><strong>Отчёты</strong> - статистика и экспорт</li>
+                        <li><strong>Журнал ТО</strong> - журнал технического обслуживания</li>
+                    </ul>
+                </li>
+                <li>В разделе "Отчёты" можно:
+                    <ul>
+                        <li>Смотреть график продаж</li>
+                        <li>Экспортировать заказы в Excel</li>
+                        <li>Экспортировать популярные блюда в Excel</li>
                     </ul>
                 </li>
             </ol>
             
-            <!-- Плейсхолдер для скриншота админки -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 7 - Панель администратора</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот панели администратора)</p>
-                </div>
-            </div>
-            
-            <h5>6.1. Отчёты</h5>
+            <!-- 7. Журнал технического обслуживания -->
+            <h4 style="color: #ffd700; margin-top: 30px;">7. Журнал технического обслуживания</h4>
             <ol>
-                <li>Перейдите в раздел "Отчёты"</li>
-                <li>Выберите период (день/неделя/месяц)</li>
-                <li>Экспортируйте данные в Excel</li>
+                <li>Войдите в систему как администратор</li>
+                <li>Перейдите в раздел "Журнал ТО"</li>
+                <li>Нажмите "Добавить запись"</li>
+                <li>Заполните дату, проведённую работу и исполнителя</li>
+                <li>Запись сохранится в таблице</li>
             </ol>
             
-            <!-- Плейсхолдер для скриншота отчётов -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 8 - Отчёты</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот страницы отчётов)</p>
-                </div>
-            </div>
-            
-            <!-- 7. Бронирование столов -->
-            <h4 style="color: #ffd700; margin-top: 30px;">7. Бронирование столов</h4>
-            <ol>
-                <li>Войдите в систему как сотрудник</li>
-                <li>Перейдите в раздел "Бронирование"</li>
-                <li>Выберите дату и время</li>
-                <li>Нажмите на свободный стол</li>
-                <li>Заполните форму и подтвердите</li>
-            </ol>
-            
-            <!-- Плейсхолдер для скриншота бронирования -->
-            <div class="text-center my-3">
-                <div class="screenshot-placeholder" style="background: rgba(50,50,100,0.5); border: 2px dashed #ffd700; border-radius: 10px; padding: 40px; text-align: center;">
-                    <i class="fas fa-image fa-3x" style="color: #ffd700; margin-bottom: 10px;"></i>
-                    <p style="color: #ffd700; margin-bottom: 5px;">Рисунок 9 - Бронирование столов</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 12px;">(Здесь будет скриншот страницы бронирования)</p>
-                </div>
-            </div>
-            
-            <!-- Как добавить реальные скриншоты -->
-            <div class="alert alert-info mt-4" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700;">
-                <strong>Как добавить реальные скриншоты:</strong>
-                <ol class="mt-2" style="color: rgba(255,255,255,0.8);">
-                    <li>Сделайте скриншот нужной страницы</li>
-                    <li>Сохраните его в формате PNG (рекомендуемый размер: 800x400)</li>
-                    <li>Загрузите файлы в папку <code style="background: #333; padding: 2px 5px;">static/images/</code> на сервере</li>
-                    <li>Названия файлов должны соответствовать:<br>
-                        <code>screenshot_login.png</code>, <code>screenshot_hall.png</code>, <code>screenshot_order.png</code>, <code>screenshot_payment.png</code>, <code>screenshot_receipt.png</code>, <code>screenshot_kitchen.png</code>, <code>screenshot_admin.png</code>, <code>screenshot_reports.png</code>, <code>screenshot_booking.png</code>
-                    </li>
-                    <li>После загрузки файлов, скриншоты автоматически отобразятся вместо плейсхолдеров</li>
-                </ol>
-            </div>
+            <!-- 8. Регламенты -->
+            <h4 style="color: #ffd700; margin-top: 30px;">8. Регламенты</h4>
+            <p>Полные тексты регламентов доступны по ссылке: <a href="/docs/" style="color: #ffd700;">/docs/</a></p>
+            <ul>
+                <li>Регламент технического обслуживания (Приложение Б)</li>
+                <li>Регламент резервного копирования (Приложение В)</li>
+                <li>Регламент восстановления из резервной копии (Приложение В)</li>
+            </ul>
         </div>
     </div>
 </div>
-
-<style>
-    .screenshot-placeholder {
-        transition: all 0.3s ease;
-    }
-    .screenshot-placeholder:hover {
-        background: rgba(70,70,120,0.5) !important;
-        border-color: #ffd700 !important;
-    }
-</style>
 {% endblock %}
