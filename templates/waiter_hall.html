@@ -5,7 +5,7 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Зал ресторана</h4>
-            <button class="btn btn-warning btn-sm" onclick="loadTables()">Обновить</button>
+            <button class="btn btn-warning btn-sm" id="refresh-tables">Обновить</button>
         </div>
     </div>
     <div class="card-body">
@@ -37,25 +37,26 @@
                 for (const table of data.data) {
                     let bgColor = '';
                     let statusText = '';
-                    let clickHandler = '';
+                    let clickable = table.status === 'free';
                     
                     if (table.status === 'free') {
                         bgColor = 'rgba(40,90,40,0.7)';
                         statusText = 'Свободен';
-                        clickHandler = `onclick="openOrderModal(${table.id})"`;
                     } else if (table.status === 'occupied') {
                         bgColor = 'rgba(140,40,40,0.7)';
                         statusText = 'Занят';
-                        clickHandler = '';
                     } else {
                         bgColor = 'rgba(140,100,30,0.7)';
                         statusText = 'Забронирован';
-                        clickHandler = '';
                     }
                     
                     html += `
                         <div class="col-md-3 mb-3">
-                            <div class="card text-center" style="background: ${bgColor}; cursor: ${clickHandler ? 'pointer' : 'not-allowed'}; ${clickHandler ? 'transition: transform 0.1s ease;' : 'opacity: 0.6;'}" ${clickHandler ? `onclick="${clickHandler}"` : ''}>
+                            <div class="card text-center" 
+                                 style="background: ${bgColor}; ${clickable ? 'cursor: pointer;' : 'cursor: not-allowed; opacity: 0.6;'}"
+                                 data-table-id="${table.id}"
+                                 data-table-number="${table.number}"
+                                 data-table-status="${table.status}">
                                 <div class="card-body">
                                     <i class="fas fa-chair fa-2x mb-2" style="color: #ffd700;"></i>
                                     <h3 style="color: white;">Стол ${table.number}</h3>
@@ -68,12 +69,23 @@
                 }
                 html += '</div>';
                 document.getElementById('hall-container').innerHTML = html;
-            } else {
-                document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
+                
+                // Добавляем обработчики кликов на все столы
+                document.querySelectorAll('#hall-container .card').forEach(card => {
+                    const status = card.getAttribute('data-table-status');
+                    if (status === 'free') {
+                        card.addEventListener('click', function(e) {
+                            const tableId = parseInt(this.getAttribute('data-table-id'));
+                            const tableNumber = parseInt(this.getAttribute('data-table-number'));
+                            openOrderModal(tableId, tableNumber);
+                        });
+                    }
+                });
             }
             await loadReadyOrders();
         } catch (error) {
-            document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка соединения с сервером</p>';
+            console.error('Error:', error);
+            document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
         }
     }
     
@@ -92,7 +104,7 @@
                 for (const order of readyOrders) {
                     html += `
                         <div class="col-md-4 mb-3">
-                            <div class="card" style="background: rgba(40,100,40,0.7); cursor: pointer;" onclick="takeOrder(${order.id})">
+                            <div class="card" style="background: rgba(40,100,40,0.7); cursor: pointer;" data-order-id="${order.id}" data-order-table="${order.table_number}">
                                 <div class="card-body">
                                     <h5 style="color: #ffd700;">Заказ для стола ${order.table_number}</h5>
                                     <p style="color: white;">Создан: ${order.created_at}</p>
@@ -103,9 +115,17 @@
                     `;
                 }
                 document.getElementById('ready-orders-list').innerHTML = html;
+                
+                // Добавляем обработчики на готовые заказы
+                document.querySelectorAll('#ready-orders-list .card').forEach(card => {
+                    card.addEventListener('click', function(e) {
+                        const orderId = parseInt(this.getAttribute('data-order-id'));
+                        takeOrder(orderId);
+                    });
+                });
             }
         } catch (error) {
-            console.error('Error loading ready orders:', error);
+            console.error('Error:', error);
         }
     }
     
@@ -150,7 +170,7 @@
                                         <option value="qr">QR-код</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-warning w-100" onclick="confirmPayment(${orderId})">Оплатить</button>
+                                <button class="btn btn-warning w-100" id="confirm-payment-btn">Оплатить</button>
                             </div>
                         </div>
                     </div>
@@ -159,6 +179,11 @@
             const oldModal = document.getElementById('paymentModal');
             if (oldModal) oldModal.remove();
             document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            document.getElementById('confirm-payment-btn').addEventListener('click', function() {
+                confirmPayment(orderId);
+            });
+            
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
         }
@@ -207,11 +232,10 @@
                                 <p>Оплата: ${order.payment_method === 'cash' ? 'Наличные' : (order.payment_method === 'card' ? 'Карта' : 'QR-код')}</p>
                                 <hr>
                                 <p>Спасибо за заказ!</p>
-                                <p>Приходите ещё</p>
                                 <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                                    <button class="btn btn-primary btn-sm" onclick="printReceipt()">Распечатать чек</button>
-                                    <button class="btn btn-success btn-sm" onclick="downloadReceiptPDF()">Скачать PDF</button>
-                                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
+                                    <button class="btn btn-primary btn-sm" id="print-btn">Распечатать чек</button>
+                                    <button class="btn btn-success btn-sm" id="pdf-btn">Скачать PDF</button>
+                                    <button class="btn btn-secondary btn-sm" id="close-receipt" data-bs-dismiss="modal">Закрыть</button>
                                 </div>
                             </div>
                         </div>
@@ -222,7 +246,7 @@
             if (oldReceipt) oldReceipt.remove();
             document.body.insertAdjacentHTML('beforeend', receiptHtml);
             
-            window.printReceipt = function() {
+            document.getElementById('print-btn').addEventListener('click', function() {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -232,9 +256,9 @@
                 `);
                 printWindow.document.close();
                 printWindow.print();
-            };
+            });
             
-            window.downloadReceiptPDF = function() {
+            document.getElementById('pdf-btn').addEventListener('click', function() {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -244,7 +268,7 @@
                 `);
                 printWindow.document.close();
                 printWindow.print();
-            };
+            });
             
             const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
             modal.show();
@@ -253,18 +277,18 @@
     }
     
     // Открыть окно создания заказа
-    window.openOrderModal = function(tableId) {
+    function openOrderModal(tableId, tableNumber) {
         currentTableId = tableId;
         currentCart = [];
         updateCartDisplay();
-        loadMenu();
+        loadMenu(tableNumber);
         
         const modalHtml = `
             <div class="modal fade" id="orderModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" style="color: #ffd700;">Создание заказа</h5>
+                            <h5 class="modal-title" style="color: #ffd700;">Заказ для стола ${tableNumber}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -287,7 +311,7 @@
                                             <input type="number" id="guest-count" class="form-control" value="2" min="1">
                                         </div>
                                         <div class="mt-3 d-grid gap-2">
-                                            <button class="btn btn-warning" onclick="submitOrder()">Оформить заказ</button>
+                                            <button class="btn btn-warning" id="submit-order-btn">Оформить заказ</button>
                                             <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                                         </div>
                                     </div>
@@ -301,12 +325,17 @@
         const oldModal = document.getElementById('orderModal');
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        document.getElementById('submit-order-btn').addEventListener('click', function() {
+            submitOrder();
+        });
+        
         const modal = new bootstrap.Modal(document.getElementById('orderModal'));
         modal.show();
-    };
+    }
     
     // Загрузка меню
-    async function loadMenu() {
+    async function loadMenu(tableNumber) {
         const response = await fetch('/api/dishes/');
         const data = await response.json();
         if (data.success && data.data) {
@@ -338,9 +367,9 @@
             }
             document.getElementById('menu-list').innerHTML = html;
             
-            // Привязываем обработчики к кнопкам
             document.querySelectorAll('.add-to-cart').forEach(btn => {
                 btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     const id = parseInt(this.dataset.id);
                     const name = this.dataset.name;
                     const price = parseInt(this.dataset.price);
@@ -359,6 +388,15 @@
             currentCart.push({id, name, price, quantity: 1});
         }
         updateCartDisplay();
+        
+        // Визуальный эффект
+        const btns = document.querySelectorAll('.add-to-cart');
+        btns.forEach(btn => {
+            if (parseInt(btn.dataset.id) === id) {
+                btn.innerHTML = '✓';
+                setTimeout(() => { btn.innerHTML = '+'; }, 500);
+            }
+        });
     }
     
     // Обновление корзины
@@ -374,20 +412,22 @@
                 html += `
                     <div class="d-flex justify-content-between mb-2" style="color: white;">
                         <div>${item.name} x${item.quantity}</div>
-                        <div>${itemTotal} ₽ <button class="btn btn-sm btn-danger" onclick="removeFromCart(${idx})">Удалить</button></div>
+                        <div>${itemTotal} ₽ <button class="btn btn-sm btn-danger remove-item" data-index="${idx}">Удалить</button></div>
                     </div>
                 `;
             });
         }
         document.getElementById('cart-items').innerHTML = html;
         document.getElementById('total').innerHTML = total + ' ₽';
+        
+        document.querySelectorAll('.remove-item').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const index = parseInt(this.dataset.index);
+                currentCart.splice(index, 1);
+                updateCartDisplay();
+            });
+        });
     }
-    
-    // Удаление из корзины
-    window.removeFromCart = function(index) {
-        currentCart.splice(index, 1);
-        updateCartDisplay();
-    };
     
     // Оформление заказа
     async function submitOrder() {
@@ -413,9 +453,12 @@
         }
     }
     
-    // Загружаем столы при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
+    // Кнопка обновления
+    document.getElementById('refresh-tables').addEventListener('click', function() {
         loadTables();
     });
+    
+    // Загружаем столы при загрузке страницы
+    loadTables();
 </script>
 {% endblock %}
