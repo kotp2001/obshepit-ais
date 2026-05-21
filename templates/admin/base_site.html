@@ -18,6 +18,8 @@
         margin: 20px;
         color: white;
         flex: 1;
+        border: none;
+        box-shadow: none;
     }
     
     #header {
@@ -159,12 +161,11 @@
         color: white;
     }
     
-    /* Основной контент - без белого фона */
+    /* Основной контент - полностью прозрачный */
     #content {
         margin-left: 300px;
-        padding: 20px;
+        padding: 0;
         background: transparent;
-        border-radius: 15px;
         min-height: 500px;
     }
     
@@ -173,9 +174,10 @@
         background: transparent;
     }
     
-    /* Карточки и модули - прозрачные */
+    /* Модули и карточки - прозрачные */
     .module {
-        background: transparent;
+        background: transparent !important;
+        border: none !important;
     }
     
     .module h2, .inline-group h2 {
@@ -193,26 +195,42 @@
     
     /* Таблицы - прозрачные */
     .results {
-        background: rgba(30,30,70,0.4);
+        background: rgba(30,30,70,0.3) !important;
         border-radius: 10px;
         overflow: hidden;
+        border: 1px solid rgba(255,215,0,0.1) !important;
     }
     
     .results th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
         padding: 12px;
+        border: none;
     }
     
     .results td {
-        background: rgba(40,40,90,0.5);
+        background: rgba(40,40,90,0.4);
         color: white;
         padding: 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     
     .results tr:hover td {
-        background: rgba(60,60,110,0.7);
+        background: rgba(60,60,110,0.6);
+    }
+    
+    /* Таблица изменения объектов */
+    .change-list .results {
+        background: transparent;
+    }
+    
+    #changelist {
+        background: transparent;
+    }
+    
+    /* Форма редактирования */
+    .change-form .module {
+        background: transparent;
     }
     
     /* Кнопки */
@@ -358,24 +376,15 @@
         background: #e6c200;
     }
     
-    /* Убираем все белые фоны */
-    .dashboard #content {
-        background: transparent;
+    /* Убираем ВСЕ белые фоны */
+    .dashboard #content, .change-list #content, .change-form #content {
+        background: transparent !important;
     }
     
-    #changelist {
-        background: transparent;
+    #changelist, #changelist-form, .results {
+        background: transparent !important;
     }
     
-    .change-list .filtered {
-        background: transparent;
-    }
-    
-    .results {
-        background: transparent;
-    }
-    
-    /* Форма добавления пользователя */
     .aligned label {
         color: #ffd700;
     }
@@ -392,6 +401,29 @@
     
     .submit-row input:hover {
         background: #e6c200;
+    }
+    
+    /* Панель фильтров */
+    #changelist-filter {
+        background: rgba(20,20,50,0.7);
+    }
+    
+    /* Убираем белые обводки */
+    .module, .module .results, .module table {
+        border: none !important;
+    }
+    
+    /* Таблица столов */
+    .results table {
+        background: transparent !important;
+    }
+    
+    .results tbody tr {
+        background: rgba(40,40,90,0.4) !important;
+    }
+    
+    .results tbody tr:hover {
+        background: rgba(60,60,110,0.6) !important;
     }
 </style>
 {% endblock %}
