@@ -5,6 +5,25 @@
 
 {% block extrastyle %}
 <style>
+    /* Полностью убираем фон у таблиц */
+#content-main .results,
+#content-main .results table,
+#changelist .results {
+    background: transparent !important;
+}
+
+#content-main .results tbody tr {
+    background: rgba(40,40,90,0.4) !important;
+}
+
+#content-main .results tbody tr:hover {
+    background: rgba(60,60,110,0.6) !important;
+}
+
+/* Убираем фон у всей области content */
+#content, #content-main, .change-list, .change-list .module {
+    background: transparent !important;
+}
     body {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
