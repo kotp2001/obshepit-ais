@@ -1,0 +1,48 @@
+{% extends 'admin/base_site.html' %}
+{% block title %}Резервное копирование{% endblock %}
+{% block content %}
+<div style="padding: 20px;">
+    <h1 style="color: #ffd700;">Резервное копирование базы данных</h1>
+    
+    <div style="background: rgba(30,30,70,0.6); border-radius: 15px; padding: 20px; margin-top: 20px;">
+        <h2 style="color: #ffd700;">Создать резервную копию</h2>
+        <p style="color: white;">Нажмите кнопку ниже, чтобы создать резервную копию базы данных SQLite.</p>
+        <form method="post" action="/admin/backup/">
+            {% csrf_token %}
+            <button type="submit" class="button" style="background: #ffd700; color: #1a1a4a;">Создать резервную копию</button>
+        </form>
+    </div>
+    
+    <div style="background: rgba(30,30,70,0.6); border-radius: 15px; padding: 20px; margin-top: 20px;">
+        <h2 style="color: #ffd700;">Список резервных копий</h2>
+        <table style="width: 100%; color: white;">
+            <thead>
+                <tr style="background: #1a1a4a;">
+                    <th style="padding: 10px;">Имя файла</th>
+                    <th style="padding: 10px;">Дата создания</th>
+                    <th style="padding: 10px;">Размер</th>
+                    <th style="padding: 10px;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for backup in backups %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                    <td style="padding: 10px;">{{ backup.name }}</td>
+                    <td style="padding: 10px;">{{ backup.date }}</td>
+                    <td style="padding: 10px;">{{ backup.size }} KB</td>
+                    <td style="padding: 10px;">
+                        <a href="/admin/backup/download/{{ backup.name }}/" style="color: #ffd700;">Скачать</a> |
+                        <a href="/admin/backup/restore/{{ backup.name }}/" style="color: #ffc107;" onclick="return confirm('Восстановить базу из этой копии? Текущие данные будут заменены.')">Восстановить</a> |
+                        <a href="/admin/backup/delete/{{ backup.name }}/" style="color: #dc3545;" onclick="return confirm('Удалить эту копию?')">Удалить</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 20px; text-align: center;">Нет резервных копий</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
