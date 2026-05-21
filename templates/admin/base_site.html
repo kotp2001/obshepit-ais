@@ -5,25 +5,6 @@
 
 {% block extrastyle %}
 <style>
-    /* Полностью убираем фон у таблиц */
-#content-main .results,
-#content-main .results table,
-#changelist .results {
-    background: transparent !important;
-}
-
-#content-main .results tbody tr {
-    background: rgba(40,40,90,0.4) !important;
-}
-
-#content-main .results tbody tr:hover {
-    background: rgba(60,60,110,0.6) !important;
-}
-
-/* Убираем фон у всей области content */
-#content, #content-main, .change-list, .change-list .module {
-    background: transparent !important;
-}
     body {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -104,7 +85,6 @@
         text-decoration: none;
     }
     
-    /* Боковое меню */
     #nav-sidebar {
         float: left;
         width: 280px;
@@ -180,7 +160,7 @@
         color: white;
     }
     
-    /* Основной контент - ПОЛНОСТЬЮ ПРОЗРАЧНЫЙ, БЕЗ БЕЛОГО КВАДРАТА */
+    /* Основной контент - ПОЛНОСТЬЮ ПРОЗРАЧНЫЙ */
     #content {
         margin-left: 300px;
         padding: 0;
@@ -193,7 +173,25 @@
         background: transparent !important;
     }
     
-    /* Модули и карточки - прозрачные */
+    /* Убираем фон у таблиц */
+    #content-main .results,
+    #content-main .results table,
+    #changelist .results {
+        background: transparent !important;
+    }
+    
+    #content-main .results tbody tr {
+        background: rgba(40,40,90,0.4) !important;
+    }
+    
+    #content-main .results tbody tr:hover {
+        background: rgba(60,60,110,0.6) !important;
+    }
+    
+    .change-list, .change-list .module {
+        background: transparent !important;
+    }
+    
     .module {
         background: transparent !important;
         border: none !important;
@@ -212,7 +210,7 @@
         color: #ffd700;
     }
     
-    /* Таблицы - прозрачные */
+    /* Таблицы */
     .results {
         background: rgba(30,30,70,0.3) !important;
         border-radius: 10px;
@@ -238,15 +236,6 @@
         background: rgba(60,60,110,0.6);
     }
     
-    #changelist {
-        background: transparent !important;
-    }
-    
-    .change-form .module {
-        background: transparent;
-    }
-    
-    /* Кнопки */
     .button, input[type=submit], input[type=button], .submit-row input, a.button {
         background: #ffd700;
         color: #1a1a4a;
@@ -272,7 +261,6 @@
         background: #2a2a5a;
     }
     
-    /* Формы */
     input, textarea, select {
         background: rgba(50,50,100,0.8);
         border: 1px solid rgba(255,255,255,0.2);
@@ -291,7 +279,6 @@
         color: #ffd700;
     }
     
-    /* Хлебные крошки */
     div.breadcrumbs {
         background: rgba(26,26,74,0.8);
         color: #ffd700;
@@ -305,7 +292,6 @@
         color: #ffd700;
     }
     
-    /* Пагинация */
     .paginator {
         background: rgba(40,40,90,0.6);
         color: white;
@@ -318,7 +304,6 @@
         color: #ffd700;
     }
     
-    /* Сообщения */
     .messagelist li {
         border-radius: 10px;
         padding: 10px;
@@ -385,15 +370,6 @@
         background: #e6c200;
     }
     
-    /* Убираем ВСЕ белые фоны */
-    .dashboard #content, .change-list #content, .change-form #content {
-        background: transparent !important;
-    }
-    
-    #changelist, #changelist-form, .results {
-        background: transparent !important;
-    }
-    
     .aligned label {
         color: #ffd700;
     }
@@ -412,24 +388,8 @@
         background: #e6c200;
     }
     
-    #changelist-filter {
-        background: rgba(20,20,50,0.7);
-    }
-    
-    .module, .module .results, .module table {
-        border: none !important;
-    }
-    
     .results table {
         background: transparent !important;
-    }
-    
-    .results tbody tr {
-        background: rgba(40,40,90,0.4) !important;
-    }
-    
-    .results tbody tr:hover {
-        background: rgba(60,60,110,0.6) !important;
     }
 </style>
 {% endblock %}
