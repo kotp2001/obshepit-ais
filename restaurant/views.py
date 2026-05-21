@@ -10,7 +10,7 @@ import os
 import shutil
 from decimal import Decimal
 from collections import defaultdict
-from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog
+from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
 
 # ==================== СТРАНИЦЫ ====================
 
@@ -249,57 +249,6 @@ def api_order_receipt(request, order_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_create_booking(request):
-    try:
-        body = json.loads(request.body)
-        table_id = body.get('table_id')
-        guest_name = body.get('guest_name')
-        guest_phone = body.get('guest_phone')
-        guests_count = body.get('guests_count')
-        booking_date = body.get('booking_date')
-        booking_time = body.get('booking_time')
-        
-        table = Table.objects.get(id=table_id)
-        
-        exists = Booking.objects.filter(
-            table=table,
-            booking_date=booking_date,
-            booking_time=booking_time
-        ).exists()
-        
-        if exists:
-            return JsonResponse({'success': False, 'error': 'Это время уже занято'}, status=400)
-        
-        Booking.objects.create(
-            table=table,
-            guest_name=guest_name,
-            guest_phone=guest_phone,
-            guests_count=guests_count,
-            booking_date=booking_date,
-            booking_time=booking_time,
-            status='pending'
-        )
-        
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
-@require_http_methods(["GET"])
-def api_bookings(request):
-    date = request.GET.get('date', timezone.now().date().isoformat())
-    bookings = Booking.objects.filter(booking_date=date).select_related('table')
-    data = [{
-        'id': b.id,
-        'table_number': b.table.number,
-        'time': b.booking_time.strftime('%H:%M'),
-        'guest_name': b.guest_name,
-        'guests_count': b.guests_count,
-        'status': b.status,
-    } for b in bookings]
-    return JsonResponse({'success': True, 'data': data})
-
 @require_http_methods(["GET"])
 def api_reports(request):
     period = request.GET.get('period', 'week')
@@ -381,12 +330,23 @@ def api_maintenance_logs_add(request):
 def admin_backup(request):
     backups = []
     backup_dir = 'backups'
-    
+
     if request.method == 'POST':
-        from backup import backup_database
-        backup_database()
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+
+        db_path = 'db.sqlite3'
+        if os.path.exists(db_path):
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_path = os.path.join(backup_dir, f'db_backup_{timestamp}.sqlite3')
+            shutil.copy2(db_path, backup_path)
+            
+            for file in os.listdir(backup_dir):
+                file_path = os.path.join(backup_dir, file)
+                if os.path.getctime(file_path) < (datetime.now().timestamp() - 30 * 24 * 3600):
+                    os.remove(file_path)
         return redirect('/admin/backup/')
-    
+
     if os.path.exists(backup_dir):
         for file in os.listdir(backup_dir):
             if file.endswith('.sqlite3'):
@@ -398,43 +358,50 @@ def admin_backup(request):
                     'size': round(stat.st_size / 1024, 2)
                 })
         backups.sort(key=lambda x: x['date'], reverse=True)
-    
+
     return render(request, 'backup.html', {'backups': backups})
 
 @staff_member_required
 def admin_backup_download(request, filename):
     backup_dir = 'backups'
-    file_path = os.path.join(backup_dir, filename)
-    
-    if not os.path.exists(file_path) or not filename.endswith('.sqlite3'):
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(backup_dir, safe_filename)
+
+    if not os.path.exists(file_path) or not safe_filename.endswith('.sqlite3'):
         raise Http404("Файл не найден")
-    
+
     with open(file_path, 'rb') as f:
         response = HttpResponse(f.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
         return response
 
 @staff_member_required
 def admin_backup_restore(request, filename):
     backup_dir = 'backups'
-    backup_path = os.path.join(backup_dir, filename)
+    safe_filename = os.path.basename(filename)
+    backup_path = os.path.join(backup_dir, safe_filename)
     db_path = 'db.sqlite3'
-    
+
     if not os.path.exists(backup_path):
         raise Http404("Файл не найден")
-    
-    from backup import backup_database
-    backup_database()
-    
+
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    auto_backup_path = os.path.join(backup_dir, f'auto_before_restore_{timestamp}.sqlite3')
+    if os.path.exists(db_path):
+        shutil.copy2(db_path, auto_backup_path)
+
     shutil.copy2(backup_path, db_path)
     return redirect('/admin/backup/')
 
 @staff_member_required
 def admin_backup_delete(request, filename):
     backup_dir = 'backups'
-    file_path = os.path.join(backup_dir, filename)
-    
-    if os.path.exists(file_path) and filename.endswith('.sqlite3'):
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(backup_dir, safe_filename)
+
+    if os.path.exists(file_path) and safe_filename.endswith('.sqlite3'):
         os.remove(file_path)
-    
+
     return redirect('/admin/backup/')
