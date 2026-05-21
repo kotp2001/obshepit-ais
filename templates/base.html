@@ -13,12 +13,18 @@
             box-sizing: border-box;
         }
         
+        html, body {
+            height: 100%;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
             position: relative;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
         .stars {
@@ -47,6 +53,7 @@
         .container {
             position: relative;
             z-index: 1;
+            flex: 1 0 auto;
         }
         
         .navbar {
@@ -184,6 +191,7 @@
             color: #ffd700;
             font-size: 13px;
             border-top: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
         }
         
         .footer a {
@@ -276,7 +284,7 @@
                 <a href="/help/">Руководство пользователя</a> | 
                 <a href="/docs/">Регламенты</a> | 
                 <a href="/maintenance-log/">Журнал ТО</a> |
-                <a href="https://forms.yandex.ru/u/69a964ed6d2d73372c353b06" target="_blank">Обратная связь</a>
+                <a href="https://forms.yandex.ru/u/69f11c7990fa7b3c1459172e" target="_blank">Обратная связь</a>
             </p>
         </div>
     </div>
