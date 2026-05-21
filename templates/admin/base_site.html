@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | АИС Общепит - Панель администратора{% endblock %}
+
+{% block extrastyle %}
+<style>
+    #header {
+        background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
+        border-bottom: 2px solid #ffd700;
+    }
+    #branding h1 {
+        color: #ffd700;
+        font-weight: 600;
+    }
+    #branding h1 a {
+        color: #ffd700;
+    }
+    .module h2, .inline-group h2 {
+        background: #1a1a4a;
+        color: #ffd700;
+    }
+    a:link, a:visited {
+        color: #ffd700;
+    }
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #ffd700;
+        color: #1a1a4a;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+        background: #e6c200;
+        transform: translateY(-1px);
+    }
+    .button:active, input[type=submit]:active, input[type=button]:active, .submit-row input:active {
+        transform: translateY(1px);
+    }
+    .dashboard .module table th {
+        background: rgba(26,26,74,0.9);
+        color: #ffd700;
+    }
+    .dashboard .module table td {
+        background: rgba(40,40,90,0.6);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <i class="fas fa-utensils" style="color: #ffd700; margin-right: 8px;"></i>
+    <a href="{% url 'admin:index' %}" style="color: #ffd700;">АИС "Общепит" - Панель администратора</a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
