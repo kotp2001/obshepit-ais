@@ -52,7 +52,7 @@
                 </div>
             </div>
             
-            <!-- Продажи по дням (таблица) -->
+            <!-- Продажи по дням -->
             <div class="row mb-3">
                 <div class="col-12">
                     <div class="card">
@@ -142,11 +142,12 @@
                             <tbody>
                     `;
                     data.data.popular_dishes.forEach((dish) => {
+                        let revenue = dish.count * dish.price;
                         popularHtml += `
                             <tr>
                                 <td>${dish.name}</td>
                                 <td>${dish.count} шт</td>
-                                <td>${(dish.count * (dish.price || 0)).toFixed(2)} ₽</td>
+                                <td>${revenue.toFixed(2)} ₽</td>
                             </tr>
                         `;
                     });
