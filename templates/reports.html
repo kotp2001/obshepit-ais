@@ -7,7 +7,7 @@
             <h4 class="mb-0">Отчёты и аналитика</h4>
         </div>
         <div class="card-body">
-            <div class="row mb-4">
+            <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Период</label>
                     <select id="period-select" class="form-control">
@@ -50,8 +50,8 @@
                         <div class="card-header py-2">
                             <h6 class="mb-0">Продажи по дням</h6>
                         </div>
-                        <div class="card-body py-2">
-                            <canvas id="sales-chart" width="100%" height="250"></canvas>
+                        <div class="card-body py-2" style="min-height: 250px;">
+                            <canvas id="sales-chart" width="100%" height="220"></canvas>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                         <div class="card-body py-2">
                             <div id="popular-dishes">
                                 <div class="text-center py-2">
-                                    <div class="spinner-border text-primary" style="width: 30px; height: 30px;" role="status"></div>
+                                    <div class="spinner-border text-primary" style="width: 25px; height: 25px;" role="status"></div>
                                 </div>
                             </div>
                         </div>
@@ -78,93 +78,95 @@
 <script>
     let chart = null;
     
-    function loadReports() {
+    async function loadReports() {
         let period = document.getElementById('period-select').value;
         
-        fetch(`/api/reports/?period=${period}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('total-revenue').innerHTML = data.data.total_revenue.toFixed(2) + ' ₽';
-                    document.getElementById('total-orders').innerHTML = data.data.total_orders;
-                    document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
-                    
-                    let popularHtml = '';
-                    if (data.data.popular_dishes.length > 0) {
-                        popularHtml = '<div>';
-                        data.data.popular_dishes.forEach((dish, index) => {
-                            popularHtml += `
-                                <div class="d-flex justify-content-between align-items-center mb-2 pb-1" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    <div>
-                                        <span style="background: #ffd700; color: #1a1a4a; padding: 0px 8px; border-radius: 10px; font-size: 12px;">${index + 1}</span>
-                                        <strong class="ms-2" style="color: white; font-size: 13px;">${dish.name}</strong>
-                                    </div>
-                                    <span style="color: #ffd700; font-size: 13px;">${dish.count} шт</span>
+        try {
+            const response = await fetch(`/api/reports/?period=${period}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('total-revenue').innerHTML = data.data.total_revenue.toFixed(2) + ' ₽';
+                document.getElementById('total-orders').innerHTML = data.data.total_orders;
+                document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
+                
+                let popularHtml = '';
+                if (data.data.popular_dishes && data.data.popular_dishes.length > 0) {
+                    popularHtml = '<div>';
+                    data.data.popular_dishes.forEach((dish, index) => {
+                        popularHtml += `
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <div>
+                                    <span style="background: #ffd700; color: #1a1a4a; padding: 0px 8px; border-radius: 10px; font-size: 12px;">${index + 1}</span>
+                                    <strong class="ms-2" style="color: white; font-size: 13px;">${dish.name}</strong>
                                 </div>
-                            `;
-                        });
-                        popularHtml += '</div>';
-                    } else {
-                        popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных</p>';
-                    }
-                    document.getElementById('popular-dishes').innerHTML = popularHtml;
-                    
-                    // Данные для графика
-                    let labels = data.data.daily_data.map(d => d.date);
-                    let revenues = data.data.daily_data.map(d => d.revenue);
-                    
-                    if (chart) chart.destroy();
-                    let ctx = document.getElementById('sales-chart').getContext('2d');
-                    chart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Выручка (₽)',
-                                data: revenues,
-                                backgroundColor: '#ffd700',
-                                borderColor: '#ffd700',
-                                borderWidth: 1,
-                                borderRadius: 5
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: { 
-                                    position: 'top', 
-                                    labels: { color: 'white', font: { size: 11 } }
-                                },
-                                tooltip: { 
-                                    callbacks: { 
-                                        label: (ctx) => `${ctx.raw.toFixed(2)} ₽`
+                                <span style="color: #ffd700; font-size: 13px;">${dish.count} шт</span>
+                            </div>
+                        `;
+                    });
+                    popularHtml += '</div>';
+                } else {
+                    popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных</p>';
+                }
+                document.getElementById('popular-dishes').innerHTML = popularHtml;
+                
+                // Данные для графика
+                let labels = data.data.daily_data.map(d => d.date);
+                let revenues = data.data.daily_data.map(d => d.revenue);
+                
+                if (chart) chart.destroy();
+                let ctx = document.getElementById('sales-chart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Выручка (₽)',
+                            data: revenues,
+                            backgroundColor: '#ffd700',
+                            borderColor: '#ffd700',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { 
+                                position: 'top', 
+                                labels: { color: 'white', font: { size: 10 } }
+                            },
+                            tooltip: { 
+                                callbacks: { 
+                                    label: function(context) {
+                                        return context.raw + ' ₽';
                                     }
                                 }
+                            }
+                        },
+                        scales: { 
+                            x: { 
+                                ticks: { color: 'white', font: { size: 9 } }, 
+                                grid: { display: false }
                             },
-                            scales: { 
-                                x: { 
-                                    ticks: { color: 'white', font: { size: 10 } }, 
-                                    grid: { display: false },
-                                    title: { display: true, text: 'Дата', color: '#ffd700', font: { size: 10 } }
-                                },
-                                y: { 
-                                    beginAtZero: true, 
-                                    ticks: { color: 'white', callback: (v) => v + ' ₽', font: { size: 10 } }, 
-                                    grid: { color: 'rgba(255,255,255,0.1)' },
-                                    title: { display: true, text: 'Выручка (₽)', color: '#ffd700', font: { size: 10 } }
-                                }
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { color: 'white', callback: function(val) { return val + ' ₽'; }, font: { size: 9 } }, 
+                                grid: { color: 'rgba(255,255,255,0.1)' }
                             }
                         }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('popular-dishes').innerHTML = '<p class="text-center text-danger">Ошибка</p>';
-            });
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('popular-dishes').innerHTML = '<p class="text-center text-danger">Ошибка загрузки</p>';
+        }
     }
     
-    loadReports();
+    document.addEventListener('DOMContentLoaded', function() {
+        loadReports();
+    });
 </script>
 {% endblock %}
