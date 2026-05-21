@@ -44,4 +44,10 @@ urlpatterns = [
     # Export Excel
     path('export/orders/', export_orders_excel, name='export_orders'),
     path('export/popular/', export_popular_excel, name='export_popular'),
+
+    # Добавь в конец urlpatterns
+    path('admin/backup/', views.admin_backup, name='admin_backup'),
+    path('admin/backup/download/<str:filename>/', views.admin_backup_download, name='admin_backup_download'),
+    path('admin/backup/restore/<str:filename>/', views.admin_backup_restore, name='admin_backup_restore'),
+    path('admin/backup/delete/<str:filename>/', views.admin_backup_delete, name='admin_backup_delete'),
 ]
