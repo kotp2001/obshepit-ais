@@ -1,10 +1,13 @@
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
+import os
+import shutil
 from decimal import Decimal
 from collections import defaultdict
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog
@@ -377,3 +380,67 @@ def api_maintenance_logs_add(request):
         return JsonResponse({'success': True, 'id': log.id})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+# ==================== РЕЗЕРВНОЕ КОПИРОВАНИЕ ====================
+
+@staff_member_required
+def admin_backup(request):
+    backups = []
+    backup_dir = 'backups'
+    
+    if request.method == 'POST':
+        from backup import backup_database
+        backup_database()
+        return redirect('/admin/backup/')
+    
+    if os.path.exists(backup_dir):
+        for file in os.listdir(backup_dir):
+            if file.endswith('.sqlite3'):
+                file_path = os.path.join(backup_dir, file)
+                stat = os.stat(file_path)
+                backups.append({
+                    'name': file,
+                    'date': datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'size': round(stat.st_size / 1024, 2)
+                })
+        backups.sort(key=lambda x: x['date'], reverse=True)
+    
+    return render(request, 'backup.html', {'backups': backups})
+
+@staff_member_required
+def admin_backup_download(request, filename):
+    backup_dir = 'backups'
+    file_path = os.path.join(backup_dir, filename)
+    
+    if not os.path.exists(file_path) or not filename.endswith('.sqlite3'):
+        raise Http404("Файл не найден")
+    
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+@staff_member_required
+def admin_backup_restore(request, filename):
+    backup_dir = 'backups'
+    backup_path = os.path.join(backup_dir, filename)
+    db_path = 'db.sqlite3'
+    
+    if not os.path.exists(backup_path):
+        raise Http404("Файл не найден")
+    
+    from backup import backup_database
+    backup_database()
+    
+    shutil.copy2(backup_path, db_path)
+    return redirect('/admin/backup/')
+
+@staff_member_required
+def admin_backup_delete(request, filename):
+    backup_dir = 'backups'
+    file_path = os.path.join(backup_dir, filename)
+    
+    if os.path.exists(file_path) and filename.endswith('.sqlite3'):
+        os.remove(file_path)
+    
+    return redirect('/admin/backup/')
