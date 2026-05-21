@@ -62,29 +62,6 @@
             color: #ffd700 !important;
         }
         
-        .cart-icon {
-            position: relative;
-            cursor: pointer;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
         .btn-logout {
             background: #dc3545;
             color: white;
@@ -260,11 +237,7 @@
     <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="/">АИС Общепит</a>
-            <div style="display: flex; align-items: center;">
-                <div class="cart-icon" onclick="showGuestCart()" id="guest-cart-icon">
-                    <i class="fas fa-shopping-cart" style="color: #ffd700; font-size: 1.3rem;"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </div>
+            <div>
                 <button class="btn-logout" onclick="logout()" id="logout-btn" style="display: none;">Выйти</button>
             </div>
         </div>
@@ -275,7 +248,15 @@
     </div>
 
     <div class="footer">
-        <p class="mb-0">АИС Общепит - Система автоматизации ресторана 2026</p>
+        <div class="container">
+            <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
+            <p class="mb-0 mt-1" style="font-size: 11px;">
+                <a href="/help/" style="color: #ffd700;">Руководство пользователя</a> | 
+                <a href="/docs/" style="color: #ffd700;">Регламенты</a> | 
+                <a href="/maintenance-log/" style="color: #ffd700;">Журнал ТО</a> |
+                <a href="https://forms.yandex.ru/u/69a964ed6d2d73372c353b06" target="_blank" style="color: #ffd700;">Обратная связь</a>
+            </p>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -296,165 +277,11 @@
         }
         createStars();
         
-        function updateGuestCartCount() {
-            const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const cartCountSpan = document.getElementById('cart-count');
-            if (cartCountSpan) {
-                cartCountSpan.innerText = count;
-            }
-        }
-        
-        function showGuestCart() {
-            const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-            if (cart.length === 0) {
-                alert('Корзина пуста');
-                return;
-            }
-            
-            let itemsHtml = '';
-            let total = 0;
-            cart.forEach((item, index) => {
-                const itemTotal = item.price * item.quantity;
-                total += itemTotal;
-                itemsHtml += `
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2" style="border-bottom: 1px solid rgba(255,255,255,0.2); color: white;">
-                        <div>
-                            <strong>${item.name}</strong>
-                            <div>${item.price} ₽ × ${item.quantity}</div>
-                        </div>
-                        <div>
-                            ${itemTotal} ₽
-                            <button class="btn btn-sm btn-danger ms-2" onclick="removeFromGuestCart(${index})">Удалить</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            const modalHtml = `
-                <div class="modal fade" id="guestCartModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" style="color: #ffd700;">Моя корзина</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                ${itemsHtml}
-                                <hr>
-                                <div class="d-flex justify-content-between">
-                                    <strong>Итого:</strong>
-                                    <strong style="color: #ffd700;">${total} ₽</strong>
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Количество гостей</label>
-                                    <input type="number" id="guest-cart-guests" class="form-control" value="2" min="1" max="20">
-                                </div>
-                                <div class="mt-3">
-                                    <label class="form-label">Номер стола (от 1 до 8)</label>
-                                    <input type="number" id="guest-cart-table" class="form-control" placeholder="Введите номер стола" min="1" max="8">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-warning" onclick="submitGuestOrder()">Оформить заказ</button>
-                                <button class="btn btn-secondary" data-bs-dismiss="modal">Продолжить выбор</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const oldModal = document.getElementById('guestCartModal');
-            if (oldModal) oldModal.remove();
-            
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            const modal = new bootstrap.Modal(document.getElementById('guestCartModal'));
-            modal.show();
-        }
-        
-        window.removeFromGuestCart = function(index) {
-            let cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-            cart.splice(index, 1);
-            localStorage.setItem('guest_cart', JSON.stringify(cart));
-            updateGuestCartCount();
-            const modalEl = document.getElementById('guestCartModal');
-            if (modalEl) {
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
-            }
-            showGuestCart();
-        };
-        
-        async function submitGuestOrder() {
-            const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-            const tableNumber = parseInt(document.getElementById('guest-cart-table').value);
-            const guestCount = document.getElementById('guest-cart-guests').value;
-            
-            if (!tableNumber || isNaN(tableNumber)) {
-                alert('Введите номер стола');
-                return;
-            }
-            
-            if (tableNumber < 1 || tableNumber > 8) {
-                alert('Номер стола должен быть от 1 до 8');
-                return;
-            }
-            
-            const tablesResponse = await fetch('/api/tables/');
-            const tablesData = await tablesResponse.json();
-            const table = tablesData.data.find(t => t.number == tableNumber);
-            
-            if (!table) {
-                alert('Стол с номером ' + tableNumber + ' не найден');
-                return;
-            }
-            
-            if (table.status !== 'free') {
-                alert('Стол ' + tableNumber + ' занят или забронирован');
-                return;
-            }
-            
-            const items = cart.map(item => ({
-                dish_id: item.id,
-                quantity: item.quantity
-            }));
-            
-            const response = await fetch('/api/orders/create/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    table_id: table.id,
-                    items: items,
-                    guest_count: guestCount
-                })
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
-                localStorage.removeItem('guest_cart');
-                updateGuestCartCount();
-                const modalEl = document.getElementById('guestCartModal');
-                if (modalEl) {
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    if (modal) modal.hide();
-                }
-            } else {
-                alert('Ошибка: ' + data.error);
-            }
-        }
-        
         function checkAuth() {
             const role = localStorage.getItem('user_role');
             const logoutBtn = document.getElementById('logout-btn');
-            const guestCartIcon = document.getElementById('guest-cart-icon');
-            
             if (role) {
                 logoutBtn.style.display = 'block';
-                if (guestCartIcon) guestCartIcon.style.display = 'none';
-            } else {
-                if (guestCartIcon) guestCartIcon.style.display = 'flex';
-                updateGuestCartCount();
             }
         }
         
