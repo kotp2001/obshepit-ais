@@ -245,16 +245,20 @@
         }
         
         .admin-card {
-            transition: transform 0.1s ease;
+            transition: none;
             cursor: pointer;
         }
         
-        .admin-card:active {
-            transform: scale(0.98);
+        .admin-card:hover {
+            transform: none;
         }
         
-        .admin-card:hover {
-            transform: translateY(-3px);
+        .admin-card .card-body {
+            transition: none;
+        }
+        
+        .admin-card:hover .card-body {
+            background: rgba(50,50,100,0.7);
         }
     </style>
     {% block extra_css %}{% endblock %}
