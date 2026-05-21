@@ -216,7 +216,6 @@ def api_pay_order(request):
         order.payment_method = payment_method
         order.save()
         
-   
         table = order.table
         table.status = 'free'
         table.save()
@@ -250,6 +249,59 @@ def api_order_receipt(request, order_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_create_booking(request):
+    try:
+        body = json.loads(request.body)
+        table_id = body.get('table_id')
+        guest_name = body.get('guest_name')
+        guest_phone = body.get('guest_phone')
+        guests_count = body.get('guests_count')
+        booking_date = body.get('booking_date')
+        booking_time = body.get('booking_time')
+        
+        table = Table.objects.get(id=table_id)
+        
+        exists = Booking.objects.filter(
+            table=table,
+            booking_date=booking_date,
+            booking_time=booking_time
+        ).exists()
+        
+        if exists:
+            return JsonResponse({'success': False, 'error': 'Это время уже занято'}, status=400)
+        
+        Booking.objects.create(
+            table=table,
+            guest_name=guest_name,
+            guest_phone=guest_phone,
+            guests_count=guests_count,
+            booking_date=booking_date,
+            booking_time=booking_time,
+            status='pending'
+        )
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@require_http_methods(["GET"])
+def api_bookings(request):
+    date = request.GET.get('date', timezone.now().date().isoformat())
+    bookings = Booking.objects.filter(booking_date=date).select_related('table')
+    data = [{
+        'id': b.id,
+        'table_number': b.table.number,
+        'time': b.booking_time.strftime('%H:%M'),
+        'guest_name': b.guest_name,
+        'guests_count': b.guests_count,
+        'status': b.status,
+    } for b in bookings]
+    return JsonResponse({'success': True, 'data': data})
+
+# ==================== API ОТЧЁТОВ ====================
+
 @require_http_methods(["GET"])
 def api_reports(request):
     period = request.GET.get('period', 'week')
@@ -275,16 +327,22 @@ def api_reports(request):
     total_orders = orders.count()
     avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
-    # Популярные блюда
-    from collections import defaultdict
-    dish_count = defaultdict(int)
+    # Популярные блюда (с ценой)
+    dish_data = {}
     for order in orders:
         for item in order.items.all():
-            dish_count[item.dish.name] += item.quantity
+            dish_name = item.dish.name
+            dish_price = float(item.price)
+            if dish_name not in dish_data:
+                dish_data[dish_name] = {'count': 0, 'price': dish_price}
+            dish_data[dish_name]['count'] += item.quantity
     
-    popular_dishes = [{'name': k, 'count': v} for k, v in sorted(dish_count.items(), key=lambda x: -x[1])[:5]]
+    popular_dishes = [
+        {'name': name, 'count': data['count'], 'price': data['price']} 
+        for name, data in sorted(dish_data.items(), key=lambda x: -x[1]['count'])
+    ][:5]
     
-    # Данные по дням для графика
+    # Данные по дням
     daily_data = []
     for i in range(7):
         day = start_date + timedelta(days=i)
@@ -296,17 +354,6 @@ def api_reports(request):
             'revenue': sum(float(o.total_amount) for o in day_orders),
             'orders': day_orders.count(),
         })
-    
-    return JsonResponse({
-        'success': True,
-        'data': {
-            'total_revenue': total_revenue,
-            'total_orders': total_orders,
-            'avg_check': avg_check,
-            'popular_dishes': popular_dishes,
-            'daily_data': daily_data,
-        }
-    })
     
     return JsonResponse({
         'success': True,
