@@ -22,6 +22,9 @@ RUN python manage.py migrate
 # Создаём суперпользователя и заполняем данные
 RUN python create_migrations.py
 
+# Создаём пользователей с ролями
+RUN python manage.py create_users
+
 # Создаём резервную копию при сборке
 RUN python backup.py
 
