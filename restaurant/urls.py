@@ -6,9 +6,7 @@ urlpatterns = [
     # Главная страница (только для сотрудников)
     path('', views.landing, name='landing'),
     
-    # Основные страницы сайта
-    path('menu/', views.menu_view, name='menu'),
-    path('booking/', views.booking_view, name='booking'),
+    # Страницы для сотрудников
     path('waiter/', views.waiter_hall, name='waiter'),
     path('kitchen/', views.kitchen_view, name='kitchen'),
     path('reports/', views.reports_view, name='reports'),
@@ -22,7 +20,7 @@ urlpatterns = [
     # API авторизации
     path('api/login/', views.api_login, name='api_login'),
     
-    # API основные (меню, столы, заказы)
+    # API основные
     path('api/dishes/', views.api_dishes, name='api_dishes'),
     path('api/categories/', views.api_categories, name='api_categories'),
     path('api/tables/', views.api_tables, name='api_tables'),
@@ -33,10 +31,6 @@ urlpatterns = [
     path('api/orders/take/', views.api_take_order, name='api_take_order'),
     path('api/orders/pay/', views.api_pay_order, name='api_pay_order'),
     path('api/orders/receipt/<int:order_id>/', views.api_order_receipt, name='api_receipt'),
-    
-    # API бронирования
-    path('api/bookings/create/', views.api_create_booking, name='api_create_booking'),
-    path('api/bookings/', views.api_bookings, name='api_bookings'),
     
     # API отчётов
     path('api/reports/', views.api_reports, name='api_reports'),
