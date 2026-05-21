@@ -1,419 +1,408 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.http import JsonResponse, HttpResponse, Http404
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import JsonResponse, HttpResponse
-from django.db.models import Sum, Count, Avg
-from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
-import sqlite3
 import os
-from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Employee
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.contrib import messages
-import openpyxl
-from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, PatternFill
-from openpyxl.utils import get_column_letter
+import shutil
+from decimal import Decimal
+from collections import defaultdict
+from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
 
-# ===== АВТОРИЗАЦИЯ =====
-def custom_login(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-    
-    if request.method == 'POST':
-        form = CustomLoginForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('dashboard')
-    else:
-        form = CustomLoginForm()
-    
-    return render(request, 'registration/login.html', {'form': form})
+# ==================== СТРАНИЦЫ ====================
 
-def custom_logout(request):
-    logout(request)
-    return redirect('login')
+def landing(request):
+    return render(request, 'landing.html')
 
-# ===== ГЛАВНАЯ И DASHBOARD =====
-def home(request):
-    return render(request, 'home.html')
+def admin_panel(request):
+    return render(request, 'admin_panel.html')
 
-@login_required
-def dashboard(request):
-    # Определяем роль пользователя
-    try:
-        employee = request.user.employee
-        role = employee.role
-    except Employee.DoesNotExist:
-        if request.user.is_superuser:
-            role = 'admin'
-        else:
-            role = 'waiter'
-    
-    if role == 'waiter':
-        return redirect('waiter_hall')
-    elif role == 'cook':
-        return redirect('kitchen_view')
-    elif role == 'admin' or request.user.is_superuser:
-        return redirect('admin_panel')
-    
-    return render(request, 'dashboard.html', {'role': role})
-
-# ===== ЗАЛ ОФИЦИАНТА =====
-@login_required
 def waiter_hall(request):
-    tables = Table.objects.all().order_by('number')
-    return render(request, 'waiter/hall.html', {'tables': tables})
+    return render(request, 'waiter_hall.html')
 
-@login_required
-def create_order(request, table_id):
-    table = get_object_or_404(Table, id=table_id)
-    categories = Category.objects.all().order_by('order')
-    
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        items = data.get('items', [])
+def kitchen_view(request):
+    return render(request, 'kitchen.html')
+
+def reports_view(request):
+    return render(request, 'reports.html')
+
+def help_page(request):
+    return render(request, 'help.html')
+
+def docs_page(request):
+    return render(request, 'docs.html')
+
+def maintenance_log_page(request):
+    return render(request, 'maintenance_log.html')
+
+# ==================== API АВТОРИЗАЦИИ ====================
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_login(request):
+    try:
+        body = json.loads(request.body)
+        username = body.get('username')
+        password = body.get('password')
         
-        if not items:
-            return JsonResponse({'error': 'Заказ пуст'}, status=400)
+        from django.contrib.auth import authenticate
+        user = authenticate(request, username=username, password=password)
         
-        order = Order.objects.create(
-            table=table,
-            status='active',
-            total_amount=0
-        )
-        
-        total = 0
-        for item in items:
-            dish = get_object_or_404(Dish, id=item['dish_id'])
-            quantity = item['quantity']
-            price = dish.price * quantity
-            total += price
+        if user is not None:
+            from django.contrib.auth import login
+            login(request, user)
             
+            role = 'staff'
+            if user.is_superuser:
+                role = 'admin'
+            elif hasattr(user, 'profile') and user.profile.role:
+                role = user.profile.role
+            
+            return JsonResponse({'success': True, 'role': role, 'username': user.username})
+        else:
+            return JsonResponse({'success': False, 'error': 'Неверный логин или пароль'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+# ==================== API ОСНОВНЫЕ ====================
+
+@require_http_methods(["GET"])
+def api_dishes(request):
+    dishes = Dish.objects.filter(is_available=True).select_related('category')
+    data = [{
+        'id': d.id,
+        'name': d.name,
+        'description': d.description,
+        'price': float(d.price),
+        'category': d.category.name,
+        'category_id': d.category.id,
+    } for d in dishes]
+    return JsonResponse({'success': True, 'data': data})
+
+@require_http_methods(["GET"])
+def api_categories(request):
+    categories = Category.objects.all().order_by('order')
+    data = [{'id': c.id, 'name': c.name, 'icon': c.icon} for c in categories]
+    return JsonResponse({'success': True, 'data': data})
+
+@require_http_methods(["GET"])
+def api_tables(request):
+    tables = Table.objects.all().order_by('number')
+    data = [{
+        'id': t.id,
+        'number': t.number,
+        'seats': t.seats,
+        'status': t.status,
+    } for t in tables]
+    return JsonResponse({'success': True, 'data': data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_create_order(request):
+    try:
+        body = json.loads(request.body)
+        table_id = body.get('table_id')
+        items = body.get('items', [])
+        guest_count = body.get('guest_count', 1)
+        
+        table = Table.objects.get(id=table_id)
+        order = Order.objects.create(table=table, status='new', guest_count=guest_count)
+        
+        total = Decimal('0')
+        for item in items:
+            dish = Dish.objects.get(id=item['dish_id'])
             OrderItem.objects.create(
                 order=order,
                 dish=dish,
-                quantity=quantity,
-                price=price,
+                quantity=item['quantity'],
+                price=dish.price,
                 status='pending'
             )
+            total += dish.price * item['quantity']
         
         order.total_amount = total
         order.save()
-        
-        # Меняем статус стола
         table.status = 'occupied'
         table.save()
         
-        return JsonResponse({'success': True, 'order_id': order.id})
-    
-    return render(request, 'waiter/create_order.html', {
-        'table': table,
-        'categories': categories
-    })
+        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total)})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
-@login_required
-def pay_order(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    
-    if request.method == 'POST':
-        payment_method = request.POST.get('payment_method')
-        order.payment_method = payment_method
-        order.status = 'paid'
+@require_http_methods(["GET"])
+def api_active_orders(request):
+    orders = Order.objects.filter(status__in=['new', 'cooking', 'ready']).select_related('table').prefetch_related('items__dish')
+    data = []
+    for order in orders:
+        items = [{
+            'id': item.id,
+            'dish_name': item.dish.name,
+            'quantity': item.quantity,
+            'status': item.status,
+        } for item in order.items.all()]
+        data.append({
+            'id': order.id,
+            'table_number': order.table.number,
+            'created_at': order.created_at.strftime('%H:%M'),
+            'status': order.status,
+            'items': items,
+        })
+    return JsonResponse({'success': True, 'data': data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_update_item_status(request):
+    try:
+        body = json.loads(request.body)
+        item_id = body.get('item_id')
+        status = body.get('status')
+        
+        item = OrderItem.objects.get(id=item_id)
+        item.status = status
+        item.save()
+        
+        order = item.order
+        all_items = order.items.all()
+        if all(i.status == 'ready' for i in all_items):
+            order.status = 'ready'
+        elif any(i.status in ['pending', 'cooking'] for i in all_items):
+            order.status = 'cooking'
         order.save()
         
-        # Освобождаем стол
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_mark_order_ready(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'ready'
+        order.ready_at = timezone.now()
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_take_order(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        order = Order.objects.get(id=order_id)
+        order.status = 'served'
+        order.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_pay_order(request):
+    try:
+        body = json.loads(request.body)
+        order_id = body.get('order_id')
+        payment_method = body.get('payment_method')
+        
+        order = Order.objects.get(id=order_id)
+        order.status = 'paid'
+        order.payment_method = payment_method
+        order.save()
+        
         table = order.table
         table.status = 'free'
         table.save()
         
-        return redirect('order_receipt', order_id=order.id)
-    
-    return render(request, 'waiter/pay_order.html', {'order': order})
-
-@login_required
-def order_receipt(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    return render(request, 'waiter/receipt.html', {'order': order})
-
-# ===== КУХНЯ (ПОВАР) =====
-@login_required
-def kitchen_view(request):
-    orders = Order.objects.filter(status='active').prefetch_related('order_items__dish').order_by('created_at')
-    return render(request, 'cook/kitchen.html', {'orders': orders})
-
-@login_required
-def update_order_item_status(request, order_item_id):
-    if request.method == 'POST':
-        order_item = get_object_or_404(OrderItem, id=order_item_id)
-        status = request.POST.get('status')
-        
-        if status in ['pending', 'cooking', 'ready']:
-            order_item.status = status
-            order_item.save()
-            
-            return JsonResponse({'success': True, 'status': status})
-    
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-@login_required
-def mark_order_ready(request, order_id):
-    if request.method == 'POST':
-        order = get_object_or_404(Order, id=order_id)
-        order.status = 'ready'
-        order.save()
-        
         return JsonResponse({'success': True})
-    
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
-# ===== АДМИН ПАНЕЛЬ =====
-@login_required
-@staff_member_required
-def admin_panel(request):
-    # Статистика
-    total_orders = Order.objects.count()
-    total_revenue = Order.objects.filter(status='paid').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
-    active_orders = Order.objects.filter(status='active').count()
-    total_tables = Table.objects.count()
-    free_tables = Table.objects.filter(status='free').count()
-    
-    # График по дням
-    orders_by_day = Order.objects.filter(
-        created_at__gte=timezone.now() - timedelta(days=7)
-    ).annotate(
-        date=TruncDate('created_at')
-    ).values('date').annotate(
-        count=Count('id'),
-        revenue=Sum('total_amount')
-    ).order_by('date')
-    
-    # Популярные блюда
-    popular_dishes = OrderItem.objects.values('dish__name').annotate(
-        total_quantity=Sum('quantity')
-    ).order_by('-total_quantity')[:5]
-    
-    context = {
-        'total_orders': total_orders,
-        'total_revenue': total_revenue,
-        'active_orders': active_orders,
-        'total_tables': total_tables,
-        'free_tables': free_tables,
-        'orders_by_day': list(orders_by_day),
-        'popular_dishes': list(popular_dishes),
-    }
-    
-    return render(request, 'admin_panel.html', context)
-
-# ===== API =====
-def api_tables(request):
-    tables = Table.objects.all().values('id', 'number', 'status', 'seats', 'position_x', 'position_y')
-    return JsonResponse({'tables': list(tables)})
-
-def api_menu(request):
-    categories = Category.objects.all().prefetch_related('dish_set').order_by('order')
-    data = []
-    for category in categories:
-        cat_data = {
-            'id': category.id,
-            'name': category.name,
-            'icon': category.icon,
-            'dishes': []
-        }
-        for dish in category.dish_set.filter(is_available=True):
-            cat_data['dishes'].append({
-                'id': dish.id,
-                'name': dish.name,
-                'price': float(dish.price),
-                'description': dish.description or '',
+@require_http_methods(["GET"])
+def api_order_receipt(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        items = []
+        for item in order.items.all():
+            items.append({
+                'name': item.dish.name,
+                'quantity': item.quantity,
+                'price': float(item.price),
+                'total': float(item.price * item.quantity)
             })
-        data.append(cat_data)
-    return JsonResponse({'categories': data})
-
-def api_create_order(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    data = json.loads(request.body)
-    table_id = data.get('table_id')
-    items = data.get('items', [])
-    
-    if not table_id or not items:
-        return JsonResponse({'error': 'Missing data'}, status=400)
-    
-    table = get_object_or_404(Table, id=table_id)
-    
-    order = Order.objects.create(
-        table=table,
-        status='active',
-        total_amount=0
-    )
-    
-    total = 0
-    for item in items:
-        dish = get_object_or_404(Dish, id=item['dish_id'])
-        quantity = item['quantity']
-        price = dish.price * quantity
-        total += price
         
-        OrderItem.objects.create(
-            order=order,
-            dish=dish,
-            quantity=quantity,
-            price=price,
-            status='pending'
-        )
-    
-    order.total_amount = total
-    order.save()
-    
-    table.status = 'occupied'
-    table.save()
-    
-    return JsonResponse({'success': True, 'order_id': order.id})
+        receipt_data = {
+            'order_id': order.id,
+            'table_number': order.table.number,
+            'created_at': order.created_at.strftime('%d.%m.%Y %H:%M'),
+            'items': items,
+            'total': float(order.total_amount),
+            'payment_method': dict(Order.PAYMENT_CHOICES).get(order.payment_method, 'Не оплачен')
+        }
+        return JsonResponse({'success': True, 'data': receipt_data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
-def api_pay_order(request, order_id):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+@require_http_methods(["GET"])
+def api_reports(request):
+    period = request.GET.get('period', 'week')
     
-    order = get_object_or_404(Order, id=order_id)
-    data = json.loads(request.body)
+    if period == 'day':
+        start_date = timezone.now().date()
+    elif period == 'week':
+        start_date = timezone.now().date() - timedelta(days=7)
+    elif period == 'month':
+        start_date = timezone.now().date() - timedelta(days=30)
+    else:
+        start_date = timezone.now().date() - timedelta(days=7)
     
-    order.payment_method = data.get('payment_method', 'cash')
-    order.status = 'paid'
-    order.save()
+    orders = Order.objects.filter(created_at__date__gte=start_date, status='paid')
     
-    table = order.table
-    table.status = 'free'
-    table.save()
+    total_revenue = sum(float(o.total_amount) for o in orders)
+    total_orders = orders.count()
+    avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
-    return JsonResponse({'success': True})
-
-def api_update_order_item_status(request, item_id):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    order_item = get_object_or_404(OrderItem, id=item_id)
-    data = json.loads(request.body)
-    
-    status = data.get('status')
-    if status in ['pending', 'cooking', 'ready']:
-        order_item.status = status
-        order_item.save()
-        return JsonResponse({'success': True, 'status': status})
-    
-    return JsonResponse({'error': 'Invalid status'}, status=400)
-
-# ===== СТРАНИЦЫ ДОКУМЕНТАЦИИ =====
-def help_manual(request):
-    return render(request, 'help_manual.html')
-
-def regulations(request):
-    return render(request, 'regulations.html')
-
-@login_required
-@staff_member_required
-def maintenance_log_view(request):
-    logs = MaintenanceLog.objects.all().order_by('-date')
-    return render(request, 'maintenance_log.html', {'logs': logs})
-
-@login_required
-@staff_member_required
-def backup_view(request):
-    """Страница резервного копирования"""
-    return render(request, 'backup.html')
-
-# ===== ЭКСПОРТ В EXCEL =====
-@login_required
-@staff_member_required
-def export_orders_excel(request):
-    orders = Order.objects.filter(status='paid').select_related('table').order_by('-created_at')
-    
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Заказы"
-    
-    # Заголовки
-    headers = ['ID', 'Дата', 'Стол', 'Сумма', 'Способ оплаты', 'Статус']
-    ws.append(headers)
-    
-    # Стиль заголовков
-    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF")
-    
-    for cell in ws[1]:
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = Alignment(horizontal='center')
-    
-    # Данные
+    dish_count = defaultdict(int)
     for order in orders:
-        ws.append([
-            order.id,
-            order.created_at.strftime('%d.%m.%Y %H:%M'),
-            f"Стол {order.table.number}",
-            order.total_amount,
-            order.get_payment_method_display() if order.payment_method else '-',
-            order.get_status_display()
-        ])
+        for item in order.items.all():
+            dish_count[item.dish.name] += item.quantity
     
-    # Автоширина колонок
-    for column in ws.columns:
-        max_length = 0
-        column_letter = get_column_letter(column[0].column)
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column_letter].width = adjusted_width
+    popular_dishes = [{'name': k, 'count': v} for k, v in sorted(dish_count.items(), key=lambda x: -x[1])[:5]]
     
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = f'attachment; filename=orders_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    wb.save(response)
-    return response
+    daily_data = []
+    for i in range(7):
+        day = start_date + timedelta(days=i)
+        day_orders = orders.filter(created_at__date=day)
+        daily_data.append({
+            'date': day.strftime('%d.%m'),
+            'revenue': sum(float(o.total_amount) for o in day_orders),
+            'orders': day_orders.count(),
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'data': {
+            'total_revenue': total_revenue,
+            'total_orders': total_orders,
+            'avg_check': avg_check,
+            'popular_dishes': popular_dishes,
+            'daily_data': daily_data,
+        }
+    })
 
-@login_required
+# ==================== API ЖУРНАЛА ТО ====================
+
+@require_http_methods(["GET"])
+def api_maintenance_logs(request):
+    logs = MaintenanceLog.objects.all()
+    data = [{
+        'id': log.id,
+        'date': log.date.strftime('%Y-%m-%d'),
+        'work_performed': log.work_performed,
+        'performed_by': log.performed_by,
+        'signature': log.signature
+    } for log in logs]
+    return JsonResponse({'success': True, 'data': data})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_maintenance_logs_add(request):
+    try:
+        body = json.loads(request.body)
+        log = MaintenanceLog.objects.create(
+            date=body.get('date'),
+            work_performed=body.get('work_performed'),
+            performed_by=body.get('performed_by')
+        )
+        return JsonResponse({'success': True, 'id': log.id})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+# ==================== РЕЗЕРВНОЕ КОПИРОВАНИЕ ====================
+
 @staff_member_required
-def export_dishes_excel(request):
-    dishes = Dish.objects.select_related('category').all()
-    
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Блюда"
-    
-    headers = ['Категория', 'Название', 'Цена', 'Описание', 'Доступно']
-    ws.append(headers)
-    
-    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF")
-    
-    for cell in ws[1]:
-        cell.fill = header_fill
-        cell.font = header_font
-        cell.alignment = Alignment(horizontal='center')
-    
-    for dish in dishes:
-        ws.append([
-            dish.category.name if dish.category else '-',
-            dish.name,
-            dish.price,
-            dish.description or '-',
-            'Да' if dish.is_available else 'Нет'
-        ])
-    
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = f'attachment; filename=dishes_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    wb.save(response)
-    return response
+def admin_backup(request):
+    backups = []
+    backup_dir = 'backups'
+
+    if request.method == 'POST':
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+
+        db_path = 'db.sqlite3'
+        if os.path.exists(db_path):
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_path = os.path.join(backup_dir, f'db_backup_{timestamp}.sqlite3')
+            shutil.copy2(db_path, backup_path)
+            
+            # Удаляем старые копии (старше 30 дней)
+            for file in os.listdir(backup_dir):
+                file_path = os.path.join(backup_dir, file)
+                if os.path.getctime(file_path) < (datetime.now().timestamp() - 30 * 24 * 3600):
+                    os.remove(file_path)
+        return redirect('/admin/backup/')
+
+    if os.path.exists(backup_dir):
+        for file in os.listdir(backup_dir):
+            if file.endswith('.sqlite3'):
+                file_path = os.path.join(backup_dir, file)
+                stat = os.stat(file_path)
+                backups.append({
+                    'name': file,
+                    'date': datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'size': round(stat.st_size / 1024, 2)
+                })
+        backups.sort(key=lambda x: x['date'], reverse=True)
+
+    return render(request, 'backup.html', {'backups': backups})
+
+@staff_member_required
+def admin_backup_download(request, filename):
+    backup_dir = 'backups'
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(backup_dir, safe_filename)
+
+    if not os.path.exists(file_path) or not safe_filename.endswith('.sqlite3'):
+        raise Http404("Файл не найден")
+
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
+        return response
+
+@staff_member_required
+def admin_backup_restore(request, filename):
+    backup_dir = 'backups'
+    safe_filename = os.path.basename(filename)
+    backup_path = os.path.join(backup_dir, safe_filename)
+    db_path = 'db.sqlite3'
+
+    if not os.path.exists(backup_path):
+        raise Http404("Файл не найден")
+
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    auto_backup_path = os.path.join(backup_dir, f'auto_before_restore_{timestamp}.sqlite3')
+    if os.path.exists(db_path):
+        shutil.copy2(db_path, auto_backup_path)
+
+    shutil.copy2(backup_path, db_path)
+    return redirect('/admin/backup/')
+
+@staff_member_required
+def admin_backup_delete(request, filename):
+    backup_dir = 'backups'
+    safe_filename = os.path.basename(filename)
+    file_path = os.path.join(backup_dir, safe_filename)
+
+    if os.path.exists(file_path) and safe_filename.endswith('.sqlite3'):
+        os.remove(file_path)
+
+    return redirect('/admin/backup/')
