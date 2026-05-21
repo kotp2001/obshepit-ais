@@ -63,8 +63,9 @@
         color: #ffd700;
         font-size: 13px;
         position: absolute;
-        bottom: 12px;
+        top: 50%;
         right: 20px;
+        transform: translateY(-50%);
         background: rgba(0,0,0,0.3);
         padding: 5px 12px;
         border-radius: 20px;
@@ -85,10 +86,9 @@
         display: none !important;
     }
     
+    /* Кнопка главное меню в ряду с остальными */
     .main-menu-btn {
-        position: absolute;
-        bottom: 12px;
-        right: 280px;
+        display: inline-block;
         background: #ffd700;
         color: #1a1a4a;
         padding: 5px 15px;
@@ -97,8 +97,7 @@
         font-weight: bold;
         font-size: 13px;
         transition: all 0.1s ease;
-        display: inline-block;
-        white-space: nowrap;
+        margin-right: 10px;
     }
     
     .main-menu-btn:hover {
@@ -108,7 +107,7 @@
         text-decoration: none;
     }
     
-    /* Скрываем кнопку выхода если она дублируется */
+    /* Скрываем дублирующую кнопку выхода */
     .logout-link,
     #logout-form,
     .submit-logout {
@@ -154,25 +153,27 @@
         flex-wrap: wrap;
         background: rgba(40,40,90,0.4);
         border-radius: 10px;
-        padding: 5px 10px;
+        padding: 8px 12px;
     }
     
     #nav-sidebar .module li a {
         display: inline-block;
-        padding: 6px 10px;
+        padding: 5px 8px;
         background: transparent;
         border-radius: 8px;
-        color: white;
+        color: white !important;
         text-decoration: none;
         transition: all 0.1s ease;
         flex: 1;
+        font-weight: 500;
     }
     
     #nav-sidebar .module li a:hover {
         background: rgba(255,215,0,0.2);
-        color: #ffd700;
+        color: #ffd700 !important;
     }
     
+    /* Зеленые кнопки "Добавить" - ровно друг под другом */
     #nav-sidebar .module li .addlink {
         display: inline-block;
         background: #28a745;
@@ -182,13 +183,38 @@
         font-size: 11px;
         text-decoration: none;
         white-space: nowrap;
-        margin-left: 8px;
+        min-width: 60px;
+        text-align: center;
     }
     
     #nav-sidebar .module li .addlink:hover {
         background: #218838;
         transform: scale(1.02);
         color: white;
+    }
+    
+    /* Убираем иконки (картинки) везде */
+    img {
+        display: none !important;
+    }
+    
+    .icon,
+    .icon-img,
+    .addlink img,
+    .changelink img,
+    .deletelink img,
+    .object-tools img,
+    [class*="icon"] img {
+        display: none !important;
+    }
+    
+    /* Заменяем иконки текстом */
+    .addlink:before {
+        content: none !important;
+    }
+    
+    .deletelink:before {
+        content: none !important;
     }
     
     #content {
@@ -268,27 +294,6 @@
     .boolean-true,
     .boolean-false,
     .boolean-icon {
-        display: none !important;
-    }
-    
-    /* Заменяем True/False текстом */
-    .field-is_active .boolean-true,
-    .field-is_staff .boolean-true,
-    .field-is_superuser .boolean-true {
-        display: inline-block !important;
-    }
-    
-    .field-is_active td:nth-child(6),
-    .field-is_staff td:nth-child(6),
-    .field-is_superuser td:nth-child(6) {
-        text-align: center;
-    }
-    
-    /* Скрываем иконки поиска */
-    .submit-row img,
-    .search-container img,
-    [type="submit"] img,
-    .button img {
         display: none !important;
     }
     
@@ -449,6 +454,20 @@
     
     .form-row label {
         color: #ffd700;
+    }
+    
+    /* Делаем текст в левом меню белым и приятным */
+    #nav-sidebar a,
+    #nav-sidebar .module li a {
+        color: #ffffff !important;
+        font-size: 13px;
+        letter-spacing: 0.3px;
+    }
+    
+    #nav-sidebar .module h2 {
+        color: #ffd700;
+        font-size: 14px;
+        font-weight: 600;
     }
 </style>
 {% endblock %}
