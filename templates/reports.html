@@ -87,79 +87,73 @@
 <script>
     let chart = null;
     
-    async function loadReports() {
-        const period = document.getElementById('period-select').value;
+    function loadReports() {
+        let period = document.getElementById('period-select').value;
         
-        try {
-            const response = await fetch(`/api/reports/?period=${period}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                document.getElementById('total-revenue').innerHTML = data.data.total_revenue.toFixed(2) + ' ₽';
-                document.getElementById('total-orders').innerHTML = data.data.total_orders;
-                document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
-                
-                let popularHtml = '';
-                if (data.data.popular_dishes.length > 0) {
-                    popularHtml = '<div class="list-group">';
-                    data.data.popular_dishes.forEach((dish, index) => {
-                        popularHtml += `
-                            <div class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-color: rgba(255,255,255,0.1);">
-                                <div>
-                                    <span class="badge" style="background: #ffd700; color: #1a1a4a;">${index + 1}</span>
-                                    <strong class="ms-2" style="color: white;">${dish.name}</strong>
+        fetch(`/api/reports/?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('total-revenue').innerHTML = data.data.total_revenue.toFixed(2) + ' ₽';
+                    document.getElementById('total-orders').innerHTML = data.data.total_orders;
+                    document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
+                    
+                    let popularHtml = '';
+                    if (data.data.popular_dishes.length > 0) {
+                        popularHtml = '<div class="list-group">';
+                        data.data.popular_dishes.forEach((dish, index) => {
+                            popularHtml += `
+                                <div class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-color: rgba(255,255,255,0.1);">
+                                    <div>
+                                        <span class="badge" style="background: #ffd700; color: #1a1a4a;">${index + 1}</span>
+                                        <strong class="ms-2" style="color: white;">${dish.name}</strong>
+                                    </div>
+                                    <span class="badge bg-success">${dish.count} шт</span>
                                 </div>
-                                <span class="badge bg-success">${dish.count} шт</span>
-                            </div>
-                        `;
-                    });
-                    popularHtml += '</div>';
-                } else {
-                    popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных о продажах</p>';
-                }
-                document.getElementById('popular-dishes').innerHTML = popularHtml;
-                
-                if (chart) chart.destroy();
-                const ctx = document.getElementById('sales-chart').getContext('2d');
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.data.daily_data.map(d => d.date),
-                        datasets: [{
-                            label: 'Выручка (₽)',
-                            data: data.data.daily_data.map(d => d.revenue),
-                            borderColor: '#ffd700',
-                            backgroundColor: 'rgba(255,215,0,0.1)',
-                            tension: 0.3,
-                            fill: true,
-                            borderWidth: 2,
-                            pointBackgroundColor: '#ffd700',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5,
-                            pointHoverRadius: 7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { position: 'top', labels: { color: 'white' } },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
-                        },
-                        scales: { 
-                            x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                            y: { beginAtZero: true, ticks: { color: 'white', callback: (v) => v + ' ₽' }, grid: { color: 'rgba(255,255,255,0.1)' } }
-                        }
+                            `;
+                        });
+                        popularHtml += '</div>';
+                    } else {
+                        popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных о продажах</p>';
                     }
-                });
-            } else {
-                console.error('API error:', data);
-            }
-        } catch (error) {
-            console.error('Error loading reports:', error);
-            document.getElementById('popular-dishes').innerHTML = '<p class="text-center text-danger">Ошибка загрузки данных</p>';
-        }
+                    document.getElementById('popular-dishes').innerHTML = popularHtml;
+                    
+                    if (chart) chart.destroy();
+                    let ctx = document.getElementById('sales-chart').getContext('2d');
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.data.daily_data.map(d => d.date),
+                            datasets: [{
+                                label: 'Выручка (₽)',
+                                data: data.data.daily_data.map(d => d.revenue),
+                                borderColor: '#ffd700',
+                                backgroundColor: 'rgba(255,215,0,0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                borderWidth: 2,
+                                pointBackgroundColor: '#ffd700',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { position: 'top', labels: { color: 'white' } },
+                                tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
+                            },
+                            scales: { 
+                                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                                y: { beginAtZero: true, ticks: { color: 'white', callback: (v) => v + ' ₽' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                            }
+                        }
+                    });
+                }
+            });
     }
     
     loadReports();
