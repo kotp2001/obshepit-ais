@@ -20,12 +20,6 @@ def landing(request):
 def admin_panel(request):
     return render(request, 'admin_panel.html')
 
-def menu_view(request):
-    return render(request, 'menu.html')
-
-def booking_view(request):
-    return render(request, 'booking.html')
-
 def waiter_hall(request):
     return render(request, 'waiter_hall.html')
 
