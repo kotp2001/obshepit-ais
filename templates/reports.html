@@ -16,39 +16,30 @@
                         <option value="month">За месяц</option>
                     </select>
                 </div>
-                <div class="col-md-8 d-flex align-items-end gap-2">
-                    <button class="btn btn-primary" onclick="loadReports()">Обновить отчёты</button>
-                    <button class="btn btn-success" onclick="window.location.href='/export/orders/'">Экспорт заказов в Excel</button>
-                    <button class="btn btn-info" onclick="window.location.href='/export/popular/'">Экспорт популярных блюд</button>
+                <div class="col-md-8 d-flex gap-2">
+                    <button class="btn btn-primary btn-sm" onclick="loadReports()">Обновить</button>
+                    <button class="btn btn-success btn-sm" onclick="window.location.href='/export/orders/'">Экспорт заказов</button>
+                    <button class="btn btn-info btn-sm" onclick="window.location.href='/export/popular/'">Экспорт блюд</button>
                 </div>
             </div>
             
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="card text-center" style="background: rgba(26,26,74,0.9);">
-                        <div class="card-body">
-                            <h3 class="mb-2">💰</h3>
-                            <h6 class="mb-2" style="color: rgba(255,255,255,0.8);">Общая выручка</h6>
-                            <h2 id="total-revenue" style="color: #ffd700;">0 ₽</h2>
-                        </div>
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center" style="background: rgba(26,26,74,0.9); padding: 10px;">
+                        <h6 style="color: rgba(255,255,255,0.7); margin: 0;">Общая выручка</h6>
+                        <h3 id="total-revenue" style="color: #ffd700; margin: 5px 0;">0 ₽</h3>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card text-center" style="background: rgba(42,90,42,0.9);">
-                        <div class="card-body">
-                            <h3 class="mb-2">📋</h3>
-                            <h6 class="mb-2" style="color: rgba(255,255,255,0.8);">Всего заказов</h6>
-                            <h2 id="total-orders" style="color: #ffd700;">0</h2>
-                        </div>
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center" style="background: rgba(42,90,42,0.9); padding: 10px;">
+                        <h6 style="color: rgba(255,255,255,0.7); margin: 0;">Всего заказов</h6>
+                        <h3 id="total-orders" style="color: #ffd700; margin: 5px 0;">0</h3>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card text-center" style="background: rgba(212,160,23,0.9);">
-                        <div class="card-body">
-                            <h3 class="mb-2">📊</h3>
-                            <h6 class="mb-2" style="color: rgba(255,255,255,0.8);">Средний чек</h6>
-                            <h2 id="avg-check" style="color: #ffd700;">0 ₽</h2>
-                        </div>
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center" style="background: rgba(212,160,23,0.9); padding: 10px;">
+                        <h6 style="color: rgba(255,255,255,0.7); margin: 0;">Средний чек</h6>
+                        <h3 id="avg-check" style="color: #ffd700; margin: 5px 0;">0 ₽</h3>
                     </div>
                 </div>
             </div>
@@ -56,23 +47,23 @@
             <div class="row">
                 <div class="col-md-7">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header py-2">
                             <h6 class="mb-0">Продажи по дням</h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body py-2">
                             <canvas id="sales-chart" width="100%" height="250"></canvas>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header py-2">
                             <h6 class="mb-0">Популярные блюда</h6>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body py-2">
                             <div id="popular-dishes">
-                                <div class="text-center py-4">
-                                    <div class="spinner-border text-primary" role="status"></div>
+                                <div class="text-center py-2">
+                                    <div class="spinner-border text-primary" style="width: 30px; height: 30px;" role="status"></div>
                                 </div>
                             </div>
                         </div>
@@ -100,55 +91,69 @@
                     
                     let popularHtml = '';
                     if (data.data.popular_dishes.length > 0) {
-                        popularHtml = '<div class="list-group">';
+                        popularHtml = '<div>';
                         data.data.popular_dishes.forEach((dish, index) => {
                             popularHtml += `
-                                <div class="list-group-item d-flex justify-content-between align-items-center" style="background: rgba(50,50,100,0.5); color: white; border-color: rgba(255,255,255,0.1);">
+                                <div class="d-flex justify-content-between align-items-center mb-2 pb-1" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                                     <div>
-                                        <span class="badge" style="background: #ffd700; color: #1a1a4a;">${index + 1}</span>
-                                        <strong class="ms-2" style="color: white;">${dish.name}</strong>
+                                        <span style="background: #ffd700; color: #1a1a4a; padding: 0px 8px; border-radius: 10px; font-size: 12px;">${index + 1}</span>
+                                        <strong class="ms-2" style="color: white; font-size: 13px;">${dish.name}</strong>
                                     </div>
-                                    <span class="badge bg-success">${dish.count} шт</span>
+                                    <span style="color: #ffd700; font-size: 13px;">${dish.count} шт</span>
                                 </div>
                             `;
                         });
                         popularHtml += '</div>';
                     } else {
-                        popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных о продажах</p>';
+                        popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных</p>';
                     }
                     document.getElementById('popular-dishes').innerHTML = popularHtml;
+                    
+                    // Данные для графика
+                    let labels = data.data.daily_data.map(d => d.date);
+                    let revenues = data.data.daily_data.map(d => d.revenue);
                     
                     if (chart) chart.destroy();
                     let ctx = document.getElementById('sales-chart').getContext('2d');
                     chart = new Chart(ctx, {
-                        type: 'line',
+                        type: 'bar',
                         data: {
-                            labels: data.data.daily_data.map(d => d.date),
+                            labels: labels,
                             datasets: [{
                                 label: 'Выручка (₽)',
-                                data: data.data.daily_data.map(d => d.revenue),
+                                data: revenues,
+                                backgroundColor: '#ffd700',
                                 borderColor: '#ffd700',
-                                backgroundColor: 'rgba(255,215,0,0.1)',
-                                tension: 0.3,
-                                fill: true,
-                                borderWidth: 2,
-                                pointBackgroundColor: '#ffd700',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6
+                                borderWidth: 1,
+                                borderRadius: 5
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: true,
                             plugins: {
-                                legend: { position: 'top', labels: { color: 'white', font: { size: 11 } } },
-                                tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toFixed(2)} ₽` } }
+                                legend: { 
+                                    position: 'top', 
+                                    labels: { color: 'white', font: { size: 11 } }
+                                },
+                                tooltip: { 
+                                    callbacks: { 
+                                        label: (ctx) => `${ctx.raw.toFixed(2)} ₽`
+                                    }
+                                }
                             },
                             scales: { 
-                                x: { ticks: { color: 'white', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                                y: { beginAtZero: true, ticks: { color: 'white', callback: (v) => v + ' ₽', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                                x: { 
+                                    ticks: { color: 'white', font: { size: 10 } }, 
+                                    grid: { display: false },
+                                    title: { display: true, text: 'Дата', color: '#ffd700', font: { size: 10 } }
+                                },
+                                y: { 
+                                    beginAtZero: true, 
+                                    ticks: { color: 'white', callback: (v) => v + ' ₽', font: { size: 10 } }, 
+                                    grid: { color: 'rgba(255,255,255,0.1)' },
+                                    title: { display: true, text: 'Выручка (₽)', color: '#ffd700', font: { size: 10 } }
+                                }
                             }
                         }
                     });
@@ -156,7 +161,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('popular-dishes').innerHTML = '<p class="text-center text-danger">Ошибка загрузки</p>';
+                document.getElementById('popular-dishes').innerHTML = '<p class="text-center text-danger">Ошибка</p>';
             });
     }
     
