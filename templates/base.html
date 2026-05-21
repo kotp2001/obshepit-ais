@@ -69,11 +69,17 @@
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
         }
         
         .btn-logout:hover {
             background: #c82333;
             transform: translateY(-1px);
+        }
+        
+        .btn-logout:active {
+            transform: translateY(1px);
         }
         
         .card {
@@ -102,6 +108,7 @@
             font-weight: 500;
             transition: transform 0.1s ease;
             border: none;
+            cursor: pointer;
         }
         
         .btn:active {
@@ -157,13 +164,16 @@
             background: rgba(50,50,100,0.8);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
+            border-radius: 25px;
+            padding: 10px 15px;
         }
         
         .form-control:focus {
             background: rgba(60,60,110,0.9);
             border-color: #ffd700;
             color: white;
-            box-shadow: none;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255,215,0,0.3);
         }
         
         .footer {
@@ -174,6 +184,15 @@
             color: #ffd700;
             font-size: 13px;
             border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .footer a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
         }
         
         .modal-content {
@@ -219,6 +238,7 @@
         
         .admin-card {
             transition: transform 0.1s ease;
+            cursor: pointer;
         }
         
         .admin-card:active {
@@ -236,7 +256,9 @@
     
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/">АИС Общепит</a>
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-utensils"></i> АИС Общепит
+            </a>
             <div>
                 <button class="btn-logout" onclick="logout()" id="logout-btn" style="display: none;">Выйти</button>
             </div>
@@ -251,10 +273,10 @@
         <div class="container">
             <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
             <p class="mb-0 mt-1" style="font-size: 11px;">
-                <a href="/help/" style="color: #ffd700;">Руководство пользователя</a> | 
-                <a href="/docs/" style="color: #ffd700;">Регламенты</a> | 
-                <a href="/maintenance-log/" style="color: #ffd700;">Журнал ТО</a> |
-                <a href="https://forms.yandex.ru/u/69a964ed6d2d73372c353b06" target="_blank" style="color: #ffd700;">Обратная связь</a>
+                <a href="/help/">Руководство пользователя</a> | 
+                <a href="/docs/">Регламенты</a> | 
+                <a href="/maintenance-log/">Журнал ТО</a> |
+                <a href="https://forms.yandex.ru/u/69a964ed6d2d73372c353b06" target="_blank">Обратная связь</a>
             </p>
         </div>
     </div>
