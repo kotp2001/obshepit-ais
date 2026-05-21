@@ -14,7 +14,7 @@
     }
     
     #container {
-        background: transparent;
+        background: transparent !important;
         margin: 20px;
         color: white;
         flex: 1;
@@ -161,17 +161,17 @@
         color: white;
     }
     
-    /* Основной контент - полностью прозрачный */
+    /* Основной контент - ПОЛНОСТЬЮ ПРОЗРАЧНЫЙ, БЕЗ БЕЛОГО КВАДРАТА */
     #content {
         margin-left: 300px;
         padding: 0;
-        background: transparent;
+        background: transparent !important;
         min-height: 500px;
     }
     
     #content-main {
         color: white;
-        background: transparent;
+        background: transparent !important;
     }
     
     /* Модули и карточки - прозрачные */
@@ -219,16 +219,10 @@
         background: rgba(60,60,110,0.6);
     }
     
-    /* Таблица изменения объектов */
-    .change-list .results {
-        background: transparent;
-    }
-    
     #changelist {
-        background: transparent;
+        background: transparent !important;
     }
     
-    /* Форма редактирования */
     .change-form .module {
         background: transparent;
     }
@@ -323,7 +317,6 @@
         color: #dc3545;
     }
     
-    /* Футер */
     #footer {
         background: rgba(10,10,42,0.9);
         color: #ffd700;
@@ -334,7 +327,6 @@
         border-radius: 15px;
     }
     
-    /* Поиск */
     #searchbar {
         background: rgba(50,50,100,0.8);
         border: 1px solid #ffd700;
@@ -343,7 +335,6 @@
         color: white;
     }
     
-    /* Фильтры */
     #changelist-filter {
         background: rgba(20,20,50,0.7);
         backdrop-filter: blur(10px);
@@ -364,7 +355,6 @@
         color: #ffd700;
     }
     
-    /* Кнопки действий */
     .object-tools a {
         background: #ffd700;
         color: #1a1a4a;
@@ -403,17 +393,14 @@
         background: #e6c200;
     }
     
-    /* Панель фильтров */
     #changelist-filter {
         background: rgba(20,20,50,0.7);
     }
     
-    /* Убираем белые обводки */
     .module, .module .results, .module table {
         border: none !important;
     }
     
-    /* Таблица столов */
     .results table {
         background: transparent !important;
     }
@@ -442,7 +429,7 @@
 {% endblock %}
 
 {% block footer %}
-<div style="background: rgba(10,10,42,0.9); color: #ffd700; text-align: center; padding: 15px; margin-top: 20px; border-top: 1px solid rgba(255,215,0,0.3); border-radius: 15px;">
+<div style="background: rgba(10,10,42,0.9); color: #ffd700; text-align: center; padding: 15px; margin: 20px 20px 0 20px; border-top: 1px solid rgba(255,215,0,0.3); border-radius: 15px 15px 0 0;">
     <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
     <p class="mb-0 mt-1" style="font-size: 11px;">
         <a href="/help/" style="color: #ffd700;">Руководство пользователя</a> | 
