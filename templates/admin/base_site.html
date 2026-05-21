@@ -70,18 +70,20 @@
         right: 200px;
         background: #ffd700;
         color: #1a1a4a;
-        padding: 5px 15px;
+        padding: 6px 15px;
         border-radius: 20px;
         text-decoration: none;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 13px;
         transition: all 0.1s ease;
+        display: inline-block;
     }
     
     .main-menu-btn:hover {
         background: #e6c200;
         transform: translateY(-1px);
         color: #1a1a4a;
+        text-decoration: none;
     }
     
     #nav-sidebar {
@@ -152,10 +154,12 @@
         padding: 20px;
         background: rgba(30,30,70,0.4);
         border-radius: 10px;
+        min-height: 500px;
     }
     
     #content-main {
         color: white;
+        background: transparent;
     }
     
     .module h2, .inline-group h2 {
@@ -330,25 +334,6 @@
     .object-tools a:hover {
         background: #e6c200;
     }
-    
-    .admin-footer {
-        background: #0a0a2a;
-        color: #ffd700;
-        text-align: center;
-        padding: 15px;
-        margin: 20px 20px 0 20px;
-        border-top: 1px solid rgba(255,215,0,0.3);
-        border-radius: 15px 15px 0 0;
-    }
-    
-    .admin-footer a {
-        color: #ffd700;
-        text-decoration: none;
-    }
-    
-    .admin-footer a:hover {
-        text-decoration: underline;
-    }
 </style>
 {% endblock %}
 
@@ -366,13 +351,13 @@
 {% endblock %}
 
 {% block footer %}
-<div class="admin-footer">
+<div style="background: #0a0a2a; color: #ffd700; text-align: center; padding: 15px; margin: 20px 20px 0 20px; border-top: 1px solid rgba(255,215,0,0.3); border-radius: 15px 15px 0 0;">
     <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
     <p class="mb-0 mt-1" style="font-size: 11px;">
-        <a href="/help/">Руководство пользователя</a> | 
-        <a href="/docs/">Регламенты</a> | 
-        <a href="/maintenance-log/">Журнал ТО</a> |
-        <a href="https://forms.yandex.ru/u/69f11c7990fa7b3c1459172e" target="_blank">Обратная связь</a>
+        <a href="/help/" style="color: #ffd700;">Руководство пользователя</a> | 
+        <a href="/docs/" style="color: #ffd700;">Регламенты</a> | 
+        <a href="/maintenance-log/" style="color: #ffd700;">Журнал ТО</a> |
+        <a href="https://forms.yandex.ru/u/69f11c7990fa7b3c1459172e" target="_blank" style="color: #ffd700;">Обратная связь</a>
     </p>
 </div>
 {% endblock %}
