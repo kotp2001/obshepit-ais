@@ -11,8 +11,9 @@ import shutil
 from decimal import Decimal
 from collections import defaultdict
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
+from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
 
-# ==================== СТРАНИЦЫ ====================
+
 
 def landing(request):
     return render(request, 'landing.html')
