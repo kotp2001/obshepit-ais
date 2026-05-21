@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django import forms
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
 
 class ProfileInline(admin.StackedInline):
@@ -9,7 +8,7 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Профиль'
     fields = ('role', 'pin_code')
-    
+
 class CustomUserAdmin(UserAdmin):
     inlines = [ProfileInline]
     list_display = ['username', 'email', 'first_name', 'last_name', 'get_role', 'is_staff']
