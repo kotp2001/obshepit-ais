@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Руководство пользователя{% endblock %}
 {% block content %}
 <div class="fade-in">
@@ -17,55 +18,23 @@
             <h4 style="color: #ffd700; margin-top: 20px;">1. Назначение системы</h4>
             <p>АИС "Общепит" предназначена для автоматизации учёта заказов на предприятиях общественного питания (кафе, рестораны, столовые). Доступ только для сотрудников: администраторов, официантов и поваров.</p>
             
-            <h5 style="color: #ffd700; margin-top: 15px;">Функции администратора:</h5>
-            <ul>
-                <li>Управление базой блюд и составом меню</li>
-                <li>Управление столами (статус, количество мест)</li>
-                <li>Управление сотрудниками</li>
-                <li>Просмотр и экспорт отчётов в Excel</li>
-            </ul>
-            
-            <h5 style="color: #ffd700; margin-top: 15px;">Функции официанта:</h5>
-            <ul>
-                <li>Просмотр схемы зала с цветовой индикацией</li>
-                <li>Создание заказа с выбором блюд по категориям</li>
-                <li>Получение уведомлений о готовых заказах</li>
-                <li>Приём оплаты (наличные, карта, QR-код)</li>
-                <li>Формирование и печать чека</li>
-            </ul>
-            
-            <h5 style="color: #ffd700; margin-top: 15px;">Функции повара:</h5>
-            <ul>
-                <li>Просмотр активных заказов</li>
-                <li>Изменение статуса блюд: "Ожидает" → "Готовится" → "Готов"</li>
-                <li>Отправка уведомления о готовности заказа</li>
-            </ul>
-            
-            <!-- 2. Условия выполнения программы -->
-            <h4 style="color: #ffd700; margin-top: 30px;">2. Условия выполнения программы</h4>
-            <h5 style="color: #ffd700; margin-top: 15px;">Минимальные требования к серверной части:</h5>
-            <ul>
-                <li>Процессор: 2 ядра, 2 ГГц</li>
-                <li>Оперативная память: не менее 4 Гб</li>
-                <li>Свободное дисковое пространство: не менее 10 Гб</li>
-                <li>Стабильное подключение к сети Интернет</li>
-            </ul>
-            
-            <h5 style="color: #ffd700; margin-top: 15px;">Минимальные требования к клиентской части:</h5>
-            <ul>
-                <li>Компьютер с ОС Windows / Linux / macOS</li>
-                <li>Современный браузер (Chrome, Firefox, Edge)</li>
-                <li>Доступ к сети Интернет</li>
-                <li>Разрешение экрана не менее 1366×768</li>
-            </ul>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/system_architecture.png" alt="Архитектура системы" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 1 - Архитектура АИС "Общепит"</p>
+            </div>
             
             <!-- 3. Авторизация -->
-            <h4 style="color: #ffd700; margin-top: 30px;">3. Авторизация в системе</h4>
+            <h4 style="color: #ffd700; margin-top: 30px;">2. Авторизация в системе</h4>
             <p>Для входа в систему:</p>
             <ol>
                 <li>Откройте главную страницу сайта</li>
                 <li>Введите логин и пароль</li>
             </ol>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/login_screen.png" alt="Страница авторизации" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 2 - Страница авторизации</p>
+            </div>
             
             <table class="table table-dark table-bordered" style="margin-top: 10px;">
                 <thead>
@@ -83,39 +52,63 @@
             </table>
             
             <!-- 4. Работа официанта -->
-            <h4 style="color: #ffd700; margin-top: 30px;">4. Работа официанта</h4>
-            <h5>4.1. Приём заказа</h5>
+            <h4 style="color: #ffd700; margin-top: 30px;">3. Работа официанта</h4>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/waiter_hall.png" alt="Зал ресторана" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 3 - Схема зала ресторана</p>
+            </div>
+            
+            <h5>3.1. Приём заказа</h5>
             <ol>
                 <li>Войдите в систему как официант</li>
                 <li>Нажмите на свободный зелёный стол в схеме зала</li>
                 <li>В открывшемся окне выберите блюда из меню, нажимая кнопку "+"</li>
                 <li>Укажите количество гостей</li>
                 <li>Нажмите "Оформить заказ"</li>
-                <li>Заказ отправлен на кухню, стол стал красным (занят)</li>
             </ol>
             
-            <h5>4.2. Готовые заказы и оплата</h5>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/create_order.png" alt="Создание заказа" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 4 - Создание заказа</p>
+            </div>
+            
+            <h5>3.2. Оплата и чек</h5>
             <ol>
-                <li>Когда заказ готов, он появится в разделе "Готовые заказы"</li>
-                <li>Нажмите "Забрать заказ"</li>
+                <li>Когда заказ готов, нажмите "Забрать заказ"</li>
                 <li>Выберите способ оплаты: Наличные / Карта / QR-код</li>
                 <li>Нажмите "Оплатить"</li>
-                <li>Откроется чек с возможностью печати или скачивания PDF</li>
             </ol>
             
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/payment.png" alt="Оплата заказа" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 5 - Выбор способа оплаты</p>
+            </div>
+            
             <!-- 5. Работа повара -->
-            <h4 style="color: #ffd700; margin-top: 30px;">5. Работа повара</h4>
+            <h4 style="color: #ffd700; margin-top: 30px;">4. Работа повара</h4>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/kitchen_panel.png" alt="Панель повара" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 6 - Панель повара</p>
+            </div>
+            
             <ol>
                 <li>Войдите в систему как повар</li>
                 <li>В разделе "Активные заказы" вы увидите список заказов</li>
-                <li>У каждого блюда нажмите "Начать готовку" (статус "Готовится")</li>
-                <li>После приготовления нажмите "Готово" (статус "Готов")</li>
+                <li>У каждого блюда нажмите "Начать готовку"</li>
+                <li>После приготовления нажмите "Готово"</li>
                 <li>Когда все блюда готовы, нажмите "Заказ готов"</li>
-                <li>Официант получит уведомление о готовности заказа</li>
             </ol>
             
             <!-- 6. Работа администратора -->
-            <h4 style="color: #ffd700; margin-top: 30px;">6. Работа администратора</h4>
+            <h4 style="color: #ffd700; margin-top: 30px;">5. Работа администратора</h4>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/admin_panel.png" alt="Панель администратора" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 7 - Панель администратора</p>
+            </div>
+            
             <ol>
                 <li>Войдите в систему как администратор</li>
                 <li>В панели администратора доступны карточки:
@@ -128,34 +121,28 @@
                         <li><strong>Журнал ТО</strong> - журнал технического обслуживания</li>
                     </ul>
                 </li>
-                <li>В разделе "Отчёты" можно:
-                    <ul>
-                        <li>Смотреть график продаж</li>
-                        <li>Экспортировать заказы в Excel</li>
-                        <li>Экспортировать популярные блюда в Excel</li>
-                    </ul>
-                </li>
             </ol>
             
-            <!-- 7. Журнал технического обслуживания -->
-            <h4 style="color: #ffd700; margin-top: 30px;">7. Журнал технического обслуживания</h4>
-            <ol>
-                <li>Войдите в систему как администратор</li>
-                <li>Перейдите в раздел "Журнал ТО"</li>
-                <li>Нажмите "Добавить запись"</li>
-                <li>Заполните дату, проведённую работу и исполнителя</li>
-                <li>Запись сохранится в таблице</li>
-            </ol>
-            
-            <!-- 8. Регламенты -->
-            <h4 style="color: #ffd700; margin-top: 30px;">8. Регламенты</h4>
-            <p>Полные тексты регламентов доступны по ссылке: <a href="/docs/" style="color: #ffd700;">/docs/</a></p>
-            <ul>
-                <li>Регламент технического обслуживания (Приложение Б)</li>
-                <li>Регламент резервного копирования (Приложение В)</li>
-                <li>Регламент восстановления из резервной копии (Приложение В)</li>
-            </ul>
+            <div style="text-align: center; margin: 20px 0;">
+                <img src="/static/images/reports.png" alt="Отчёты" style="max-width: 100%; border-radius: 10px; border: 1px solid #ffd700;" onerror="this.style.display='none'">
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px;">Рисунок 8 - Страница отчётов</p>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .table-dark {
+        background: rgba(30,30,70,0.8);
+    }
+    .table-dark td, .table-dark th {
+        border-color: rgba(255,255,255,0.2);
+    }
+    code {
+        background: #1a1a4a;
+        padding: 2px 6px;
+        border-radius: 5px;
+        color: #ffd700;
+    }
+</style>
 {% endblock %}
