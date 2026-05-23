@@ -25,6 +25,7 @@
 <script>
     let currentTableId = null;
     let currentCart = [];
+    let ordersRefreshInterval = null;
     
     // Загрузка столов
     async function loadTables() {
@@ -70,11 +71,9 @@
                 html += '</div>';
                 document.getElementById('hall-container').innerHTML = html;
                 
-                // Добавляем обработчики кликов
                 document.querySelectorAll('.table-card').forEach(card => {
                     const status = card.getAttribute('data-table-status');
                     if (status === 'free') {
-                        card.style.cursor = 'pointer';
                         card.addEventListener('click', function(e) {
                             const tableId = parseInt(this.getAttribute('data-table-id'));
                             const tableNumber = parseInt(this.getAttribute('data-table-number'));
@@ -138,7 +137,7 @@
                 body: JSON.stringify({order_id: orderId})
             });
             showPaymentModal(orderId);
-            loadTables();
+            await loadTables();
         } catch (error) {
             alert('Ошибка: ' + error);
         }
@@ -151,7 +150,7 @@
         if (receiptData.success) {
             const order = receiptData.data;
             const modalHtml = `
-                <div class="modal fade" id="paymentModal" tabindex="-1">
+                <div class="modal fade" id="paymentModal" tabindex="-1" data-bs-backdrop="static">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -186,6 +185,11 @@
             
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
+            
+            // При закрытии модального окна обновляем таблицы
+            modal._element.addEventListener('hidden.bs.modal', function() {
+                loadTables();
+            });
         }
     }
     
@@ -194,7 +198,7 @@
         const paymentMethod = document.getElementById('payment-method').value;
         await fetch('/api/orders/pay/', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {'Content-Type':application/json'},
             body: JSON.stringify({order_id: orderId, payment_method: paymentMethod})
         });
         const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
@@ -235,7 +239,7 @@
                                 <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
                                     <button class="btn btn-primary btn-sm" id="print-btn">Распечатать чек</button>
                                     <button class="btn btn-success btn-sm" id="pdf-btn">Скачать PDF</button>
-                                    <button class="btn btn-secondary btn-sm" id="close-receipt" data-bs-dismiss="modal">Закрыть</button>
+                                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
                                 </div>
                             </div>
                         </div>
@@ -272,7 +276,11 @@
             
             const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
             modal.show();
-            loadTables();
+            
+            // При закрытии модального окна обновляем таблицы
+            modal._element.addEventListener('hidden.bs.modal', function() {
+                loadTables();
+            });
         }
     }
     
@@ -281,7 +289,6 @@
         currentTableId = tableId;
         currentCart = [];
         
-        // Создаём модальное окно с меню
         const modalHtml = `
             <div class="modal fade" id="orderModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
@@ -326,7 +333,6 @@
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         
-        // Загружаем меню
         loadMenuIntoModal();
         
         document.getElementById('submit-order-btn').addEventListener('click', function() {
@@ -337,7 +343,7 @@
         modal.show();
     }
     
-    // Загрузка меню в модальное окно
+    // Загрузка меню
     async function loadMenuIntoModal() {
         try {
             const response = await fetch('/api/dishes/');
@@ -378,6 +384,8 @@
                         const name = this.dataset.name;
                         const price = parseInt(this.dataset.price);
                         addToCart(id, name, price);
+                        this.innerHTML = '✓';
+                        setTimeout(() => { this.innerHTML = '+'; }, 500);
                     });
                 });
             }
@@ -463,7 +471,9 @@
         loadTables();
     });
     
-    // Загружаем столы при загрузке страницы
+    // Автообновление каждые 10 секунд
     loadTables();
+    if (ordersRefreshInterval) clearInterval(ordersRefreshInterval);
+    ordersRefreshInterval = setInterval(loadTables, 10000);
 </script>
 {% endblock %}
