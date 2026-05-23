@@ -110,14 +110,15 @@ def api_create_order(request):
         
         table = Table.objects.get(id=table_id)
         
-        now = timezone.localtime(timezone.now())
+        # Используем timezone.now() который автоматически использует настройки TIME_ZONE
+        current_time = timezone.now()
         
         order = Order.objects.create(
             table=table,
             status='new',
             guest_count=guest_count,
-            created_at=now,
-            updated_at=now
+            created_at=current_time,
+            updated_at=current_time
         )
         
         total = Decimal('0')
@@ -264,7 +265,7 @@ def api_order_receipt(request, order_id):
 def api_reports(request):
     period = request.GET.get('period', 'week')
     
-    today = timezone.localtime(timezone.now()).date()
+    today = timezone.now().date()
     
     if period == 'day':
         start_date = today
