@@ -113,7 +113,7 @@ def api_create_order(request):
             table=table, 
             status='new', 
             guest_count=guest_count,
-            created_at=timezone.now()
+            created_at=timezone.now()  # реальное время
         )
         
         total = Decimal('0')
