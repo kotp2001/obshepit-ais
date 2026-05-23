@@ -6,7 +6,7 @@
 
     <div style="background: rgba(30,30,70,0.4); border-radius: 15px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,215,0,0.2);">
         <h2 style="color: #ffd700;">Создать резервную копию</h2>
-        <p style="color: white;">Нажмите кнопку ниже, чтобы создать резервную копию базы данных.</p>
+        <p style="color: white;">Нажмите кнопку ниже, чтобы создать резервную копию базы данных SQLite.</p>
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="button" style="background: #ffd700; color: #1a1a4a; border-radius: 20px; padding: 8px 20px;">Создать резервную копию</button>
@@ -49,18 +49,9 @@
 </div>
 
 <style>
-    .table-responsive {
-        overflow-x: auto;
-    }
-    .button {
-        transition: all 0.1s ease;
-        cursor: pointer;
-    }
-    .button:hover {
-        transform: translateY(-1px);
-    }
-    .button:active {
-        transform: translateY(1px);
-    }
+    .table-responsive { overflow-x: auto; }
+    .button { transition: all 0.1s ease; cursor: pointer; }
+    .button:hover { transform: translateY(-1px); }
+    .button:active { transform: translateY(1px); }
 </style>
 {% endblock %}
