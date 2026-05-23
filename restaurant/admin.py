@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
+from .models import Category, Dish, Table, Order, OrderItem, MaintenanceLog, Profile
 
 class ProfileInline(admin.StackedInline):
     model = Profile
@@ -56,12 +56,6 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['order', 'dish', 'quantity', 'price', 'status']
     list_filter = ['status']
-
-@admin.register(Booking)
-class BookingAdmin(admin.ModelAdmin):
-    list_display = ['guest_name', 'table', 'booking_date', 'booking_time', 'guests_count', 'status']
-    list_filter = ['status', 'booking_date']
-    search_fields = ['guest_name', 'guest_phone']
 
 @admin.register(MaintenanceLog)
 class MaintenanceLogAdmin(admin.ModelAdmin):
