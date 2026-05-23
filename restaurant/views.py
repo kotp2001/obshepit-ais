@@ -151,6 +151,8 @@ def api_active_orders(request):
     orders = Order.objects.filter(status__in=['new', 'cooking', 'ready']).select_related('table').prefetch_related('items__dish')
     data = []
     for order in orders:
+        # Преобразуем created_at в локальное строковое представление (без часового пояса)
+        created_local = order.created_at.strftime('%H:%M') if order.created_at else ''
         items = [{
             'id': item.id,
             'dish_name': item.dish.name,
@@ -160,7 +162,7 @@ def api_active_orders(request):
         data.append({
             'id': order.id,
             'table_number': order.table.number,
-            'created_at': order.created_at.strftime('%H:%M'),
+            'created_at': created_local,
             'status': order.status,
             'items': items,
         })
