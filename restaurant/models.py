@@ -79,6 +79,7 @@ class Order(models.Model):
     ready_at = models.DateTimeField(null=True, blank=True, verbose_name='Время готовности')
     
     class Meta:
+        db_table = 'restaurant_order'
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
         ordering = ['-created_at']
@@ -102,6 +103,7 @@ class OrderItem(models.Model):
     comment = models.CharField(max_length=200, blank=True, verbose_name='Комментарий')
     
     class Meta:
+        db_table = 'restaurant_orderitem'
         verbose_name = 'Позиция заказа'
         verbose_name_plural = 'Позиции заказа'
     
