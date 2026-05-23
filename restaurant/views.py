@@ -110,10 +110,10 @@ def api_create_order(request):
         
         table = Table.objects.get(id=table_id)
         order = Order.objects.create(
-            table=table, 
-            status='new', 
+            table=table,
+            status='new',
             guest_count=guest_count,
-            created_at=timezone.now()  # реальное время
+            created_at=timezone.now()
         )
         
         total = Decimal('0')
@@ -133,7 +133,7 @@ def api_create_order(request):
         table.status = 'occupied'
         table.save()
         
-        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total), 'created_at': order.created_at.isoformat()})
+        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -403,10 +403,10 @@ def admin_backup(request):
     backups = []
     backup_dir = 'backups'
 
-    if request.method == 'POST':
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
 
+    if request.method == 'POST':
         db_path = 'db.sqlite3'
         if os.path.exists(db_path):
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -457,8 +457,6 @@ def admin_backup_restore(request, filename):
     if not os.path.exists(backup_path):
         raise Http404("Файл не найден")
 
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     auto_backup_path = os.path.join(backup_dir, f'auto_before_restore_{timestamp}.sqlite3')
     if os.path.exists(db_path):
