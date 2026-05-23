@@ -25,15 +25,7 @@
 <script>
     let currentTableId = null;
     let currentCart = [];
-    let currentOrderIdForPayment = null;
     let ordersRefreshInterval = null;
-
-    function getCurrentFormattedTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
 
     async function loadTables() {
         try {
@@ -127,7 +119,6 @@
     }
 
     async function showPaymentModal(orderId) {
-        currentOrderIdForPayment = orderId;
         const receiptResponse = await fetch(`/api/orders/receipt/${orderId}/`);
         const receiptData = await receiptResponse.json();
         if (receiptData.success) {
@@ -165,8 +156,7 @@
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
             modal._element.addEventListener('hidden.bs.modal', () => {
-                // при закрытии окна оплаты без оплаты заказ остаётся в готовых, ничего не меняем
-                loadReadyOrders();
+                loadReadyOrders(); // обновляем список готовых заказов после закрытия без оплаты
             });
         }
     }
@@ -205,7 +195,7 @@
             const receiptHtml = `
                 <div class="modal fade" id="receiptModal" tabindex="-1" data-bs-backdrop="static">
                     <div class="modal-dialog modal-sm">
-                        <div class="modal-content" style="background: white; color: black; font-family: monospace;">
+                        <div class="modal-content" style="background: white; color: black; font-family: monospace; width: 350px; margin: 0 auto;">
                             <div class="modal-body" id="receiptContent" style="text-align: center; padding: 20px;">
                                 <h3>АИС "ОБЩЕПИТ"</h3>
                                 <p>${order.created_at}</p>
@@ -216,10 +206,10 @@
                                 </div>
                                 <hr>
                                 <h4>ИТОГО: ${order.total} ₽</h4>
-                                <p>Оплата: ${order.payment_method === 'cash' ? 'Наличные' : (order.payment_method === 'card' ? 'Карта' : 'QR-код')}</p>
+                                <p>Оплата: ${order.payment_method}</p>
                                 <hr>
                                 <p>Спасибо за заказ!</p>
-                                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
                                     <button class="btn btn-primary btn-sm" id="print-btn">Распечатать чек</button>
                                     <button class="btn btn-success btn-sm" id="pdf-btn">Скачать PDF</button>
                                     <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
@@ -235,22 +225,14 @@
             document.getElementById('print-btn').addEventListener('click', () => {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <html><head><title>Чек АИС Общепит</title>
-                    <style>body { font-family: monospace; text-align: center; padding: 20px; }</style>
-                    </head><body>${printContent.innerHTML}</body></html>
-                `);
+                printWindow.document.write(`<html><head><title>Чек АИС Общепит</title><style>body{font-family: monospace; text-align: center; padding: 20px;}</style></head><body>${printContent.innerHTML}</body></html>`);
                 printWindow.document.close();
                 printWindow.print();
             });
             document.getElementById('pdf-btn').addEventListener('click', () => {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <html><head><title>Чек АИС Общепит</title>
-                    <style>body { font-family: monospace; text-align: center; padding: 20px; }</style>
-                    </head><body>${printContent.innerHTML}</body></html>
-                `);
+                printWindow.document.write(`<html><head><title>Чек АИС Общепит</title><style>body{font-family: monospace; text-align: center; padding: 20px;}</style></head><body>${printContent.innerHTML}</body></html>`);
                 printWindow.document.close();
                 printWindow.print();
             });
