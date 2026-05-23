@@ -47,6 +47,10 @@ class TableAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'table', 'waiter', 'created_at', 'status', 'total_amount']
     list_filter = ['status', 'created_at']
+    search_fields = ['id', 'table__number']
+    date_hierarchy = 'created_at'
+    fields = ['table', 'waiter', 'status', 'total_amount', 'payment_method', 'guest_count', 'comment', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at']
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
