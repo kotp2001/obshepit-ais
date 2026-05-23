@@ -186,7 +186,6 @@
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
             
-            // При закрытии модального окна обновляем таблицы
             modal._element.addEventListener('hidden.bs.modal', function() {
                 loadTables();
             });
@@ -198,7 +197,7 @@
         const paymentMethod = document.getElementById('payment-method').value;
         await fetch('/api/orders/pay/', {
             method: 'POST',
-            headers: {'Content-Type':application/json'},
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({order_id: orderId, payment_method: paymentMethod})
         });
         const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
@@ -277,7 +276,6 @@
             const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
             modal.show();
             
-            // При закрытии модального окна обновляем таблицы
             modal._element.addEventListener('hidden.bs.modal', function() {
                 loadTables();
             });
@@ -446,11 +444,20 @@
         }
         const items = currentCart.map(item => ({dish_id: item.id, quantity: item.quantity}));
         const guestCount = document.getElementById('guest-count').value;
+        
+        const now = new Date();
+        const localTime = now.toISOString();
+        
         try {
             const response = await fetch('/api/orders/create/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({table_id: currentTableId, items: items, guest_count: guestCount})
+                body: JSON.stringify({
+                    table_id: currentTableId, 
+                    items: items, 
+                    guest_count: guestCount,
+                    client_time: localTime
+                })
             });
             const data = await response.json();
             if (data.success) {
@@ -466,12 +473,10 @@
         }
     }
     
-    // Кнопка обновления
     document.getElementById('refresh-tables').addEventListener('click', function() {
         loadTables();
     });
     
-    // Автообновление каждые 10 секунд
     loadTables();
     if (ordersRefreshInterval) clearInterval(ordersRefreshInterval);
     ordersRefreshInterval = setInterval(loadTables, 10000);
