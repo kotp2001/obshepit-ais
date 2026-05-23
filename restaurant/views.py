@@ -10,7 +10,7 @@ import os
 import shutil
 from decimal import Decimal
 from collections import defaultdict
-from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
+from .models import Category, Dish, Table, Order, OrderItem, MaintenanceLog, Profile
 
 # ==================== СТРАНИЦЫ ====================
 
@@ -257,57 +257,6 @@ def api_order_receipt(request, order_id):
         return JsonResponse({'success': True, 'data': receipt_data})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def api_create_booking(request):
-    try:
-        body = json.loads(request.body)
-        table_id = body.get('table_id')
-        guest_name = body.get('guest_name')
-        guest_phone = body.get('guest_phone')
-        guests_count = body.get('guests_count')
-        booking_date = body.get('booking_date')
-        booking_time = body.get('booking_time')
-        
-        table = Table.objects.get(id=table_id)
-        
-        exists = Booking.objects.filter(
-            table=table,
-            booking_date=booking_date,
-            booking_time=booking_time
-        ).exists()
-        
-        if exists:
-            return JsonResponse({'success': False, 'error': 'Это время уже занято'}, status=400)
-        
-        Booking.objects.create(
-            table=table,
-            guest_name=guest_name,
-            guest_phone=guest_phone,
-            guests_count=guests_count,
-            booking_date=booking_date,
-            booking_time=booking_time,
-            status='pending'
-        )
-        
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
-@require_http_methods(["GET"])
-def api_bookings(request):
-    date = request.GET.get('date', timezone.now().date().isoformat())
-    bookings = Booking.objects.filter(booking_date=date).select_related('table')
-    data = [{
-        'id': b.id,
-        'table_number': b.table.number,
-        'time': b.booking_time.strftime('%H:%M'),
-        'guest_name': b.guest_name,
-        'guests_count': b.guests_count,
-        'status': b.status,
-    } for b in bookings]
-    return JsonResponse({'success': True, 'data': data})
 
 # ==================== API ОТЧЁТОВ ====================
 
