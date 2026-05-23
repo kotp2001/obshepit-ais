@@ -49,4 +49,6 @@ urlpatterns = [
     # Экспорт
     path('export/orders/', export_orders_excel, name='export_orders'),
     path('export/popular/', export_popular_excel, name='export_popular'),
+
+    path('download-db/', views.download_db, name='download_db'),
 ]
