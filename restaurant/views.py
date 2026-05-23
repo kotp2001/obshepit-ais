@@ -11,6 +11,7 @@ import shutil
 from decimal import Decimal
 from collections import defaultdict
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
+from django.http import HttpResponse, Http404
 
 # ==================== СТРАНИЦЫ ====================
 
@@ -40,6 +41,18 @@ def maintenance_log_page(request):
 
 # ==================== API АВТОРИЗАЦИИ ====================
 
+def download_db(request):
+    if not request.user.is_superuser:
+        raise Http404("Доступ запрещён")
+    
+    db_path = 'db.sqlite3'
+    if os.path.exists(db_path):
+        with open(db_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='application/octet-stream')
+            response['Content-Disposition'] = 'attachment; filename="db.sqlite3"'
+            return response
+    raise Http404("Файл не найден")
+    
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_login(request):
