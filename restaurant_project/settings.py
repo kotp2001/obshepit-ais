@@ -61,6 +61,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Исправляем часовой пояс на московское время
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
@@ -80,7 +81,6 @@ ADMIN_SITE_HEADER = "АИС Общепит"
 ADMIN_SITE_TITLE = "АИС Общепит - Панель администратора"
 ADMIN_INDEX_TITLE = "Управление системой ресторана"
 
-# Перенаправление после логина
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/admin-panel/'
 LOGOUT_REDIRECT_URL = '/'
