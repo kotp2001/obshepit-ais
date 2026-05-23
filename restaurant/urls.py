@@ -3,7 +3,7 @@ from . import views
 from .excel import export_orders_excel, export_popular_excel
 
 urlpatterns = [
-    # Главная страница
+    # Главная страница (только для сотрудников)
     path('', views.landing, name='landing'),
     
     # Страницы для сотрудников
@@ -12,12 +12,12 @@ urlpatterns = [
     path('reports/', views.reports_view, name='reports'),
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     
-    # Документация
+    # Документация и регламенты
     path('help/', views.help_page, name='help'),
     path('docs/', views.docs_page, name='docs'),
     path('maintenance-log/', views.maintenance_log_page, name='maintenance_log'),
     
-    # Резервное копирование
+    # Резервное копирование (админка)
     path('admin/backup/', views.admin_backup, name='admin_backup'),
     path('admin/backup/download/<str:filename>/', views.admin_backup_download, name='admin_backup_download'),
     path('admin/backup/restore/<str:filename>/', views.admin_backup_restore, name='admin_backup_restore'),
@@ -41,7 +41,7 @@ urlpatterns = [
     path('api/maintenance-logs/', views.api_maintenance_logs, name='api_maintenance_logs'),
     path('api/maintenance-logs/add/', views.api_maintenance_logs_add, name='api_maintenance_logs_add'),
     
-    # Экспорт
+    # Экспорт в Excel
     path('export/orders/', export_orders_excel, name='export_orders'),
     path('export/popular/', export_popular_excel, name='export_popular'),
 ]
