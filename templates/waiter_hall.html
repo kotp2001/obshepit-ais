@@ -25,21 +25,24 @@
 <script>
     let currentTableId = null;
     let currentCart = [];
+    let currentOrderIdForPayment = null;
     let ordersRefreshInterval = null;
-    
-    // Загрузка столов
+
+    function getCurrentFormattedTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
     async function loadTables() {
         try {
             const response = await fetch('/api/tables/');
             const data = await response.json();
-            
             if (data.success && data.data) {
                 let html = '<div class="row">';
                 for (const table of data.data) {
-                    let bgColor = '';
-                    let statusText = '';
-                    let clickable = table.status === 'free';
-                    
+                    let bgColor = '', statusText = '', clickable = table.status === 'free';
                     if (table.status === 'free') {
                         bgColor = 'rgba(40,90,40,0.7)';
                         statusText = 'Свободен';
@@ -50,7 +53,6 @@
                         bgColor = 'rgba(140,100,30,0.7)';
                         statusText = 'Забронирован';
                     }
-                    
                     html += `
                         <div class="col-md-3 mb-3">
                             <div class="card text-center table-card" 
@@ -70,13 +72,12 @@
                 }
                 html += '</div>';
                 document.getElementById('hall-container').innerHTML = html;
-                
                 document.querySelectorAll('.table-card').forEach(card => {
                     const status = card.getAttribute('data-table-status');
                     if (status === 'free') {
-                        card.addEventListener('click', function(e) {
-                            const tableId = parseInt(this.getAttribute('data-table-id'));
-                            const tableNumber = parseInt(this.getAttribute('data-table-number'));
+                        card.addEventListener('click', (e) => {
+                            const tableId = parseInt(card.getAttribute('data-table-id'));
+                            const tableNumber = parseInt(card.getAttribute('data-table-number'));
                             openOrderModal(tableId, tableNumber);
                         });
                     }
@@ -84,12 +85,10 @@
             }
             await loadReadyOrders();
         } catch (error) {
-            console.error('Error loading tables:', error);
             document.getElementById('hall-container').innerHTML = '<p class="text-center text-danger">Ошибка загрузки столов</p>';
         }
     }
-    
-    // Загрузка готовых заказов
+
     async function loadReadyOrders() {
         try {
             const response = await fetch('/api/orders/active/');
@@ -115,11 +114,10 @@
                     `;
                 }
                 document.getElementById('ready-orders-list').innerHTML = html;
-                
                 document.querySelectorAll('.ready-order-card').forEach(card => {
-                    card.addEventListener('click', function(e) {
-                        const orderId = parseInt(this.getAttribute('data-order-id'));
-                        takeOrder(orderId);
+                    card.addEventListener('click', (e) => {
+                        const orderId = parseInt(card.getAttribute('data-order-id'));
+                        showPaymentModal(orderId);
                     });
                 });
             }
@@ -127,24 +125,9 @@
             console.error('Error loading ready orders:', error);
         }
     }
-    
-    // Забрать заказ
-    async function takeOrder(orderId) {
-        try {
-            await fetch('/api/orders/take/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({order_id: orderId})
-            });
-            showPaymentModal(orderId);
-            await loadTables();
-        } catch (error) {
-            alert('Ошибка: ' + error);
-        }
-    }
-    
-    // Показать окно оплаты
+
     async function showPaymentModal(orderId) {
+        currentOrderIdForPayment = orderId;
         const receiptResponse = await fetch(`/api/orders/receipt/${orderId}/`);
         const receiptData = await receiptResponse.json();
         if (receiptData.success) {
@@ -178,34 +161,35 @@
             const oldModal = document.getElementById('paymentModal');
             if (oldModal) oldModal.remove();
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-            
-            document.getElementById('confirm-payment-btn').addEventListener('click', function() {
-                confirmPayment(orderId);
-            });
-            
+            document.getElementById('confirm-payment-btn').addEventListener('click', () => confirmPayment(orderId));
             const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
             modal.show();
-            
-            modal._element.addEventListener('hidden.bs.modal', function() {
-                loadTables();
+            modal._element.addEventListener('hidden.bs.modal', () => {
+                // при закрытии окна оплаты без оплаты заказ остаётся в готовых, ничего не меняем
+                loadReadyOrders();
             });
         }
     }
-    
-    // Подтверждение оплаты
+
     async function confirmPayment(orderId) {
         const paymentMethod = document.getElementById('payment-method').value;
-        await fetch('/api/orders/pay/', {
+        const response = await fetch('/api/orders/pay/', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({order_id: orderId, payment_method: paymentMethod})
         });
-        const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-        if (modal) modal.hide();
-        showReceipt(orderId);
+        const data = await response.json();
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            if (modal) modal.hide();
+            await showReceipt(orderId);
+            await loadTables();
+            await loadReadyOrders();
+        } else {
+            alert('Ошибка оплаты');
+        }
     }
-    
-    // Показать чек
+
     async function showReceipt(orderId) {
         const response = await fetch(`/api/orders/receipt/${orderId}/`);
         const data = await response.json();
@@ -248,8 +232,7 @@
             const oldReceipt = document.getElementById('receiptModal');
             if (oldReceipt) oldReceipt.remove();
             document.body.insertAdjacentHTML('beforeend', receiptHtml);
-            
-            document.getElementById('print-btn').addEventListener('click', function() {
+            document.getElementById('print-btn').addEventListener('click', () => {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -260,8 +243,7 @@
                 printWindow.document.close();
                 printWindow.print();
             });
-            
-            document.getElementById('pdf-btn').addEventListener('click', function() {
+            document.getElementById('pdf-btn').addEventListener('click', () => {
                 const printContent = document.getElementById('receiptContent').cloneNode(true);
                 const printWindow = window.open('', '_blank');
                 printWindow.document.write(`
@@ -272,21 +254,18 @@
                 printWindow.document.close();
                 printWindow.print();
             });
-            
             const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
             modal.show();
-            
-            modal._element.addEventListener('hidden.bs.modal', function() {
+            modal._element.addEventListener('hidden.bs.modal', () => {
                 loadTables();
+                loadReadyOrders();
             });
         }
     }
-    
-    // Открыть окно создания заказа
+
     function openOrderModal(tableId, tableNumber) {
         currentTableId = tableId;
         currentCart = [];
-        
         const modalHtml = `
             <div class="modal fade" id="orderModal" tabindex="-1">
                 <div class="modal-dialog modal-xl">
@@ -326,22 +305,15 @@
                 </div>
             </div>
         `;
-        
         const oldModal = document.getElementById('orderModal');
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
         loadMenuIntoModal();
-        
-        document.getElementById('submit-order-btn').addEventListener('click', function() {
-            submitOrder();
-        });
-        
+        document.getElementById('submit-order-btn').addEventListener('click', () => submitOrder());
         const modal = new bootstrap.Modal(document.getElementById('orderModal'));
         modal.show();
     }
-    
-    // Загрузка меню
+
     async function loadMenuIntoModal() {
         try {
             const response = await fetch('/api/dishes/');
@@ -374,37 +346,30 @@
                     html += '</div>';
                 }
                 document.getElementById('menu-list').innerHTML = html;
-                
                 document.querySelectorAll('.add-to-cart').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
+                    btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const id = parseInt(this.dataset.id);
-                        const name = this.dataset.name;
-                        const price = parseInt(this.dataset.price);
+                        const id = parseInt(btn.dataset.id);
+                        const name = btn.dataset.name;
+                        const price = parseInt(btn.dataset.price);
                         addToCart(id, name, price);
-                        this.innerHTML = '✓';
-                        setTimeout(() => { this.innerHTML = '+'; }, 500);
+                        btn.innerHTML = '✓';
+                        setTimeout(() => { btn.innerHTML = '+'; }, 500);
                     });
                 });
             }
         } catch (error) {
-            console.error('Error loading menu:', error);
             document.getElementById('menu-list').innerHTML = '<p class="text-center text-danger">Ошибка загрузки меню</p>';
         }
     }
-    
-    // Добавление в корзину
+
     function addToCart(id, name, price) {
         const existing = currentCart.find(item => item.id === id);
-        if (existing) {
-            existing.quantity++;
-        } else {
-            currentCart.push({id, name, price, quantity: 1});
-        }
+        if (existing) existing.quantity++;
+        else currentCart.push({id, name, price, quantity: 1});
         updateCartDisplay();
     }
-    
-    // Обновление корзины
+
     function updateCartDisplay() {
         let total = 0;
         let html = '';
@@ -422,21 +387,19 @@
                 `;
             });
         }
-        const cartItemsDiv = document.getElementById('cart-items');
+        const cartDiv = document.getElementById('cart-items');
         const totalSpan = document.getElementById('total');
-        if (cartItemsDiv) cartItemsDiv.innerHTML = html;
+        if (cartDiv) cartDiv.innerHTML = html;
         if (totalSpan) totalSpan.innerHTML = total + ' ₽';
-        
         document.querySelectorAll('.remove-item').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const index = parseInt(this.dataset.index);
-                currentCart.splice(index, 1);
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.index);
+                currentCart.splice(idx, 1);
                 updateCartDisplay();
             });
         });
     }
-    
-    // Оформление заказа
+
     async function submitOrder() {
         if (currentCart.length === 0) {
             alert('Добавьте блюда в заказ');
@@ -444,41 +407,43 @@
         }
         const items = currentCart.map(item => ({dish_id: item.id, quantity: item.quantity}));
         const guestCount = document.getElementById('guest-count').value;
-        
         const now = new Date();
         const localTime = now.toISOString();
-        
         try {
             const response = await fetch('/api/orders/create/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    table_id: currentTableId, 
-                    items: items, 
+                    table_id: currentTableId,
+                    items: items,
                     guest_count: guestCount,
                     client_time: localTime
                 })
             });
             const data = await response.json();
             if (data.success) {
-                alert('Заказ номер ' + data.order_id + ' создан! Сумма: ' + data.total + ' ₽');
+                alert(`Заказ номер ${data.order_id} создан! Сумма: ${data.total} ₽`);
                 const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
                 if (modal) modal.hide();
                 loadTables();
+                loadReadyOrders();
             } else {
                 alert('Ошибка: ' + data.error);
             }
         } catch (error) {
-            alert('Ошибка соединения: ' + error);
+            alert('Ошибка соединения');
         }
     }
-    
-    document.getElementById('refresh-tables').addEventListener('click', function() {
+
+    document.getElementById('refresh-tables').addEventListener('click', () => {
         loadTables();
+        loadReadyOrders();
     });
-    
     loadTables();
     if (ordersRefreshInterval) clearInterval(ordersRefreshInterval);
-    ordersRefreshInterval = setInterval(loadTables, 10000);
+    ordersRefreshInterval = setInterval(() => {
+        loadTables();
+        loadReadyOrders();
+    }, 10000);
 </script>
 {% endblock %}
