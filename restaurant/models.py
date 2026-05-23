@@ -110,33 +110,6 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.dish.name} x{self.quantity}'
 
-class Booking(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Ожидает'),
-        ('confirmed', 'Подтверждена'),
-        ('cancelled', 'Отменена'),
-        ('completed', 'Завершена'),
-    ]
-    
-    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='bookings', verbose_name='Стол')
-    guest_name = models.CharField(max_length=100, verbose_name='Имя гостя')
-    guest_phone = models.CharField(max_length=20, verbose_name='Телефон')
-    guest_email = models.CharField(max_length=100, blank=True, verbose_name='Email')
-    guests_count = models.IntegerField(default=2, verbose_name='Количество гостей')
-    booking_date = models.DateField(verbose_name='Дата брони')
-    booking_time = models.TimeField(verbose_name='Время брони')
-    comment = models.TextField(blank=True, verbose_name='Комментарий')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='Статус')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создана')
-    
-    class Meta:
-        verbose_name = 'Бронь'
-        verbose_name_plural = 'Брони'
-        ordering = ['booking_date', 'booking_time']
-    
-    def __str__(self):
-        return f'Бронь: {self.guest_name} - Стол {self.table.number}'
-
 class MaintenanceLog(models.Model):
     date = models.DateField(verbose_name='Дата')
     work_performed = models.TextField(verbose_name='Проведенная работа')
