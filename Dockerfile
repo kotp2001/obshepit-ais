@@ -15,17 +15,17 @@ COPY . .
 # Создаём папку для бэкапов
 RUN mkdir -p backups
 
-# Выполняем миграции
-RUN python manage.py makemigrations restaurant
-RUN python manage.py migrate
+# Выполняем миграции (без интерактивного ввода)
+RUN python manage.py makemigrations restaurant --noinput
+RUN python manage.py migrate --noinput
 
-# Создаём суперпользователя и заполняем данные
+# Создаём суперпользователя и заполняем начальные данные (если не существуют)
 RUN python create_migrations.py
 
-# Создаём пользователей с ролями
+# Создаём пользователей с ролями (админ, официант, повар)
 RUN python manage.py create_users
 
-# Создаём резервную копию при сборке
+# Создаём начальную резервную копию
 RUN python backup.py
 
 EXPOSE 8000
