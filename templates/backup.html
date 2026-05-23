@@ -4,16 +4,16 @@
 <div style="padding: 20px;">
     <h1 style="color: #ffd700;">Резервное копирование базы данных</h1>
     
-    <div style="background: rgba(30,30,70,0.4); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,215,0,0.2);">
+    <div style="background: rgba(30,30,70,0.4); border-radius: 15px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,215,0,0.2);">
         <h2 style="color: #ffd700;">Создать резервную копию</h2>
-        <p style="color: white;">Нажмите кнопку ниже, чтобы создать резервную копию базы данных SQLite.</p>
-        <form method="post" action="/admin/backup/">
+        <p style="color: white;">Нажмите кнопку ниже, чтобы создать резервную копию базы данных.</p>
+        <form method="post">
             {% csrf_token %}
             <button type="submit" class="button" style="background: #ffd700; color: #1a1a4a; border-radius: 20px; padding: 8px 20px;">Создать резервную копию</button>
         </form>
     </div>
     
-    <div style="background: rgba(30,30,70,0.4); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,215,0,0.2);">
+    <div style="background: rgba(30,30,70,0.4); border-radius: 15px; padding: 20px; margin-top: 20px; border: 1px solid rgba(255,215,0,0.2);">
         <h2 style="color: #ffd700;">Список резервных копий</h2>
         <div class="table-responsive">
             <table style="width: 100%; color: white; border-collapse: collapse;">
@@ -54,6 +54,7 @@
     }
     .button {
         transition: all 0.1s ease;
+        cursor: pointer;
     }
     .button:hover {
         transform: translateY(-1px);
