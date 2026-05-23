@@ -109,7 +109,12 @@ def api_create_order(request):
         guest_count = body.get('guest_count', 1)
         
         table = Table.objects.get(id=table_id)
-        order = Order.objects.create(table=table, status='new', guest_count=guest_count)
+        order = Order.objects.create(
+            table=table, 
+            status='new', 
+            guest_count=guest_count,
+            created_at=timezone.now()
+        )
         
         total = Decimal('0')
         for item in items:
@@ -128,7 +133,7 @@ def api_create_order(request):
         table.status = 'occupied'
         table.save()
         
-        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total)})
+        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total), 'created_at': order.created_at.isoformat()})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -317,7 +322,6 @@ def api_reports(request):
     else:
         start_date = today - timedelta(days=7)
     
-    # Получаем оплаченные заказы
     orders = Order.objects.filter(
         status='paid',
         created_at__date__gte=start_date
@@ -327,7 +331,6 @@ def api_reports(request):
     total_orders = orders.count()
     avg_check = total_revenue / total_orders if total_orders > 0 else 0
     
-    # Популярные блюда (с ценой)
     dish_data = {}
     for order in orders:
         for item in order.items.all():
@@ -342,7 +345,6 @@ def api_reports(request):
         for name, data in sorted(dish_data.items(), key=lambda x: -x[1]['count'])
     ][:5]
     
-    # Данные по дням
     daily_data = []
     for i in range(7):
         day = start_date + timedelta(days=i)
@@ -411,7 +413,6 @@ def admin_backup(request):
             backup_path = os.path.join(backup_dir, f'db_backup_{timestamp}.sqlite3')
             shutil.copy2(db_path, backup_path)
             
-            # Удаляем старые копии (старше 30 дней)
             for file in os.listdir(backup_dir):
                 file_path = os.path.join(backup_dir, file)
                 if os.path.getctime(file_path) < (datetime.now().timestamp() - 30 * 24 * 3600):
