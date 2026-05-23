@@ -45,7 +45,7 @@
                                         <h5 class="mb-0" style="color: #ffd700;">Заказ номер ${order.id}</h5>
                                         <span class="badge bg-light text-dark">Стол ${order.table_number}</span>
                                     </div>
-                                    <small>Создан: ${order.created_at}</small>
+                                    <small style="color: white;">Создан: ${order.created_at}</small>
                                 </div>
                                 <div class="card-body">
                                     <ul class="list-group list-group-flush" style="background: transparent;">
@@ -84,7 +84,6 @@
                         `;
                     }
                     
-                    // Кнопка "Заказ готов" если все блюда готовы
                     const allReady = order.items.every(item => item.status === 'ready');
                     let readyButton = '';
                     if (allReady && order.status !== 'ready') {
