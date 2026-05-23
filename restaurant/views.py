@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from datetime import datetime, timedelta
 import json
 import os
@@ -107,11 +108,14 @@ def api_create_order(request):
         table_id = body.get('table_id')
         items = body.get('items', [])
         guest_count = body.get('guest_count', 1)
+        client_time = body.get('client_time')
         
         table = Table.objects.get(id=table_id)
         
-        # Используем timezone.now() который автоматически использует настройки TIME_ZONE
-        current_time = timezone.now()
+        if client_time:
+            current_time = parse_datetime(client_time)
+        else:
+            current_time = datetime.now()
         
         order = Order.objects.create(
             table=table,
@@ -138,7 +142,7 @@ def api_create_order(request):
         table.status = 'occupied'
         table.save()
         
-        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total), 'created_at': order.created_at.isoformat()})
+        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total)})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -194,7 +198,7 @@ def api_mark_order_ready(request):
         order_id = body.get('order_id')
         order = Order.objects.get(id=order_id)
         order.status = 'ready'
-        order.ready_at = timezone.now()
+        order.ready_at = datetime.now()
         order.save()
         return JsonResponse({'success': True})
     except Exception as e:
@@ -265,7 +269,7 @@ def api_order_receipt(request, order_id):
 def api_reports(request):
     period = request.GET.get('period', 'week')
     
-    today = timezone.now().date()
+    today = datetime.now().date()
     
     if period == 'day':
         start_date = today
