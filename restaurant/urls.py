@@ -1,8 +1,15 @@
 from django.urls import path
 from . import views
 from .excel import export_orders_excel, export_popular_excel
-
+from .backup_views import backup_list, backup_download, backup_restore, backup_delete
 urlpatterns = [
+
+     # Резервное копирование
+    path('backup-list/', backup_list, name='backup_list'),
+    path('backup-list/download/<str:filename>/', backup_download, name='backup_download'),
+    path('backup-list/restore/<str:filename>/', backup_restore, name='backup_restore'),
+    path('backup-list/delete/<str:filename>/', backup_delete, name='backup_delete'),
+    
     # Главная страница
     path('', views.landing, name='landing'),
     
