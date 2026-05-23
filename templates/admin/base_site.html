@@ -8,320 +8,111 @@
     body {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
     }
-    
-    /* Скрываем "Skip to main content" */
-    .skip-to-content-link,
-    .skip-link,
-    a[href="#content"],
-    .skip-to-content {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        width: 0 !important;
-        overflow: hidden !important;
-        position: absolute !important;
-    }
-    
     #container {
         background: transparent;
         margin: 20px;
         color: white;
-        flex: 1;
     }
-    
     #header {
         background: linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 100%);
         border-bottom: 3px solid #ffd700;
         border-radius: 15px 15px 0 0;
         padding: 15px 20px;
         position: relative;
-        min-height: 70px;
     }
-    
     #branding h1 {
         color: #ffd700;
         font-weight: 600;
         font-size: 24px;
         margin: 0;
-        line-height: 1.3;
     }
-    
     #branding h1 a {
         color: #ffd700;
         text-decoration: none;
     }
-    
-    #branding h1 a:hover {
-        color: #e6c200;
-    }
-    
     #user-tools {
         color: #ffd700;
-        font-size: 13px;
         position: absolute;
-        top: 50%;
+        top: 15px;
         right: 20px;
-        transform: translateY(-50%);
-        background: rgba(0,0,0,0.3);
-        padding: 5px 12px;
-        border-radius: 20px;
-        white-space: nowrap;
     }
-    
-    #user-tools a {
-        color: #ffd700;
-        margin: 0 3px;
-    }
-    
-    #user-tools a:hover {
-        color: #e6c200;
-    }
-    
-    /* Скрываем Toggle theme */
-    .theme-toggle {
-        display: none !important;
-    }
-    
-    /* Кнопка главное меню в ряду с остальными */
     .main-menu-btn {
-        display: inline-block;
+        position: absolute;
+        top: 15px;
+        right: 200px;
         background: #ffd700;
         color: #1a1a4a;
-        padding: 5px 15px;
+        padding: 6px 15px;
         border-radius: 20px;
         text-decoration: none;
         font-weight: bold;
         font-size: 13px;
-        transition: all 0.1s ease;
-        margin-right: 10px;
     }
-    
-    .main-menu-btn:hover {
-        background: #e6c200;
-        transform: translateY(-1px);
-        color: #1a1a4a;
-        text-decoration: none;
-    }
-    
-    /* Скрываем дублирующую кнопку выхода */
-    .logout-link,
-    #logout-form,
-    .submit-logout {
-        display: none !important;
-    }
-    
     #nav-sidebar {
         float: left;
         width: 280px;
         margin-right: 20px;
         background: rgba(20,20,50,0.7);
-        backdrop-filter: blur(10px);
         border-radius: 15px;
         padding: 15px;
-        border: 1px solid rgba(255,215,0,0.2);
     }
-    
-    #nav-sidebar .module {
-        background: transparent;
-    }
-    
     #nav-sidebar .module h2 {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
         border-radius: 10px;
         padding: 10px 15px;
-        margin-bottom: 10px;
-        font-size: 14px;
-        border: 1px solid rgba(255,215,0,0.2);
     }
-    
-    #nav-sidebar .module ul {
-        margin: 0;
-        padding: 0;
-    }
-    
     #nav-sidebar .module li {
-        list-style: none;
-        margin-bottom: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
         background: rgba(40,40,90,0.4);
         border-radius: 10px;
-        padding: 8px 12px;
+        padding: 5px 10px;
+        margin-bottom: 8px;
     }
-    
     #nav-sidebar .module li a {
-        display: inline-block;
-        padding: 5px 8px;
-        background: transparent;
-        border-radius: 8px;
-        color: white !important;
-        text-decoration: none;
-        transition: all 0.1s ease;
+        color: white;
         flex: 1;
-        font-weight: 500;
     }
-    
-    #nav-sidebar .module li a:hover {
-        background: rgba(255,215,0,0.2);
-        color: #ffd700 !important;
-    }
-    
-    /* Зеленые кнопки "Добавить" - ровно друг под другом */
     #nav-sidebar .module li .addlink {
-        display: inline-block;
         background: #28a745;
         color: white;
         padding: 5px 12px;
         border-radius: 15px;
         font-size: 11px;
-        text-decoration: none;
-        white-space: nowrap;
-        min-width: 60px;
-        text-align: center;
     }
-    
-    #nav-sidebar .module li .addlink:hover {
-        background: #218838;
-        transform: scale(1.02);
-        color: white;
-    }
-    
-    /* Убираем иконки (картинки) везде */
-    img {
-        display: none !important;
-    }
-    
-    .icon,
-    .icon-img,
-    .addlink img,
-    .changelink img,
-    .deletelink img,
-    .object-tools img,
-    [class*="icon"] img {
-        display: none !important;
-    }
-    
-    /* Заменяем иконки текстом */
-    .addlink:before {
-        content: none !important;
-    }
-    
-    .deletelink:before {
-        content: none !important;
-    }
-    
     #content {
         margin-left: 300px;
-        padding: 0;
-        background: transparent;
-        min-height: 500px;
-    }
-    
-    #content-main {
-        color: white;
+        padding: 20px;
         background: transparent;
     }
-    
-    /* Кнопка "Добавить пользователь" */
-    .object-tools {
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: flex-end;
-    }
-    
-    .object-tools a.addlink,
-    .addlink {
-        background: #28a745 !important;
-        color: white !important;
-        padding: 8px 20px !important;
-        border-radius: 25px !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-        display: inline-block !important;
-        transition: all 0.1s ease !important;
-        border: none !important;
-    }
-    
-    .object-tools a.addlink:hover,
-    .addlink:hover {
-        background: #218838 !important;
-        transform: translateY(-1px) !important;
-    }
-    
-    .object-tools a.addlink:active,
-    .addlink:active {
-        transform: translateY(1px) !important;
-    }
-    
-    /* Таблица - убираем белые рамки */
     .results {
         background: rgba(30,30,70,0.3) !important;
-        border-radius: 15px;
-        border: none !important;
+        border-radius: 10px;
         overflow: hidden;
-        margin-top: 15px;
-        box-shadow: none;
     }
-    
     .results th {
         background: rgba(26,26,74,0.9);
         color: #ffd700;
-        padding: 12px 15px;
-        font-weight: 600;
-        border: none;
     }
-    
     .results td {
         background: rgba(40,40,90,0.4);
         color: white;
-        padding: 10px 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        border: none;
     }
-    
-    .results tr:hover td {
-        background: rgba(60,60,110,0.6);
-    }
-    
-    /* Скрываем иконки True/False */
-    .boolean-true,
-    .boolean-false,
-    .boolean-icon {
-        display: none !important;
-    }
-    
-    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+    .button, input[type=submit], .submit-row input {
         background: #ffd700;
         color: #1a1a4a;
-        border: none;
         border-radius: 20px;
-        font-weight: 600;
         padding: 8px 20px;
+        border: none;
         cursor: pointer;
-        transition: all 0.1s ease;
     }
-    
-    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+    .button:hover, input[type=submit]:hover {
         background: #e6c200;
         transform: translateY(-1px);
     }
-    
-    .default {
-        background: #1a1a4a;
-        color: white;
-    }
-    
-    .default:hover {
-        background: #2a2a5a;
-    }
-    
     input, textarea, select {
         background: rgba(50,50,100,0.8);
         border: 1px solid rgba(255,255,255,0.2);
@@ -329,145 +120,31 @@
         border-radius: 10px;
         padding: 8px 12px;
     }
-    
-    input:focus, textarea:focus, select:focus {
-        border-color: #ffd700;
-        outline: none;
-        box-shadow: 0 0 5px rgba(255,215,0,0.3);
-    }
-    
-    label {
-        color: #ffd700;
-    }
-    
     div.breadcrumbs {
         background: rgba(26,26,74,0.8);
         color: #ffd700;
-        padding: 10px 15px;
         border-radius: 10px;
         margin-bottom: 20px;
-        border: 1px solid rgba(255,215,0,0.2);
     }
-    
-    div.breadcrumbs a {
-        color: #ffd700;
-    }
-    
-    .paginator {
-        background: rgba(40,40,90,0.6);
-        color: white;
-        border-radius: 10px;
-        padding: 10px;
-        margin-top: 15px;
-    }
-    
-    .paginator a {
-        color: #ffd700;
-    }
-    
-    .messagelist li {
-        border-radius: 10px;
-        padding: 10px;
-    }
-    
-    .success {
-        background: rgba(40,167,69,0.2);
-        border: 1px solid #28a745;
-        color: #28a745;
-    }
-    
-    .error {
-        background: rgba(220,53,69,0.2);
-        border: 1px solid #dc3545;
-        color: #dc3545;
-    }
-    
     #footer {
         background: rgba(10,10,42,0.9);
         color: #ffd700;
         text-align: center;
         padding: 15px;
         margin-top: 20px;
-        border-top: 1px solid rgba(255,215,0,0.3);
         border-radius: 15px;
     }
-    
-    #searchbar {
-        background: rgba(50,50,100,0.8);
-        border: 1px solid #ffd700;
-        border-radius: 20px;
-        padding: 8px 15px;
-        color: white;
-        width: 250px;
+    /* Убираем белые фоны */
+    .module, .results, #changelist, #changelist-form {
+        background: transparent !important;
     }
-    
-    #changelist-filter {
-        background: rgba(20,20,50,0.7);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 15px;
-        border: 1px solid rgba(255,215,0,0.2);
+    .results tbody tr:hover td {
+        background: rgba(60,60,110,0.6);
     }
-    
-    #changelist-filter h2, #changelist-filter h3 {
-        color: #ffd700;
-    }
-    
-    #changelist-filter a {
-        color: white;
-    }
-    
-    #changelist-filter a:hover {
-        color: #ffd700;
-    }
-    
-    .aligned label {
-        color: #ffd700;
-    }
-    
-    .submit-row {
-        background: transparent;
-        border: none;
-    }
-    
-    .submit-row input {
+    .object-tools a {
         background: #ffd700;
         color: #1a1a4a;
-    }
-    
-    .submit-row input:hover {
-        background: #e6c200;
-    }
-    
-    /* Убираем белые рамки у форм */
-    .module.aligned {
-        background: transparent;
-        border: none;
-    }
-    
-    .form-row {
-        background: rgba(40,40,90,0.4);
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-    
-    .form-row label {
-        color: #ffd700;
-    }
-    
-    /* Делаем текст в левом меню белым и приятным */
-    #nav-sidebar a,
-    #nav-sidebar .module li a {
-        color: #ffffff !important;
-        font-size: 13px;
-        letter-spacing: 0.3px;
-    }
-    
-    #nav-sidebar .module h2 {
-        color: #ffd700;
-        font-size: 14px;
-        font-weight: 600;
+        border-radius: 20px;
     }
 </style>
 {% endblock %}
@@ -480,17 +157,15 @@
 {% endblock %}
 
 {% block nav-global %}
-<a href="/admin-panel/" class="main-menu-btn">
-    <i class="fas fa-home"></i> Главное меню
-</a>
+<a href="/admin-panel/" class="main-menu-btn"> Главное меню </a>
 {% endblock %}
 
 {% block footer %}
-<div style="background: rgba(10,10,42,0.9); color: #ffd700; text-align: center; padding: 15px; margin: 20px 20px 0 20px; border-top: 1px solid rgba(255,215,0,0.3); border-radius: 15px 15px 0 0;">
-    <p class="mb-0">АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
-    <p class="mb-0 mt-1" style="font-size: 11px;">
-        <a href="/help/" style="color: #ffd700;">Руководство пользователя</a> | 
-        <a href="/docs/" style="color: #ffd700;">Регламенты</a> | 
+<div style="background: rgba(10,10,42,0.9); color: #ffd700; text-align: center; padding: 15px; margin-top: 20px; border-radius: 15px;">
+    <p>АИС "Общепит", курсовой проект, Дубровин К.С., гр. ИС-61</p>
+    <p>
+        <a href="/help/" style="color: #ffd700;">Руководство</a> |
+        <a href="/docs/" style="color: #ffd700;">Регламенты</a> |
         <a href="/maintenance-log/" style="color: #ffd700;">Журнал ТО</a> |
         <a href="https://forms.yandex.ru/u/69f11c7990fa7b3c1459172e" target="_blank" style="color: #ffd700;">Обратная связь</a>
     </p>
