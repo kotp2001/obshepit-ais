@@ -11,7 +11,6 @@ import shutil
 from decimal import Decimal
 from collections import defaultdict
 from .models import Category, Dish, Table, Order, OrderItem, Booking, MaintenanceLog, Profile
-from django.http import HttpResponse, Http404
 
 # ==================== СТРАНИЦЫ ====================
 
@@ -41,18 +40,6 @@ def maintenance_log_page(request):
 
 # ==================== API АВТОРИЗАЦИИ ====================
 
-def download_db(request):
-    if not request.user.is_superuser:
-        raise Http404("Доступ запрещён")
-    
-    db_path = 'db.sqlite3'
-    if os.path.exists(db_path):
-        with open(db_path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type='application/octet-stream')
-            response['Content-Disposition'] = 'attachment; filename="db.sqlite3"'
-            return response
-    raise Http404("Файл не найден")
-    
 @csrf_exempt
 @require_http_methods(["POST"])
 def api_login(request):
@@ -122,11 +109,15 @@ def api_create_order(request):
         guest_count = body.get('guest_count', 1)
         
         table = Table.objects.get(id=table_id)
+        
+        now = timezone.localtime(timezone.now())
+        
         order = Order.objects.create(
             table=table,
             status='new',
             guest_count=guest_count,
-            created_at=timezone.now()
+            created_at=now,
+            updated_at=now
         )
         
         total = Decimal('0')
@@ -146,7 +137,7 @@ def api_create_order(request):
         table.status = 'occupied'
         table.save()
         
-        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total)})
+        return JsonResponse({'success': True, 'order_id': order.id, 'total': float(total), 'created_at': order.created_at.isoformat()})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -324,20 +315,36 @@ def api_bookings(request):
 def api_reports(request):
     period = request.GET.get('period', 'week')
     
-    today = timezone.now().date()
+    today = timezone.localtime(timezone.now()).date()
     
     if period == 'day':
         start_date = today
+        end_date = today
     elif period == 'week':
         start_date = today - timedelta(days=7)
+        end_date = today
     elif period == 'month':
         start_date = today - timedelta(days=30)
+        end_date = today
+    elif period == 'custom':
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+        if date_from:
+            start_date = datetime.strptime(date_from, '%Y-%m-%d').date()
+        else:
+            start_date = today - timedelta(days=7)
+        if date_to:
+            end_date = datetime.strptime(date_to, '%Y-%m-%d').date()
+        else:
+            end_date = today
     else:
         start_date = today - timedelta(days=7)
+        end_date = today
     
     orders = Order.objects.filter(
         status='paid',
-        created_at__date__gte=start_date
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date
     ).order_by('created_at')
     
     total_revenue = sum(float(o.total_amount) for o in orders)
@@ -359,10 +366,9 @@ def api_reports(request):
     ][:5]
     
     daily_data = []
-    for i in range(7):
+    delta = (end_date - start_date).days
+    for i in range(delta + 1):
         day = start_date + timedelta(days=i)
-        if day > today:
-            break
         day_orders = orders.filter(created_at__date=day)
         daily_data.append({
             'date': day.strftime('%d.%m'),
