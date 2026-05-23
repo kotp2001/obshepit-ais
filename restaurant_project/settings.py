@@ -61,7 +61,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Исправляем часовой пояс на московское время
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
@@ -76,7 +75,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Кастомная админка
 ADMIN_SITE_HEADER = "АИС Общепит"
 ADMIN_SITE_TITLE = "АИС Общепит - Панель администратора"
 ADMIN_INDEX_TITLE = "Управление системой ресторана"
