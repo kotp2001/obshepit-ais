@@ -75,18 +75,12 @@
                         <div class="card-body py-2">
                             <div class="table-responsive">
                                 <table class="table table-sm table-dark" style="font-size: 12px;">
-                                    <thead>
-                                        <tr id="table-dates">
-                                            <th>Дата</th>
-                                        </table>
+                                    <thead id="table-dates">
+                                        <tr><th>Дата</th></tr>
                                     </thead>
                                     <tbody>
-                                        <tr id="table-revenue">
-                                            <td><strong>Выручка</strong></td>
-                                        </tr>
-                                        <tr id="table-orders">
-                                            <td><strong>Заказы</strong></td>
-                                        </tr>
+                                        <tr id="table-revenue"><td><strong>Выручка</strong></td></tr>
+                                        <tr id="table-orders"><td><strong>Заказы</strong></td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -103,11 +97,7 @@
                             <h6 class="mb-0">Популярные блюда за период</h6>
                         </div>
                         <div class="card-body py-2">
-                            <div id="popular-dishes">
-                                <div class="text-center py-2">
-                                    <div class="spinner-border text-primary" style="width: 25px; height: 25px;" role="status"></div>
-                                </div>
-                            </div>
+                            <div id="popular-dishes" class="text-center">Загрузка...</div>
                         </div>
                     </div>
                 </div>
@@ -117,12 +107,10 @@
 </div>
 
 <script>
-    // Показываем/скрываем поля для своего периода
     document.getElementById('period-select').addEventListener('change', function() {
         const customDiv = document.getElementById('custom-date-range');
         if (this.value === 'custom') {
             customDiv.style.display = 'flex';
-            // Устанавливаем значения по умолчанию
             const today = new Date();
             const weekAgo = new Date();
             weekAgo.setDate(today.getDate() - 7);
@@ -138,7 +126,6 @@
         let period = document.getElementById('period-select').value;
         let url = `/api/reports/?period=${period}`;
         
-        // Если выбран свой период, добавляем даты
         if (period === 'custom') {
             const dateFrom = document.getElementById('date-from').value;
             const dateTo = document.getElementById('date-to').value;
@@ -156,42 +143,37 @@
                 document.getElementById('total-orders').innerHTML = data.data.total_orders;
                 document.getElementById('avg-check').innerHTML = data.data.avg_check.toFixed(2) + ' ₽';
                 
-                // Таблица продаж по дням
-                let datesHtml = '<th>Дата</th>';
-                let revenueHtml = '<td><strong>Выручка</strong></td>';
-                let ordersHtml = '<td><strong>Заказы</strong></td>';
+                let datesHtml = '<tr><th>Дата</th>';
+                let revenueHtml = '<tr><td><strong>Выручка</strong></td>';
+                let ordersHtml = '<tr><td><strong>Заказы</strong></td>';
                 
                 for (let day of data.data.daily_data) {
                     datesHtml += `<th>${day.date}</th>`;
                     revenueHtml += `<td>${day.revenue.toFixed(2)} ₽</td>`;
                     ordersHtml += `<td>${day.orders} шт</td>`;
                 }
+                datesHtml += '</tr>';
+                revenueHtml += '</tr>';
+                ordersHtml += '</tr>';
                 
                 document.getElementById('table-dates').innerHTML = datesHtml;
                 document.getElementById('table-revenue').innerHTML = revenueHtml;
                 document.getElementById('table-orders').innerHTML = ordersHtml;
                 
-                // Популярные блюда
                 let popularHtml = '';
                 if (data.data.popular_dishes && data.data.popular_dishes.length > 0) {
-                    popularHtml = `
-                        <table class="table table-sm table-dark" style="font-size: 12px;">
-                            <thead>
-                                <tr><th>Название</th><th>Продано</th><th>Выручка</th></tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    data.data.popular_dishes.forEach((dish) => {
-                        let revenue = dish.count * dish.price;
+                    popularHtml = '<div class="row">';
+                    data.data.popular_dishes.forEach((dish, idx) => {
                         popularHtml += `
-                            <tr>
-                                <td>${dish.name}</td>
-                                <td>${dish.count} шт</td>
-                                <td>${revenue.toFixed(2)} ₽</td>
-                            </tr>
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex justify-content-between p-2" style="background: rgba(50,50,100,0.5); border-radius: 8px;">
+                                    <span><strong>${idx+1}.</strong> ${dish.name}</span>
+                                    <span style="color: #ffd700;">${dish.count} шт</span>
+                                </div>
+                            </div>
                         `;
                     });
-                    popularHtml += `</tbody></table>`;
+                    popularHtml += '</div>';
                 } else {
                     popularHtml = '<p class="text-center" style="color: rgba(255,255,255,0.7);">Нет данных</p>';
                 }
@@ -203,10 +185,7 @@
         }
     }
     
-    // Загружаем отчёты при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        loadReports();
-    });
+    document.addEventListener('DOMContentLoaded', loadReports);
 </script>
 
 <style>
