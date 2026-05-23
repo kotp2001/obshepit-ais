@@ -15,9 +15,22 @@
                         <option value="day">Сегодня</option>
                         <option value="week" selected>Неделя</option>
                         <option value="month">Месяц</option>
+                        <option value="custom">Свой период</option>
                     </select>
                 </div>
-                <div class="col-md-9 d-flex gap-2 align-items-end">
+                <div id="custom-date-range" style="display: none;" class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label class="form-label">С</label>
+                            <input type="date" id="date-from" class="form-control">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">По</label>
+                            <input type="date" id="date-to" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2 align-items-end">
                     <button class="btn btn-primary btn-sm" onclick="loadReports()">Обновить</button>
                     <button class="btn btn-success btn-sm" onclick="window.location.href='/export/orders/'">Экспорт заказов</button>
                     <button class="btn btn-info btn-sm" onclick="window.location.href='/export/popular/'">Экспорт блюд</button>
@@ -65,7 +78,7 @@
                                     <thead>
                                         <tr id="table-dates">
                                             <th>Дата</th>
-                                        </tr>
+                                        </table>
                                     </thead>
                                     <tbody>
                                         <tr id="table-revenue">
@@ -104,11 +117,38 @@
 </div>
 
 <script>
+    // Показываем/скрываем поля для своего периода
+    document.getElementById('period-select').addEventListener('change', function() {
+        const customDiv = document.getElementById('custom-date-range');
+        if (this.value === 'custom') {
+            customDiv.style.display = 'flex';
+            // Устанавливаем значения по умолчанию
+            const today = new Date();
+            const weekAgo = new Date();
+            weekAgo.setDate(today.getDate() - 7);
+            document.getElementById('date-from').value = weekAgo.toISOString().split('T')[0];
+            document.getElementById('date-to').value = today.toISOString().split('T')[0];
+        } else {
+            customDiv.style.display = 'none';
+        }
+        loadReports();
+    });
+    
     async function loadReports() {
         let period = document.getElementById('period-select').value;
+        let url = `/api/reports/?period=${period}`;
+        
+        // Если выбран свой период, добавляем даты
+        if (period === 'custom') {
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            if (dateFrom && dateTo) {
+                url = `/api/reports/?period=custom&date_from=${dateFrom}&date_to=${dateTo}`;
+            }
+        }
         
         try {
-            const response = await fetch(`/api/reports/?period=${period}`);
+            const response = await fetch(url);
             const data = await response.json();
             
             if (data.success) {
@@ -163,6 +203,7 @@
         }
     }
     
+    // Загружаем отчёты при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         loadReports();
     });
