@@ -62,9 +62,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = 'Europe/Ekaterinburg'
 USE_I18N = True
-USE_TZ = False  # Отключаем UTC, чтобы время было локальным
+USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
