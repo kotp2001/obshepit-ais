@@ -62,7 +62,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'Asia/Yekaterinburg'  # Екатеринбург UTC+5
+TIME_ZONE = 'Asia/Yekaterinburg'
 USE_I18N = True
 USE_TZ = True
 
